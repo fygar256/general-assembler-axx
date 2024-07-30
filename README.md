@@ -73,7 +73,7 @@ $symbol=n
 
 symbol is to be defined by the value n.
 
-Let's take the z80 as an example.
+Let's take z80 as an example.
 
 in the pattern file
 
@@ -111,7 +111,9 @@ In this case, C in ADD A,C is 0, and C in RET C is 3.
 
 ・Example of object output
 
+```
 LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
+```
 
 So, ld bc,0x1234, ld de,0x1234, ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12 respectively.
 
@@ -124,10 +126,8 @@ So, ld bc,0x1234, ld de,0x1234, ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x
 
 The pattern files are evaluated in order from the top, so the one placed first has priority.
 
-In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will put (hl) in the value of d, so LD A,(HL ) should be placed before LD A,d. Place special patterns first and general patterns last.
+In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will put (hl) in the value of d, so LD A,(HL) should be placed before LD A,d. Place special patterns first and general patterns last.
 
 ·Error checking
 
 Error checking is poor.
-
-
