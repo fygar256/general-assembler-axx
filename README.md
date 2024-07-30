@@ -23,7 +23,7 @@ Please write the command in the pattern file in uppercase letters. Also capitali
 Uppercase and lowercase letters are accepted as the same from the assembly line.
 
 The lowercase letters in operands, error_pattern, and object_list are variables.
-The value of the expression or symbol that corresponds to the lowercase alphabetic position in the operands is assigned to the variable. Lowercase letters a~n represent expressions, and o~z represent symbols. Reference variables in error_pattern and object_list.
+The value of the expression or symbol that corresponds to the lowercase alphabetic position in the operands is assigned to the variable. Lowercase letters from a to n represent expressions, and from o to z represent symbols. Reference variables in error_pattern and object_list.
 The special variable in the expression is $, which represents the current location counter.
 ・error_pattern
 error_pattern uses variables and comparison operators to specify the conditions that cause an error.
