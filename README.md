@@ -4,7 +4,7 @@ axx.py is a general purpose assembler that generalizes assembler.
 
 Use it like 
 ```
-./axx.py 8048.axx [ sample.asm ]
+./axx.py 8048.axx [sample.asm]
 ```
 
 axx reads the assembler pattern data from the first argument and assembles the second argument source file based on the pattern data.
