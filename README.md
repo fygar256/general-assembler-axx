@@ -85,8 +85,8 @@ $B=0
 $C=1
 $D=2
 $E=3
-$H=5
-$L=6
+$H=4
+$L=5
 $A=7
 $BC=0x00
 $DE=0x10
@@ -94,7 +94,7 @@ $HL=0x20
 $SP=0x30
 ```
 
-If we write the symbols B, C, D, E, H, L, A, BC, DE, HL, SP as 0, 1, 2, 3, 4, 5, 6, 7, 0x00, 0x10 respectively Define as ,0x20,0x30. Symbols are not case sensitive.
+If we write the symbols B, C, D, E, H, L, A, BC, DE, HL, SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10 respectively Define as ,0x20,0x30. Symbols are not case sensitive.
 
 If there are multiple definitions of the same symbol in a pattern file, the new ones will override the old ones. That is,
 
