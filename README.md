@@ -1,84 +1,99 @@
-axx.py is a general purpose assembler that generalizes assembler.
+GENERAL PURPOSE ASSEMBLER 'axx.py
 
-・How to use
+axx.py is a general-purpose assembler that generalizes the assembler.
 
-Use it like 
-```
-./axx.py 8048.axx [sample.asm]
-```
+How to use
+
+axx.py 8048.axx [sample.asm].
 
 axx reads the assembler pattern data from the first argument and assembles the second argument source file based on the pattern data.
 
-If you omit the second argument, input the source from standard input.
+If the second argument is omitted, input the source from the standard input.
 
-・Explanation of pattern data
+Explanation of Pattern Data
 
-The pattern data is
-
-'command' 'operands' 'error_pattern' 'object_list'
-
-If you omit the command with a space, the previous command will be used.
-
-'command' must be specified unless it is a space.
-
-There may be no operands. object_list must be specified. error_pattern can be omitted, so the type of pattern data is
+The pattern data is as follows,
 
 ```
-(1) command object_list
-(2) command operands object_list
-(3) command operands error_pattern object_list
+command operands error_pattern object_list 
 ```
-There are 3 types.
 
-·comment
+The command can be omitted from the second line by inserting a space. If omitted, the command of the previous line is used.
 
-If you write '//' in the pattern file, the line after // becomes a comment.
+command must be specified except for a space, operands may be omitted, error_pattern may be omitted, and object_list may not be omitted.
 
-・Uppercase/lowercase letters, variables
+Hence,
 
-Please write the command in the pattern file in uppercase letters. Also capitalize the constant characters in operands.
+The pattern data types are,
 
-Uppercase and lowercase letters are accepted as the same from the assembly line.
+```
+(1 ) command                              object_list
+(1')                                      object_list
+(2 ) command   operands                   object_list
+(3 ) command   operands   error_pattern   object_list
+```
 
-The lowercase letters in operands, error_pattern, and object_list are variables.
+There are four types of pattern data.
 
-The value of the expression or symbol that corresponds to the lowercase alphabetic position in the operands is assigned to the variable. Lowercase letters from a to n represent expressions, and from o to z represent symbols. Reference variables in error_pattern and object_list.
+・Comment
 
-The special variable in the expression is $, which represents the current location counter.
+If '//' is written in the pattern file, the line after // becomes a comment.
+
+・Case, Variables
+
+In pattern files, commands should be written in upper case, and constant letters in operands should also be uppercase.
+
+From the assembly line, uppercase and lowercase are accepted as the same.
+
+The lowercase alphabets in operands, error_pattern and object_list are variables.
+
+The variable is assigned the value of the expression or symbol that hits that position in operands.
+
+The lowercase letters a~n represent expressions, o~z symbols, and the values are referenced from the error_pattern and object_list variables.
+
+The expression's special variable is $, which represents the current location counter.
 
 ・error_pattern
 
-error_pattern uses variables and comparison operators to specify the conditions that cause an error.
+error_pattern uses variables and comparison operators to specify the conditions under which errors occur.
 
-Multiple error_patterns can be specified, separated by ','.
+Multiple error_patterns can be specified and should be separated by ','.
 
-For example:
+For example
 
+```
 a>3;4,b>7;5
+```
 
-In this example, when a>3, error code 4 is returned, and when b>7, error code 5 is returned.
+In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
 
 ・object_list
 
-object_list specifies the codes to be output separated by ','. For example, if you enter 0x03,d, d will be stored after 0x3.
+object_list specifies the codes to be output, separated by ','. For example, 0x03,d means that d is stored after 0x3.
 
-Taking 8048 as an example,
+Take 8048 as an example,
 
+```
 ADD A,Rn n>7;5 n|0x68
+```
 
-So, if we say ADD A,Rn, it will return error code 5 when n>7 and create an object with n|0x68. For example, given the line above, add a,r1 will output an object called 0x69.
+Then, ADD A,Rn would return error code 5 when n>7, and an object with n|0x68 would be created.
+
+For example, given the above line, ADD A,R1 will output an object named 0x69.
 
 ・symbol
 
-in the pattern file
+In the pattern file
 
+```
 $symbol=n
+```
 
-symbol is to be defined by the value n.
+in the pattern file, the symbol is defined with the value n.
 
-Let's take z80 as an example.
+Here is an example for z80.
 
-in the pattern file
+In the pattern file, write
 
 ```
 $B=0
@@ -94,9 +109,9 @@ $HL=0x20
 $SP=0x30
 ```
 
-If we write the symbols B, C, D, E, H, L, A, BC, DE, HL, SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10 respectively Define as ,0x20,0x30. Symbols are not case sensitive.
+Write “$B,C,D,E,H,L,A,BC,DE,HL,SP” to define the symbols B,C,D,E,H,L,A,BC,DE,HL,SP as 0,1,2,3,4,5,7,0x00,0x10,0x20,0x30, respectively. Symbols are case-insensitive.
 
-If there are multiple definitions of the same symbol in a pattern file, the new ones will override the old ones. That is,
+If there are multiple definitions of the same symbol in the pattern file, the new one updates the old one. I.e.,
 
 ```
 $B=0
@@ -110,27 +125,32 @@ $C=3
 RET s
 ```
 
-In this case, C in ADD A,C is 0, and C in RET C is 3.
+then C in ADD A,C is 1 and C in RET C is 3.
 
-・Example of object output
+Example of object output
 
 ```
 LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
 ```
 
-So, ld bc,0x1234, ld de,0x1234, ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12 respectively.
+and ld bc,0x1234, ld de,0x1234, ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12 respectively.
 
-・Mnemonic order
+Mnemonic order
 
 ```
 (1) LD A,(HL)
 (2) LD A,d
 ```
 
-The pattern files are evaluated in order from the top, so the one placed first has priority.
+The pattern files are evaluated in order from the top, so the one placed first takes precedence.
 
-In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will put (hl) in the value of d, so LD A,(HL) should be placed before LD A,d. Place special patterns first and general patterns last.
+In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so ld a,(hl) in the pattern file should be placed before ld a,d.
 
-·Error checking
+Place special patterns first and general patterns after.
 
-Error checking is poor.
+Error Checking
+
+Error checks are not thorough enough.
+
+
+Translated with DeepL.com (free version)
