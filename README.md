@@ -150,7 +150,7 @@ Place special patterns first and general patterns after.
 
 ・Hexadecimal number in assembly line
 
-Write hexadecimal number with prefix 0x in assembly line to pass it.
+Write hexadecimal number with prefix 0x to give it assembly line.
 
 ```
 ld a,0x12
