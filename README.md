@@ -49,7 +49,7 @@ The lowercase alphabets in operands, error_pattern and object_list are variables
 
 The variable is assigned the value of the expression or symbol that hits that position in operands.
 
-The lowercase letters a~n represent expressions, o~z symbols, and the values are referenced from the error_pattern and object_list variables.
+The lowercase letters from a to n represent expressions, from o to z symbols, and the values are referenced from the error_pattern and object_list variables.
 
 The expression's special variable is $, which represents the current location counter.
 
