@@ -10,7 +10,7 @@ axx reads the assembler pattern data from the first argument and assembles the s
 
 If the second argument is omitted, input the source from the standard input.
 
-Explanation of Pattern Data
+・Explanation of Pattern Data
 
 The pattern data is as follows,
 
@@ -127,7 +127,7 @@ RET s
 
 then C in ADD A,C is 1 and C in RET C is 3.
 
-Example of object output
+・Example of object output
 
 ```
 LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
@@ -135,7 +135,7 @@ LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
 
 and ld bc,0x1234, ld de,0x1234, ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12 respectively.
 
-Mnemonic order
+・Mnemonic order
 
 ```
 (1) LD A,(HL)
@@ -147,6 +147,14 @@ The pattern files are evaluated in order from the top, so the one placed first t
 In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so ld a,(hl) in the pattern file should be placed before ld a,d.
 
 Place special patterns first and general patterns after.
+
+・Hexadecimal number in assembly line
+
+Write hexadecimal number with prefix 0x in assembly line to pass it.
+
+```
+ld a,0x12
+```
 
 Error Checking
 
