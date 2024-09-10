@@ -1,6 +1,6 @@
-### GENERAL PURPOSE ASSEMBLER 'axx.py'
+### GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a general-purpose assembler that generalizes the assembler.
+axx.py is a general assembler that generalizes the assembler.
 
 It is written in a general way so that it does not depend on any particular system, and it ignores the chr(13) at the end of the line in the DOS file.
 
