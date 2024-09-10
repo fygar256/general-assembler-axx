@@ -1,10 +1,10 @@
 ### GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a general assembler that generalizes the assembler.
+axx.py is a generalized assembler.
 
-It is written in a general way so that it does not depend on any particular system, and it ignores the chr(13) at the end of the line in the DOS file.
+It is written in a general way so that the execution platform does not depend on a specific processor. chr(13) at the end of the line in the DOS file is also ignored.
 
-I think there is enough functionality to handle a generic processor instruction set as long as you have the pattern data, but it does not support the fine-grained functionality of a processor-specific assembler. I intend to implement the practical fine features of a dedicated assembler in the future.
+I believe it has the ability to handle a pan-processor instruction set if you provide pattern data, but it does not support the fine-grained features of a processor-specific assembler. This is an experimental implementation. We intend to implement the practical fine features of a dedicated assembler in the future.
 
 How to use
 
@@ -154,3 +154,8 @@ axx does not support parallel processors.
 Error check
 
 Error checking is not sufficient.
+
+### Thanks
+
+I would like to express my gratitude to my mentors, Junichi Hamada and Tokyo Denshi Sekkei, for the problems and hints.
+
