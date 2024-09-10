@@ -8,7 +8,7 @@ I believe it has the ability to handle a pan-processor instruction set if you pr
 
 How to use
 
-`axx.py 8048.axx [sample.asm]`
+`python axx.py 8048.axx [sample.asm]`
 
 axx reads the assembly pattern data from the first argument and assembles the second argument source file based on the pattern data. If the second argument is omitted, the source is entered from the standard input.
 
