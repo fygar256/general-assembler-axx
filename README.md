@@ -1,4 +1,4 @@
-GENERAL PURPOSE ASSEMBLER 'axx.py
+GENERAL PURPOSE ASSEMBLER axx.py
 
 axx.py is a general-purpose assembler that generalizes the assembler.
 
