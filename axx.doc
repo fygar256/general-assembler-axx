@@ -1,69 +1,95 @@
-GENERAL PURPOSE ASSEMBLER 'axx.py'
+General Assembler 'axx'
 
-axx.pyはアセンブラを一般化したジェネラルパーパス（汎用）・アセンブラです。
+axx.pyはアセンブラを一般化したジェネラルアセンブラです。
+
+一般的な書き方をしているので、実行プラットフォームは特定の処理系に依存しません。DOSファイルの行末のchr(13)も無視するようにしています。pythonが動く処理系だったら動作すると思います。
+
+axxは、パターンデータを用意すれば、あらゆるプロセッサの命令セットを処理できる機能があると思いますが、専用のアセンブラの備えている実用的な機能はサポートされていません。試験的実装です。これから、専用のアセンブラの持つ実用的な機能は実装していくつもりもあります。
 
 ・使い方
-axx.py 8048.axx [sample.asm]のように使います。
+
+python axx.py 8048.axx [sample.s]のように使います。
+
 axxは第1引数から、アセンブラのパターンデータを読み込み、パターンデータに基づき第2引数のソースファイルをアセンブルします。第2引数を省略したら、標準入力からソースを入力します。
 
-axxでは、アセンブリ言語ソースファイルや標準入力から入力するラインをアセンブルラインと名付けます。
+axxでは、アセンブリ言語ソースファイルや標準入力から入力するラインをアセンブリラインと名付けます。
 
 ・パターンデータの解説
+
 パターンデータは次のように並んでいます。
+
 ```
-command   operands   error_patterns  object_list 
-command   operands   error_patterns  object_list 
-command   operands   error_patterns  object_list 
+opecode   operands   error_patterns  object_list 
+opecode   operands   error_patterns  object_list 
+opecode   operands   error_patterns  object_list 
 :
 :
 ```
-commandは2行目からはスペースにして省略可です。省略すると前行のcommandが採用されます。
-commandはスペースにする以外は必ず指定しなければなりません。operandsはない場合があります。error_patternsは省略可です。object_listは省略不可です。
+
+opecodeは2行目からはスペースにして省略可です。省略すると前行のopecodeが採用されます。
+
+opecodeはスペースにする以外は必ず指定しなければなりません。operandsはない場合があります。error_patternsは省略可です。object_listは省略不可です。
 
 パターンデータの種類は次の3種類になります。
+
 ```
-(1 ) command                                object_list
-(2 ) command    operands                    object_list
-(3 ) command    operands   error_patterns   object_list
+(1) opecode                                object_list
+(2) opecode    operands                    object_list
+(3) opecode    operands   error_patterns   object_list
 ```
 
 ・コメント
+
 パターンファイル内に、'//'を書くとその行の//以降がコメントになります。
 
 ・大文字・小文字の区別、変数
-パターンファイルのcommandは文字定数となるので、大文字で書いてください。operandsの定数文字も大文字にしてください。アセンブルラインからは、大文字でも小文字も同じとして受け付けます。
+
+パターンファイルのopecodeは文字定数となるので、大文字で書いてください。operandsの定数文字も大文字にしてください。アセンブリラインからは、大文字でも小文字も同じとして受け付けます。
 
 operandsとerror_patternsとobject_listの小文字のアルファベットは変数です。
+
 変数にoperandsのその位置に当たる式やシンボルの値が代入されます。
+
 小文字のaからnは式、oからzはシンボルを表します。error_patternとobject_listの変数から値を参照します。式の特殊な変数は'$'で、現在のロケーションカウンタを表します。
 
 ・error_patterns
+
 error_patternsは、変数と比較演算子を使い、エラーの出る条件を指定します。
+
 エラーパターンは複数指定可で、','で区切って記述します。
 
 例えば、次のようです。
+
 ```
 a>3;4,b>7;5
 ```
+
 この例では、a>3のとき、エラーコード4を返し、b>7のときエラーコード5を返します。
 
 ・object_list
+
 object_listは、出力するコードを','で区切って指定します。例えば、0x03,dとすると、0x3の次にdが格納されます。
 
 8048を例に取ってみると、
+
 ```
 ADD     A,Rn    n>7;5   n|0x68
 ```
+
 で、ADD A,Rnとすると、n>7のときエラーコード5を返し、n|0x68のオブジェクトが生成されます。例えば、上記のラインがあると、add a,r1は0x69というオブジェクトを出力します。
 
 ・symbol
+
 パターンファイル内に
+
 ```
 $symbol=n
 ```
+
 と書くと、symbolが値nで定義されます。
 
 z80の例を挙げます。パターンファイル内に
+
 ```
 $B=0
 $C=1
@@ -77,9 +103,11 @@ $DE=0x10
 $HL=0x20
 $SP=0x30
 ```
+
 と書いておくと、シンボルB,C,D,E,H,L,A,BC,DE,HL,SPを、それぞれ0,1,2,3,4,5,7,0x00,0x10,0x20,0x30として定義します。シンボルには、大文字小文字の区別はありません。
 
 パターンファイル中に同じシンボルの定義が複数あると、新しいものが古いものを更新します。すなわち、
+
 ```
 $B=0
 $C=1
@@ -94,18 +122,33 @@ RET s
 とあると、ADD A,CのCは1、RET CのCは3になります。
 
 ・オブジェクト出力の例
+
 ```
 LD    s,d  (s&0xf!=0)||(s>>4)>3;9  s|0x01,d&0xff,d>>8
 ```
+
 で、ld bc,0x1234, ld de,0x1234, ld hl,0x1234が、それぞれ、0x01,0x34,0x12、0x11,0x34,0x12、0x21,0x34,0x12を出力します。
 
 ・ニモニックの順番
+
 ```
 (1) LD A,(HL)
 (2) LD A,d
 ```
+
 のように、パターンファイルは上から順に評価されますので、先に置かれたほうが優先します。
+
 この場合、(1)と(2)が逆だと、アセンブルラインのld a,(hl)は、dの値に(hl)を入れることになってしまうので、パターンファイルのLD A,(HL)はLD A,dより先に置いてください。特殊のパターンを先に、一般のパターンを後に置きます。
 
+・16進表記
+
+16進数は'0x'のプリフィックスを付けて下さい。
+
+・並列プロセッサ
+
+axxは並列プロセッサには対応していません。
+
 ・エラーチェック
+
 エラーチェックが甘いです。
+
