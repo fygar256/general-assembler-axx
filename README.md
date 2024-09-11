@@ -157,5 +157,5 @@ Error checking is not sufficient.
 
 ### Thanks
 
-I would like to express my gratitude to my mentors, Junichi Hamada and Tokyo Denshi Sekkei, for the problems and hints.
+I would like to express my gratitude to my mentors, Junichi Hamada and Tokyo Denshi Sekkei, who gave me problems and hints, and to the University of Electro-Communications for their cooperation.
 
