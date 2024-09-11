@@ -4,7 +4,7 @@ axx.py is a generalized assembler.
 
 It is written in a general way so that the execution platform does not depend on a specific processor. chr(13) at the end of the line in the DOS file is also ignored.
 
-I believe it has the ability to handle a pan-processor instruction set if you provide pattern data, but it does not support the fine-grained features of a processor-specific assembler. This is an experimental implementation. We intend to implement the practical fine features of a dedicated assembler in the future.
+I believe it has the ability to handle a pan-processor instruction set if you provide pattern data, but it does not support the fine-grained features of a processor-specific assembler. This is an experimental implementation. I intend to implement the practical fine features of a dedicated assembler in the future.
 
 How to use
 
