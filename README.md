@@ -154,11 +154,13 @@ MOVF FA,d 01,d>>24&0xff,d>>16&0xff,d>>8&0xff,d&0xff
 and if `movf fa,0f3.14` is passed to the assembly line, the object output will be 0x01,0xc3,0xf5,0x48,0x40.
 
 
-・Hexadecimal notation
+・Number notation
 
 Hexadecimal numbers must be prefixed with '0x'.
+
 Floating point float (32bit) must be prefixed with '0f'.
-Floating point double (float 64bit) should be prefixed with '0d'.
+
+Floating point double (64bit) should be prefixed with '0d'.
 
 ・Parallel Processor
 
