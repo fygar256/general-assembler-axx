@@ -162,11 +162,7 @@ Floating point float (32bit) must be prefixed with '0f'.
 
 Floating point double (64bit) should be prefixed with '0d'.
 
-・Parallel Processor
-
-axx does not support parallel processors.
-
-Error check
+・Error check
 
 Error checking is not sufficient.
 
