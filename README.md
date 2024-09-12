@@ -19,9 +19,9 @@ In axx, the line input from an assembly language source file or standard input i
 Pattern data is lined up as follows.
 
 ```
-mnemonic operands error_patterns object_list 
-mnemonic operands error_patterns object_list 
-mnemonic operands error_patterns object_list 
+mnemonic operands error_patterns binary_list 
+mnemonic operands error_patterns binary_list 
+mnemonic operands error_patterns binary_list 
 :
 :
 ```
@@ -29,14 +29,14 @@ mnemonic operands error_patterns object_list
 
 mnemonic can be omitted from the second line by using a space. If it is omitted, the mnemonic of the previous line is adopted.
 
-If mnemonic is omitted, the mnemonic of the previous line is adopted. mnemonic must be specified except for spaces. operands may be omitted. error_patterns may be omitted. object_list may not be omitted.
+If mnemonic is omitted, the mnemonic of the previous line is adopted. mnemonic must be specified except for spaces. operands may be omitted. error_patterns may be omitted. binary_list may not be omitted.
 
 There are three types of pattern data:
 
 ```
-(1) mnemonic                               object_list
-(2) mnemonic   operands                    object_list
-(3) mnemonic   operands   error_patterns   object_list
+(1) mnemonic                               binary_list
+(2) mnemonic   operands                    binary_list
+(3) mnemonic   operands   error_patterns   binary_list
 ```
 ・Comment
 
@@ -46,11 +46,11 @@ If '//' is written in the pattern file, the line after // becomes a comment.
 
 The mnemonic in the pattern file is a character constant, so it should be written in upper case, and the constant character in operands should also be in upper case. From the assembly line, uppercase and lowercase are accepted as the same.
 
-The lowercase alphabets in operands, error_patterns and object_list are variables.
+The lowercase alphabets in operands, error_patterns and binary_list are variables.
 
 The variable is assigned the value of the expression or symbol that hits that position in operands.
 
-The lowercase letters a through n represent expressions, o through z symbols, and the values are referenced from the error_patterns and object_list variables. The expression special variable in assembly line is '$$' and represents the current location counter.
+The lowercase letters a through n represent expressions, o through z symbols, and the values are referenced from the error_patterns and binary_list variables. The expression special variable in assembly line is '$$' and represents the current location counter.
 
 ・error_patterns
 
@@ -66,9 +66,9 @@ a>3;4,b>7;5
 
 In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
 
-・object_list
+・binary_list
 
-object_list specifies the codes to be output, separated by ','. For example, 0x03,d means that d is stored after 0x3.
+binary_list specifies the codes to be output, separated by ','. For example, 0x03,d means that d is stored after 0x3.
 
 Take 8048 as an example,
 
@@ -76,7 +76,7 @@ Take 8048 as an example,
 ADD A,Rn n>7;5 n|0x68
 ```
 
-ADD A,Rn will return error code 5 when n>7, and an object with n|0x68 will be created. For example, given the above line, ADD A,R1 will output an object named 0x69.
+ADD A,Rn will return error code 5 when n>7, and an binary with n|0x68 will be created. For example, given the above line, ADD A,R1 will output an binary named 0x69.
 
 ・symbol
 
@@ -124,7 +124,7 @@ RET s
 
 then C in ADD A,C is 1 and C in RET C is 3.
 
-Example of object output
+Example of binary output
 
 ```
 LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
@@ -151,7 +151,7 @@ For example, suppose we have a processor with floating point as an operand, and 
 MOVF FA,d 01,d>>24&0xff,d>>16&0xff,d>>8&0xff,d&0xff
 ```
 
-and if `movf fa,0f3.14` is passed to the assembly line, the object output will be 0x01,0xc3,0xf5,0x48,0x40.
+and if `movf fa,0f3.14` is passed to the assembly line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
 
 ・Number notation
