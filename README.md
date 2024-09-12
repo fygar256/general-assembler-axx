@@ -89,7 +89,7 @@ For example,
 ```
 ADD A,Rn [#n|0x68]
 ```
-has the same function as (1).
+has the same result as (1).
 
 Symbol
 In the pattern file
