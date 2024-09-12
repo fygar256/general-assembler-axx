@@ -146,14 +146,12 @@ In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line would 
 ・Hexadecimal notation
 
 Hexadecimal numbers must be prefixed with '0x'.
+Floating point float (32bit) must be prefixed with '0f'.
+Floating point double (float 64bit) should be prefixed with '0d'.
 
 ・Parallel Processor
 
 axx does not support parallel processors.
-
-・Floating point
-
-Processors that include floating-point numbers in their operands are not supported.
 
 Error check
 
