@@ -82,8 +82,7 @@ and ADD A,Rn will return error code 5 when n>7 and generate a binary with n|0x68
 
 Eval
 
-Elements of the binary_list can be evaluated for value by calling the python eval function.
-Lower-case variables in the eval must be prefixed with '#'.
+The elements of binary_list can be set as values ​​by calling python's eval function. In that case, please enclose the elements of binary_list with '[',']'. Lowercase variables in eval should be prefixed with '#'.
 
 For example,
 
