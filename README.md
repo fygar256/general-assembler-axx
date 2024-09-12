@@ -145,7 +145,7 @@ In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line would 
 
 ・Floating point
 
-For example, suppose we have a processor with floating point as an operand, and `MOVF fa,3.14' loads 3.14 into the fa register, and its opcode is 01. In that case, the pattern data is,
+For example, suppose we have a processor with floating point as an operand, and ｀MOVF fa,3.14｀ loads 3.14 into the fa register, and its opcode is 01. In that case, the pattern data is,
 
 ```
 MOVF FA,d 01,d>>24&0xff,d>>16&0xff,d>>8&0xff,d&0xff
