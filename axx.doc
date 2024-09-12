@@ -36,7 +36,7 @@ mnemonicはスペースにする以外は必ず指定しなければなりませ
 
 operandsとerror_patternsとobject_listの小文字のアルファベットは変数です。
 変数にoperandsのその位置に当たる式やシンボルの値が代入されます。
-小文字のaからnは式、oからzはシンボルを表します。error_patternとobject_listの変数から値を参照します。式の特殊な変数は'$'で、現在のロケーションカウンタを表します。
+小文字のaからnは式、oからzはシンボルを表します。error_patternとobject_listの変数から値を参照します。式の特殊な変数は'$$'で、現在のロケーションカウンタを表します。
 
 ・error_patterns
 error_patternsは、変数と比較演算子を使い、エラーの出る条件を指定します。
