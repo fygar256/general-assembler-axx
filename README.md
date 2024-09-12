@@ -88,7 +88,7 @@ Lower-case variables in the eval must be prefixed with '#'.
 For example,
 
 ```
-ADD A,Rn [#n|0x68].
+ADD A,Rn [#n|0x68]
 ```
 has the same function as (1).
 
