@@ -19,24 +19,24 @@ In axx, the line input from an assembly language source file or standard input i
 Pattern data is lined up as follows.
 
 ```
-opecode operands error_patterns object_list 
-opecode operands error_patterns object_list 
-opecode operands error_patterns object_list 
+mnemonic operands error_patterns object_list 
+mnemonic operands error_patterns object_list 
+mnemonic operands error_patterns object_list 
 :
 :
 ```
-・opecode
+・mnemonic
 
-opecode can be omitted from the second line by using a space. If it is omitted, the opecode of the previous line is adopted.
+mnemonic can be omitted from the second line by using a space. If it is omitted, the mnemonic of the previous line is adopted.
 
-If opecode is omitted, the opecode of the previous line is adopted. opecode must be specified except for spaces. operands may be omitted. error_patterns may be omitted. object_list may not be omitted.
+If mnemonic is omitted, the mnemonic of the previous line is adopted. mnemonic must be specified except for spaces. operands may be omitted. error_patterns may be omitted. object_list may not be omitted.
 
 There are three types of pattern data:
 
 ```
-(1) opecode                               object_list
-(2) opecode   operands                    object_list
-(3) opecode   operands   error_patterns   object_list
+(1) mnemonic                               object_list
+(2) mnemonic   operands                    object_list
+(3) mnemonic   operands   error_patterns   object_list
 ```
 ・Comment
 
@@ -44,7 +44,7 @@ If '//' is written in the pattern file, the line after // becomes a comment.
 
 ・Case sensitivity, variables
 
-The opecode in the pattern file is a character constant, so it should be written in upper case, and the constant character in operands should also be in upper case. From the assembly line, uppercase and lowercase are accepted as the same.
+The mnemonic in the pattern file is a character constant, so it should be written in upper case, and the constant character in operands should also be in upper case. From the assembly line, uppercase and lowercase are accepted as the same.
 
 The lowercase alphabets in operands, error_patterns and object_list are variables.
 
