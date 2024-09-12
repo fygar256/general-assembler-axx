@@ -17,22 +17,22 @@ axxでは、アセンブリ言語ソースファイルや標準入力から入�
 パターンデータは次のように並んでいます。
 
 ```
-mnemonic   operands   error_patterns  object_list 
-mnemonic   operands   error_patterns  object_list 
-mnemonic   operands   error_patterns  object_list 
+mnemonic   operands   error_patterns  binary_list 
+mnemonic   operands   error_patterns  binary_list 
+mnemonic   operands   error_patterns  binary_list 
 :
 :
 ```
 
 mnemonicは2行目からはスペースにして省略可です。省略すると前行のmnemonicが採用されます。
-mnemonicはスペースにする以外は必ず指定しなければなりません。operandsはない場合があります。error_patternsは省略可です。object_listは省略不可です。
+mnemonicはスペースにする以外は必ず指定しなければなりません。operandsはない場合があります。error_patternsは省略可です。binary_listは省略不可です。
 
 パターンデータの種類は次の3種類になります。
 
 ```
-(1 ) mnemonic                                object_list
-(2 ) mnemonic    operands                    object_list
-(3 ) mnemonic    operands   error_patterns   object_list
+(1 ) mnemonic                                binary_list
+(2 ) mnemonic    operands                    binary_list
+(3 ) mnemonic    operands   error_patterns   binary_list
 ```
 
 ・コメント
@@ -41,9 +41,9 @@ mnemonicはスペースにする以外は必ず指定しなければなりませ
 ・大文字・小文字の区別、変数
 パターンファイルのmnemonicは文字定数となるので、大文字で書いてください。operandsの定数文字も大文字にしてください。アセンブリラインからは、大文字でも小文字も同じとして受け付けます。
 
-operandsとerror_patternsとobject_listの小文字のアルファベットは変数です。
+operandsとerror_patternsとbinary_listの小文字のアルファベットは変数です。
 変数にoperandsのその位置に当たる式やシンボルの値が代入されます。
-小文字のaからnは式、oからzはシンボルを表します。error_patternとobject_listの変数から値を参照します。アセンブリラインの式の特殊な変数は'$$'で、現在のロケーションカウンタを表します。
+小文字のaからnは式、oからzはシンボルを表します。error_patternとbinary_listの変数から値を参照します。アセンブリラインの式の特殊な変数は'$$'で、現在のロケーションカウンタを表します。
 
 ・error_patterns
 error_patternsは、変数と比較演算子を使い、エラーの出る条件を指定します。
@@ -57,9 +57,9 @@ a>3;4,b>7;5
 
 この例では、a>3のとき、エラーコード4を返し、b>7のときエラーコード5を返します。
 
-・object_list
+・binary_list
 
-object_listは、出力するコードを','で区切って指定します。例えば、0x03,dとすると、0x3の次にdが格納されます。
+binary_listは、出力するコードを','で区切って指定します。例えば、0x03,dとすると、0x3の次にdが格納されます。
 
 8048を例に取ってみると、
 
@@ -67,7 +67,7 @@ object_listは、出力するコードを','で区切って指定します。例
 ADD     A,Rn    n>7;5   n|0x68
 ```
 
-で、ADD A,Rnとすると、n>7のときエラーコード5を返し、n|0x68のオブジェクトが生成されます。例えば、上記のラインがあると、add a,r1は0x69というオブジェクトを出力します。
+で、ADD A,Rnとすると、n>7のときエラーコード5を返し、n|0x68のバイナリが生成されます。例えば、上記のラインがあると、add a,r1は0x69というバイナリを出力します。
 
 ・symbol
 
@@ -113,7 +113,7 @@ RET s
 
 とあると、ADD A,CのCは1、RET CのCは3になります。
 
-・オブジェクト出力の例
+・バイナリ出力の例
 
 ```
 LD    s,d  (s&0xf!=0)||(s>>4)>3;9  s|0x01,d&0xff,d>>8
@@ -138,7 +138,7 @@ LD    s,d  (s&0xf!=0)||(s>>4)>3;9  s|0x01,d&0xff,d>>8
 MOVF FA,d 01,d>>24&0xff,d>>16&0xff,d>>8&0xff,d&0xff
 ```
 
-となり、アセンブルラインに、`movf fa,0f3.14`を渡すと、オブジェクト出力は、0x01,0xc3,0xf5,0x48,0x40となります。
+となり、アセンブルラインに、`movf fa,0f3.14`を渡すと、バイナリ出力は、0x01,0xc3,0xf5,0x48,0x40となります。
 
 
 ・数表記
