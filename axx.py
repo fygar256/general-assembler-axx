@@ -37,8 +37,8 @@ def factor(s,idx):
 def factor1(s,idx):
     x = 0
 
-    if s[idx:idx+2]=='$$':
-        idx+=2
+    if s[idx]=='$':
+        idx+=1
         x=pc
     elif s[idx]=='0' and (s[idx+1]=='x' or s[idx+1]=='X'):
         idx+=2
@@ -258,6 +258,7 @@ def readpat(fn):
         head=l[0]
         l=remove_comment(l)
         l=l.replace('\n','')
+		l=l.replace(chr(13),'')
         s=l.split(' ')
         t=[ i for i in s if i]
         if head==' ':
