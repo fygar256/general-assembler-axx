@@ -50,7 +50,7 @@ The lowercase alphabets in operands, error_patterns and object_list are variable
 
 The variable is assigned the value of the expression or symbol that hits that position in operands.
 
-The lowercase letters a through n represent expressions, o through z symbols, and the values are referenced from the error_patterns and object_list variables. The expression special variable is '$$' and represents the current location counter.
+The lowercase letters a through n represent expressions, o through z symbols, and the values are referenced from the error_patterns and object_list variables. The expression special variable in assembly line is '$$' and represents the current location counter.
 
 ・error_patterns
 
