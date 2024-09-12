@@ -143,6 +143,17 @@ The pattern files are evaluated in order from the top, so the one placed first t
 
 In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so ld a,(hl) in the pattern file should be placed before ld a,d. Place the special pattern first and the general pattern after.
 
+・Floating point
+
+For example, suppose we have a processor with floating point as an operand, and `MOVF fa,3.14' loads 3.14 into the fa register, and its opcode is 01. In that case, the pattern data is,
+
+```
+MOVF FA,d 01,d>>24&0xff,d>>16&0xff,d>>8&0xff,d&0xff
+```
+
+and if `movf fa,0f3.14` is passed to the assembly line, the object output will be 0x01,0xc3,0xf5,0x48,0x40.
+
+
 ・Hexadecimal notation
 
 Hexadecimal numbers must be prefixed with '0x'.
