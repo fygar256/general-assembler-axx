@@ -151,6 +151,10 @@ Hexadecimal numbers must be prefixed with '0x'.
 
 axx does not support parallel processors.
 
+・Floating point
+
+Processors that include floating-point numbers in their operands are not supported.
+
 Error check
 
 Error checking is not sufficient.
