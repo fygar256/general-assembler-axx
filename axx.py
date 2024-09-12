@@ -37,8 +37,8 @@ def factor(s,idx):
 def factor1(s,idx):
     x = 0
 
-    if s[idx]=='$':
-        idx+=1
+    if s[idx:idx+2]=='$$':
+        idx+=2
         x=pc
     elif s[idx]=='0' and (s[idx+1]=='x' or s[idx+1]=='X'):
         idx+=2
