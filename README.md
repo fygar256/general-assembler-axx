@@ -1,38 +1,38 @@
-# GENERAL ASSEMBLER 'axx.py'
+## GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a general assembler that generalizes the assembler.
+axx.py is a generalized assembler.
 
-Because it is written in a general way, it does not depend on a particular execution platform or processor.
+It is written in a general way, so the execution platform is not dependent on a specific system.
 
-It also ignores chr(13) at the end of a line in a DOS file, so it should work on any system that runs python.
+It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
 
-I believe axx has the ability to process any processor's instruction set if you provide pattern data, but it does not support the practical features that a dedicated assembler has. The current version is an experimental implementation. We intend to implement the practical features of a dedicated assembler in the future.
+axx has the ability to process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. I also intend to implement the practical functions of dedicated assemblers in the future.
 
-How to use
+・How to use
 
-`python axx.py 8048.axx [sample.s]`
+Use it as follows: `python axx.py 8048.axx [sample.s]`.
 
-axx reads the assembler pattern data from the first argument and assembles the second argument source file based on the pattern data. If the second argument is omitted, the source is entered from standard input.
+ax reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-In axx, the line input from an assembly language source file or standard input is named an assembly line.
+In axx, a line input from an assembly language source file or standard input is called an assembly line.
 
-・Explanation of pattern data
+・Pattern data explanation
 
-The pattern data is arranged as follows.
+Pattern data is arranged as follows.
 
 ```
-mnemonic operands error_patterns binary_list 
-mnemonic operands error_patterns binary_list 
-mnemonic operands error_patterns binary_list 
+mnemonic operands error_patterns binary_list
+mnemonic operands error_patterns binary_list
+mnemonic operands error_patterns binary_list
 :
 :
 ```
-.
-mnemonic can be omitted from the second line by using a space. If it is omitted, the mnemonic of the previous line is adopted.
 
-mnemonic must be specified except for a space. operands may not be present. error_patterns may be omitted. binary_list may not be omitted. binary_list : : : mnemonic must be specified except for a space.
+From the second line, mnemonic can be omitted by leaving it as a space. If omitted, the mnemonic from the previous line will be used.
 
-There are three types of pattern data: (1 ) mnemonic binary
+All mnemonic must be specified except for spaces. operands may not be present. error_patterns can be omitted. binary_list cannot be omitted.
+
+There are three types of pattern data:
 
 ```
 (1) mnemonic binary_list
@@ -40,67 +40,59 @@ There are three types of pattern data: (1 ) mnemonic binary
 (3) mnemonic operands error_patterns binary_list
 ```
 
-Comment
+・Comments
 
-If '//' is written in the pattern file, the line after // becomes a comment.
+If you write '//' in the pattern file, the text after // on that line becomes a comment.
 
-Case sensitivity, variables
+・Case distinction, variables
 
-In the pattern file, mnemonic is a character constant, so it should be written in upper case, and the constant character in operands should also be in upper case. From the assembly line, both uppercase and lowercase are accepted as the same.
+The mnemonic in the pattern file is a character constant, so write it in uppercase. The constant characters in operands should also be in uppercase. The assembly line accepts it as being the same in uppercase or lowercase.
 
-The lowercase alphabets in operands, error_patterns and binary_list are variables.
+Lowercase letters in operands, error_patterns, and binary_list are variables.
 
-The variable is assigned the value of the expression or symbol that hits that position in operands.
+Please prefix variables in binary_list with '#'.
 
-Lowercase letters a through n represent expressions, o through z symbols, and values are referenced from the error_patterns and binary_list variables. The special variable for assembly line expressions is '$$', which represents the current location counter.
+The expression or symbol value that corresponds to the variable's position in operands is assigned to the variable from operands.
 
-error_patterns
+Lowercase letters a through n represent expressions, and o through z represent symbols. Values ​​are referenced from error_pattern and variables in binary_list. A special variable in assembly line expressions is '$$', which represents the current location counter.
 
-error_patterns uses variables and comparison operators to specify the conditions under which errors occur.
+・error_patterns
 
-Multiple error patterns can be specified and are separated by ','.
+error_patterns uses variables and comparison operators to specify the conditions that will cause an error.
 
-For example
+Multiple error patterns can be specified, separated by ','.
+
+For example, as follows.
 
 ```
 a>3;4,b>7;5
 ```
 
-In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
+In this example, when a>3, error code 4 is returned, and when b>7, error code 5 is returned.
 
-binary_list
+・binary_list
 
-binary_list specifies the codes to be output, separated by ','. For example, 0x03,d means that d is stored after 0x3.
+binary_list specifies the code to be output, separated by ','. For example, if 0x03,#d is specified, d is output after 0x3. The elements of binary_list are set to values ​​by calling the eval function of Python.
 
-Taking 8048 as an example, (1)
-
-```
-ADD A,Rn n>7;5 n|0x68
-```
-
-and ADD A,Rn will return error code 5 when n>7 and generate a binary with n|0x68. For example, given the above line, ADD A,R1 will output a binary of 0x69.
-
-Eval
-
-The elements of binary_list can be set as values ​​by calling python's eval function. In that case, please enclose the elements of binary_list with '[',']'. Lowercase variables in eval should be prefixed with '#'.
-
-For example,
+Let's take 8048 as an example. If the pattern file contains
 
 ```
-ADD A,Rn [#n|0x68]
+ADD A,Rn n>7;5 #n|0x68
 ```
-has the same result as (1).
 
-Symbol
+, and `add a,rn` is passed to the assembly line, it will return error code 5 when n>7, and 0x69 will be generated with `add a,r1`.
+
+・symbol
+
 In the pattern file
 
 ```
 $symbol=n
 ```
 
-in the pattern file, the symbol is defined with the value n.
+When you write this, the symbol is defined with the value n.
 
-Here is an example for z80. In the pattern file, write
+Let's take an example of z80. In the pattern file,
 
 ```
 $B=0
@@ -116,9 +108,9 @@ $HL=0x20
 $SP=0x30
 ```
 
-Write “$B,C,D,E,H,L,A,BC,DE,HL,SP” to define the symbols B,C,D,E,H,L,A,BC,DE,HL,SP as 0,1,2,3,4,5,7,0x00,0x10,0x20,0x30, respectively. Symbols are case-insensitive.
+If you write these in the pattern file, the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP will be defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in the pattern file, the new one updates the old one. I.e.,
+If there are multiple definitions of the same symbol in the pattern file, the new one will replace the old one. That is,
 
 ```
 $B=0
@@ -132,47 +124,60 @@ $C=3
 RET s
 ```
 
-then C in ADD A,C is 1 and C in RET C is 3.
+In this case, the C in ADD A,C is 1, and the C in RET C is 3.
 
-Example of Binary Output
+・Example of binary output
 
 ```
-LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
+$BC=0x00
+$DE=0x10
+$HL=0x20
+LD s,d (s&0xf!=0)||(s>>4)>3;9 #s|0x01,#d&0xff,#d>>8
 ```
 
-and ld bc,0x1234, ld de,0x1234, and ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x12, and 0x21,0x34,0x12, respectively.
+So, ld bc,0x1234, ld de,0x1234, ld hl,0x1234 output 0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12, respectively.
 
-Pattern order
+・Order of patterns
+
+Pattern files are evaluated from top to bottom, so the one placed first takes precedence.
 
 ```
 (1) LD A,(HL)
 (2) LD A,d
 ```
 
-The pattern files are evaluated in order from the top, so the one placed first takes precedence.
+In this case, if (1) and (2) were reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so place LD A,(HL) in the pattern file before LD A,d. Place special patterns first and general patterns after.
 
-In this case, if (1) and (2) are reversed, the pattern file LD A,(HL) should be placed before LD A,d because the assembly line ld a,(hl) would put (hl) in the d value. Place the special pattern first and the general pattern after.
+- Floating point
 
-Floating point
-
-For example, suppose there is a processor that contains floating point as its operand, and MOVF fa,3.14 loads 3.14 into the fa register and its opcode is 01. In that case, the pattern data is,
+For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data is
 
 ```
-MOVF FA,d 01,d>>24&0xff,d>>16&0xff,d>>8&0xff,d&0xff
+MOVF FA,d 0x01,#d>>24&0xff,#d>>16&0xff,#d>>8&0xff,#d&0xff
 ```
 
-and if movf fa,0f3.14 is passed to the assembly line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
+If you pass `movf fa,0f3.14` to the assemble line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
-Hexadecimal notation
+-Number notation
 
-Hexadecimal numbers must be prefixed with '0x'.
-Floating point float (32bit) should be prefixed with '0f'.
-Floating point double (float 64bit) should be prefixed with '0d'.
+Prefix binary numbers with '0b'.
 
-Error Checking
+Prefix hexadecimal numbers with '0x'.
 
-Error checking is not sufficient.
+Prefix floating-point float (32bit) with '0f'.
+
+Prefix floating-point double (float 64bit) with '0d'.
+
+・Error check
+
+Error check is not sufficient.
+
+・Comment
+
+Please forgive any inconsistencies in notation.
+
+It goes without saying that you can't write a LISP machine.
 
 ### Thanks
 
-I would like to express my gratitude to my mentors, Junichi Hamada and Tokyo Denshi Sekkei, who gave me problems and hints, and to the University of Electro-Communications for their cooperation and other unforgettable guys.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me problems and hints, the University of Electro-Communications, who cooperated with me, and to some other unforgettable guys. Thank you very much.
