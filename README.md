@@ -144,10 +144,10 @@ so `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,
 
 ・Order of patterns
 
-``
+```
 (1) LD A,(HL)
 (2) LD A,d
-``
+```
 
 Pattern files are evaluated from top to bottom, so the one placed first takes precedence.
 
