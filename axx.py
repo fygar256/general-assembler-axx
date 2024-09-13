@@ -1,11 +1,11 @@
 #!/usr/bin/python3
+import struct
 import sys
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 alphabet=lower+capital
 symbols={}
-
 
 vars=[ 0 for i in range(26) ]
 
@@ -34,17 +34,41 @@ def factor(s,idx):
         (x,idx)=factor1(s,idx)
     return (x,idx)
 
+q=lambda s,t,idx:(s[idx:idx+len(t)].upper()==t.upper())
+
 def factor1(s,idx):
     x = 0
 
-    if s[idx]=='$':
-        idx+=1
+    if q(s,'$$',idx):
+        idx+=2
         x=pc
-    elif s[idx]=='0' and (s[idx+1]=='x' or s[idx+1]=='X'):
+    elif q(s,'0b',idx):
+        idx+=2
+        while(s[idx].upper() in "01"):
+            x=2*x+(ord(s[idx])-0x30)
+            idx+=1
+
+    elif q(s,'0x',idx):
         idx+=2
         while(s[idx].upper() in "0123456789ABCDEF"):
             x=16*x+(ord(s[idx])-0x30 if s[idx] in "0123456789" else ord(s[idx].upper())-0x41+10 )
             idx+=1
+
+    elif q(s,'0d',idx):
+        idx+=2
+        fs=''
+        while(s[idx] in "0123456789.e"):
+            fs+=s[idx]
+            idx+=1
+        x=int.from_bytes(struct.pack('>d',float(fs)),"little")
+
+    elif q(s,'0f',idx):
+        idx+=2
+        fs=''
+        while(s[idx] in "0123456789.e"):
+            fs+=s[idx]
+            idx+=1
+        x=int.from_bytes(struct.pack('>f',float(fs)),"little")
 
     elif s[idx] in "0123456789":
         while(s[idx] in "0123456789"):
@@ -107,10 +131,10 @@ def term1(s,idx):
 def term2(s,idx):
     (x,idx)=term1(s,idx)
     while True:
-        if (s[idx]=='<' and s[idx+1]=='<'):
+        if q(s,'<<',idx):
             (t,idx)=term1(s,idx+2)
             x<<=t
-        elif (s[idx]=='>' and s[idx+1]=='>'):
+        elif q(s,'>>',idx):
             (t,idx)=term1(s,idx+2)
             x>>=t
         else:
@@ -258,7 +282,7 @@ def readpat(fn):
         head=l[0]
         l=remove_comment(l)
         l=l.replace('\n','')
-		l=l.replace(chr(13),'')
+        l=l.replace(chr(13),'')
         s=l.split(' ')
         t=[ i for i in s if i]
         if head==' ':
@@ -275,19 +299,41 @@ def readpat(fn):
     f.close()
     return [i for i in p if i]
 
+def evalf(s,idx):
+    a=''
+    if s[idx]=='[':
+        idx+=1
+        while s[idx]!=']':
+            if s[idx]=='#':
+                idx+=1
+                v=get_vars(s[idx])
+                idx+=1
+                a+="("+str(v)+")"
+            else:
+                a+=s[idx]
+                idx+=1
+        else:
+            idx+=1
+
+    return (eval(a),idx)
+
 def makeobj(s):
     ch=','
     s+=chr(0)
     idx=0
     cnt=0
-    while ch!=chr(0):
-        (x,idx)=expression(s,idx)
+    while (ch:=s[idx])!=chr(0):
+        if ch==',':
+            idx+=1
+            continue
+        elif ch=='[':
+            (x,idx)=evalf(s,idx)
+        else:
+            (x,idx)=expression(s,idx)
         x=x&0xff
         print("0x%02x," % x,end='')
         cnt+=1
-        ch=s[idx]
-        if ch==',':
-            idx+=1
+
     print("")
     return cnt
 
@@ -373,7 +419,7 @@ def lineassemble(pat,line):
                     of=makeobj(i[3])
                     break
     if not of:
-        print("Mnemonic error.")
+        print("Syntax error.")
     return of
 
 def main():
@@ -381,7 +427,7 @@ def main():
     pc=0
 
     if len(sys.argv)==1:
-        print("Usage: axx.py patternfile.axx [sourcefile.asm]")
+        print("Usage: axx.py patternfile.axx [sourcefile.s]")
         return
 
     if len(sys.argv)>=2:
