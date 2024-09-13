@@ -185,22 +185,22 @@ def term6(s,idx):
 def term7(s,idx):
     (x,idx)=term6(s,idx)
     while True:
-        if (s[idx]=='<' and s[idx+1]=='='):
+        if q(s,'<=',idx):
             (t,idx)=term6(s,idx+2)
             x=x<=t
         elif (s[idx]=='<'):
             (t,idx)=term6(s,idx+1)
             x=x<t
-        elif (s[idx]=='>' and s[idx+1]=='='):
+        elif q(s,'>=',idx):
             (t,idx)=term6(s,idx+2)
             x=x>=t
         elif (s[idx]=='>'):
             (t,idx)=term6(s,idx+1)
             x=x>t
-        elif (s[idx]=='=' and s[idx+1]=='='):
+        elif q(s,'==',idx):
             (t,idx)=term6(s,idx+2)
             x=x==t
-        elif (s[idx]=='!' and s[idx+1]=='='):
+        elif q(s,'!=',idx):
             (t,idx)=term6(s,idx+2)
             x=x!=t
         else:
@@ -218,7 +218,7 @@ def term8(s,idx):
 def term9(s,idx):
     (x,idx)=term8(s,idx)
     while True:
-        if (s[idx]=='&' and s[idx+1]=='&'):
+        if q(s,'&&',idx):
             (t,idx)=term8(s,idx+2)
             x=x and t
         else:
@@ -228,7 +228,7 @@ def term9(s,idx):
 def term10(s,idx):
     (x,idx)=term9(s,idx)
     while True:
-        if (s[idx]=='|' and s[idx+1]=='|'):
+        if q(s,'||',idx):
             (t,idx)=term9(s,idx+2)
             x=x or t
         else:
@@ -267,7 +267,7 @@ def set_symbol(l):
 def remove_comment(l):
     idx=0
     while idx<len(l):
-        if len(l[idx:])>2 and l[idx]=='/' and l[idx+1]=='/':
+        if len(l[idx:])>2 and l[idx:idx+2]=='//':
             if idx==0:
                 return ""
             else:
