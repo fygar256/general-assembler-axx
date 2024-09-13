@@ -176,3 +176,14 @@ Please prefix floating-point double (float 64bit) with '0d'.
 ・Error checking
 
 Error checking is lax.
+
+・Comment
+
+Please forgive any inconsistencies in notation.
+
+It goes without saying that you can't write a LISP machine.
+
+### Thanks
+
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi　Sekkei, who gave me problems and hints, the University of Electro-Communications　for their cooperation, and to some other unforgettable guys.
+Thank you very much.
