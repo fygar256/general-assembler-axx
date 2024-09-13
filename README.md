@@ -89,7 +89,7 @@ ADD A,Rn n>7;5 #n|0x68
 
 When you write this, symbol is defined with value n.
 
-Symbols consist of letters, numbers, and some symbols '$%@&_'. Some symbols can be changed by writing the `.syms` command in the pattern file. Be careful because they may conflict with the symbols of the expression operators. The default is `$%&@_`.
+Symbols consist of letters, numbers, and some symbols '$%@_'. Some symbols can be changed by writing the `.syms` command in the pattern file. Be careful because they may conflict with the symbols of the expression operators. The default is `$%@_`.
 
 
 ```
