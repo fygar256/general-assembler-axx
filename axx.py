@@ -5,7 +5,7 @@ pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digits='0123456789'
-etc='$%&_@'
+etc='$%_@'
 alphabet=lower+capital
 symbols={}
 
