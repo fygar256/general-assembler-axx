@@ -1,20 +1,19 @@
 //
 // axx z80 pattern file
 //
-$B=0
-$C=1
-$D=2
-$E=3
-$H=4
-$L=5
-$A=7
-$BC=0
-$DE=1
-$HL=2
-$SP=3
-$AF=3
+.setsym B 0
+.setsym C 1
+.setsym D 2
+.setsym E 3
+.setsym H 4
+.setsym L 5
+.setsym A 7
+.setsym BC 0
+.setsym DE 1
+.setsym HL 2
+.setsym SP 3
+.setsym AF 3
 
-LD %SP,%HL      0xf9
 LD SP,HL        0xf9
 LD SP,IX        0xdd,0xf9
 LD SP,IY        0xfd,0xf9
@@ -258,14 +257,14 @@ SRL  s           0xcb,0x38|#s
 RLD              0xed,0x6f
 RRD              0xed,0x67
 
-$NZ=0
-$Z=1
-$NC=2
-$C=3
-$PO=4
-$PE=5
-$P=6
-$M=7
+.setsym NZ 0
+.setsym Z  1
+.setsym NC 2
+.setsym C  3
+.setsym PO 4
+.setsym PE 5
+.setsym P  6
+.setsym M  7
 
 JP  (HL)         0xe9
 JP  (IX)         0xdd,0xe9

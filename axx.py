@@ -4,6 +4,7 @@ import sys
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
+digits_and_etc='0123456789$%&_@'
 alphabet=lower+capital
 symbols={}
 
@@ -253,16 +254,17 @@ def readfile(fn):
     f.close()
     return af
     
-def set_symbol(l):
-    if not (len(l)>=1 and l[0]=='$'):
-    	return
-    idx=1
-    l+=chr(0)
-    (w,idx)=getword(l,1)
-    if l[idx]=='=':
-        idx+=1
-        (v,idx)=expression(l,idx)
-        symbols[w.upper()]=v
+#.setsym HL 0x10
+
+def set_symbol(i):
+    l=i[0]
+    if not (l=='.setsym'):
+    	return False
+    w=i[1]
+    s=i[3]+chr(0)
+    (v,idx)=expression(s,0)
+    symbols[w.upper()]=v
+    return True
 
 def remove_comment(l):
     idx=0
@@ -281,9 +283,7 @@ def readpat(fn):
     while(l:=f.readline()):
         head=l[0]
         l=remove_comment(l)
-        l=l.replace('\n','')
-        l=l.replace(chr(13),'')
-        s=l.split(' ')
+        s=l.replace('\n','').replace(chr(13),'').replace('\t',' ').split(' ')
         t=[ i for i in s if i]
         if head==' ':
             t=['']+t
@@ -331,7 +331,7 @@ def makeobj(s):
 
 def getword(s,idx):
     t=""
-    while s[idx].upper() in capital:
+    while s[idx].upper() in capital+digits_and_etc:
         t+=s[idx].upper()
         idx+=1
     return t,idx
@@ -391,11 +391,13 @@ def lineassemble(pat,line):
     if line=="" or line=="\n":
         return 0
     prev=''
+    line=line.replace('\t',' ')
     l=[i for i in line.replace('\n','').upper().split(' ') if i]
     idx=0
     of=0
     for i in pat:
-        set_symbol(i[0])
+        if set_symbol(i):
+            continue
         a=i[0]
         if a=='':
             a=prev
