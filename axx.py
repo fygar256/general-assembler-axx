@@ -4,7 +4,8 @@ import sys
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-digits_and_etc='0123456789$%&_@'
+digits='0123456789'
+etc='$%&_@'
 alphabet=lower+capital
 symbols={}
 
@@ -52,7 +53,7 @@ def factor1(s,idx):
     elif q(s,'0x',idx):
         idx+=2
         while(s[idx].upper() in "0123456789ABCDEF"):
-            x=16*x+(ord(s[idx])-0x30 if s[idx] in "0123456789" else ord(s[idx].upper())-0x41+10 )
+            x=16*x+(ord(s[idx])-0x30 if s[idx] in digits else ord(s[idx].upper())-0x41+10 )
             idx+=1
 
     elif q(s,'0d',idx):
@@ -71,19 +72,19 @@ def factor1(s,idx):
             idx+=1
         x=int.from_bytes(struct.pack('>f',float(fs)),"little")
 
-    elif s[idx] in "0123456789":
-        while(s[idx] in "0123456789"):
+    elif s[idx] in digits:
+        while(s[idx] in digits):
             x=10*x+ord(s[idx])-0x30
             idx+=1
         a=1
         if (s[idx]=='.'):
             idx+=1
-            while(s[idx] in "0123456789"):
+            while(s[idx] in digits):
                 x+=(a/10)*(ord(s[idx])-0x30)
                 a/=10
                 idx+=1
 
-    elif s[idx] in "abcdefghijklmnopqrstuvwxyz":
+    elif s[idx] in lower:
         x=vars[ord(s[idx].upper())-0x41]
         idx+=1
     elif s[idx]=='(':
@@ -254,8 +255,6 @@ def readfile(fn):
     f.close()
     return af
     
-#.setsym HL 0x10
-
 def set_symbol(i):
     l=i[0]
     if not (l=='.setsym'):
@@ -264,6 +263,14 @@ def set_symbol(i):
     s=i[3]+chr(0)
     (v,idx)=expression(s,0)
     symbols[w.upper()]=v
+    return True
+
+def syms(i):
+    global etc
+    l=i[0]
+    if not (l=='.syms'):
+        return False
+    etc=i[1]
     return True
 
 def remove_comment(l):
@@ -331,7 +338,7 @@ def makeobj(s):
 
 def getword(s,idx):
     t=""
-    while s[idx].upper() in capital+digits_and_etc:
+    while s[idx].upper() in capital+digits+etc:
         t+=s[idx].upper()
         idx+=1
     return t,idx
@@ -397,6 +404,8 @@ def lineassemble(pat,line):
     of=0
     for i in pat:
         if set_symbol(i):
+            continue
+        if syms(i):
             continue
         a=i[0]
         if a=='':
