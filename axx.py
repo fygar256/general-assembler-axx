@@ -301,20 +301,15 @@ def readpat(fn):
 
 def evalf(s,idx):
     a=''
-    if s[idx]=='[':
-        idx+=1
-        while s[idx]!=']':
-            if s[idx]=='#':
-                idx+=1
-                v=get_vars(s[idx])
-                idx+=1
-                a+="("+str(v)+")"
-            else:
-                a+=s[idx]
-                idx+=1
-        else:
+    while s[idx]!=chr(0) and s[idx]!=',':
+        if s[idx]=='#':
             idx+=1
-
+            v=get_vars(s[idx])
+            idx+=1
+            a+="("+str(v)+")"
+        else:
+            a+=s[idx]
+            idx+=1
     return (eval(a),idx)
 
 def makeobj(s):
@@ -326,10 +321,7 @@ def makeobj(s):
         if ch==',':
             idx+=1
             continue
-        elif ch=='[':
-            (x,idx)=evalf(s,idx)
-        else:
-            (x,idx)=expression(s,idx)
+        (x,idx)=evalf(s,idx)
         x=x&0xff
         print("0x%02x," % x,end='')
         cnt+=1
