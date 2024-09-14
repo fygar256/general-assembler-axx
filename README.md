@@ -99,12 +99,12 @@ and you pass `add a,rn` to the assembly line, it will return error code 5 if n>7
 
 When you write this, symbol is defined with the value n.
 
-Symbols include letters, numbers, etc., but axx uses the following characters as constituent characters of symbols: ` \t\n\0()[]{}\\`. This is called the termination character.
+Symbols include letters, numbers, etc., but axx uses the following characters as constituent characters of symbols: `,; \t\n\0()[]{}\\`. This is called the termination character.
 
-The termination character can be changed by writing the `.termc` command. The default is `\t\n\0 ()[]{}\\\'\"`.
+The termination character can be changed by writing the `.termc` command. The default is `,; \t\n\0 ()[]{}\\\'\"`.
 
 ```
-".termc" "\t\n\0()[]{}\\"
+".termc" ";,:\t\n\0()[]{}\\"
 ```
 
 Here is an example of the symbol definition z80. In a pattern file,
