@@ -256,21 +256,21 @@ def readfile(fn):
     return af
     
 def set_symbol(i):
-    l=i[0]
-    if not (l=='.setsym'):
+    t=[ _ for _ in i if _]
+    if not (t[0]=='.setsym'):
     	return False
-    w=i[1]
-    s=i[3]+chr(0)
+    w=t[1]
+    s=t[2]+chr(0)
     (v,idx)=expression(s,0)
     symbols[w.upper()]=v
     return True
 
 def syms(i):
     global etc
-    l=i[0]
-    if not (l=='.syms'):
+    t=[ _ for _ in i if _]
+    if not (t[0]=='.syms'):
         return False
-    etc=i[1]
+    etc=t[1]
     return True
 
 def remove_comment(l):
