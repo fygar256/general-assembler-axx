@@ -62,7 +62,7 @@ Lowercase letters a to n represent expressions, and o to z represent symbols. Va
 
 Error patterns and binary lists are evaluated in Python using the eval function. To reference variables, add a `#` as a prefix.
 
-The assembly line value is evaluated using the built-in function expression in axx.py. Usually, symbols can be referenced, but for symbols with `%` or other prefixes, add a `#` as a prefix.
+The assembly line value is evaluated using the built-in function expression in axx.py.
 
 When passing a symbol value to .setsym in the pattern file, add a `#` as a prefix.
 
