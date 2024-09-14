@@ -46,7 +46,7 @@ There are three types of pattern data:
 
 ・Comments
 
-If you write '//' in a pattern file, the text after // on that line becomes a comment.
+If you write "/" in the pattern file, the line after /* becomes a comment. Currently, it is not possible to close with */. Valid only after /* on that line.
 
 ・Case distinction, variables
 
