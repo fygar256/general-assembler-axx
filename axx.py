@@ -297,16 +297,13 @@ def termc(i):
     if not i[0]=='.termc':
         return False
     p=i[3]
-    s=''
+    s='"'
     idx=0
     while idx<len(p):
         if p[idx]=='\\':
             idx+=1
             if p[idx]=='n':
                 s+='\n'
-                idx+=1
-            elif p[idx]=='"':
-                s+='"'
                 idx+=1
             elif p[idx]=='\'':
                 s+='\''
