@@ -101,7 +101,7 @@ When you write this, symbol is defined with the value n.
 
 Symbols include letters, numbers, etc., but axx uses the following characters as constituent characters of symbols: ` \t\n\0()[]{}\\`. This is called the termination character.
 
-The termination character can be changed by writing the `.termc` command. The default is `\t\n\0 ()[]{}\\`.
+The termination character can be changed by writing the `.termc` command. The default is `\t\n\0 ()[]{}\\\'\"`.
 
 ```
 ".termc" "\t\n\0()[]{}\\"
