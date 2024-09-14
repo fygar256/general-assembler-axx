@@ -485,6 +485,7 @@ def lineassemble(line):
     l=[i for i in line.replace('\n','').upper().split(' ') if i]
     idx=0
     se=False
+    of=0
     for i in pat:
         if debug:
             print(symbols)
@@ -493,7 +494,6 @@ def lineassemble(line):
         if termc(i): continue
         if not a: a=prev
         prev=a
-        of=0
         w=[_ for _ in i if _]
         if not l: continue
         if a==l[0]:
@@ -524,23 +524,28 @@ def main():
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by T.Maekawa")
-        print("Usage: python axx.py [-d] patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
         return
 
-    if sys.argv[1]=='-d':
-        print("Debug mode")
-        debug=1
-        argidx=2
-    else:
-        argidx=1
-    if len(sys.argv)>=3:
-        readpat(sys.argv[argidx])
-    if len(sys.argv)==argidx+1:
+    if len(sys.argv)>=2:
+        readpat(sys.argv[1])
+
+    if len(sys.argv)==2:
         while True:
-            line=input(":")
+            line=input(": ")
+            if line=="debug":
+                print("debug mode")
+                debug=1
+                continue
+            elif line=="undebug":
+                print("silent mode")
+                debug=0
+                continue
+
             pc+=lineassemble(line)
+
     elif len(sys.argv)>=3:
-        af=readfile(sys.argv[argidx+1])
+        af=readfile(sys.argv[2])
         for i in af:
             pc+=lineassemble(i)
 
