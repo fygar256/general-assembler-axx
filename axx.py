@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+
+#
+# axx general assembler designed and programmed by Taisuke Maekawa
+#
+
 import struct
 import sys
 pc=0
