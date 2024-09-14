@@ -362,7 +362,7 @@ def makeobj(s):
 
 def getword(s,idx):
     t=""
-    while s[idx].upper() in capital+digits+etc:
+    while s[idx].upper() in capital+digits+etc and not s[idx]==' ':
         t+=s[idx].upper()
         idx+=1
     return t,idx
