@@ -94,7 +94,7 @@ and you pass `add a,rn` to the assembly line, it will return error code 5 if n>7
 ・symbol
 
 ```
-.setsym" "symbol" "n"
+".setsym" "symbol" "n"
 ```
 
 When you write this, symbol is defined with the value n.
