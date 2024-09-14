@@ -1,117 +1,99 @@
-ADD     A,Rn    n>7;5       #n|0x68
-        A,@Rn   n>1;5       #n|0x60
-        A,#d    d>0xFF;1    0x03,#d
-
-ADDC    A,Rn    n>7;5       #n|0x78
-        A,@Rn   n>1;5       #n|0x70
-        A,#d    d>0xFF;1    0x13,#d
-
-ANL     A,Rn    n>7;5       #n|0x58
-        A,@Rn   n>1;5       #n|0x50
-        A,#d    d>0xFF;1    0x5,#d
-        BUS,#d  d>0xFF;1    0x98,#d
-        Pc,#d   c!=1&&c!=2;6,d>0xFF;1   (#c|0x98),#d
-
-ANLD    Pc,A    c<4||c>7;6              (#c&3)|0x9C
-
-CALL    a       a>0xFFF;2               (((#a&0x7FF)>>3)&0xE0)|0x14,#a
-
-CLR     A                               0x27
-        C                               0x97
-        Ff      f>1;7                   (#f<<5)|0x85
-
-DA      A                               0x37
-
-DEC     A                               0x07
-        Rn      r>7;5                   #n|0xC8
-
-DIS     I                               0x15
-        TCNTI                           0x35
-
-DJNZ    Rn,a                            #n|0xE8,#a
-
-EN      I                               0x05
-        TCNTI                           0x25
-
-ENT0    CLK                             0x75
-
-IN      A,Pc    c<1||c>2;6              #c|0x08
-
-INC     A                               0x17
-        Rn      n>7;5                   #n|0x18
-        @Rn     n>1;5                   #n|0x10
-
-INS     A,BUS                           0x08
-
-JB0     a                               0x12,#a
-JB1     a                               0x32,#a
-JB2     a                               0x52,#a
-JB3     a                               0x72,#a
-JB4     a                               0x92,#a
-JB5     a                               0xb2,#a
-JB6     a                               0xd2,#a
-JB7     a                               0xf2,#a
-
-JC      a                               0xF6,#a
-JF0     a                               0xB6,#a
-JF1     a                               0x76,#a
-JNC     a                               0xE6,#a
-JNI     a                               0x86,#a
-JNT0    a                               0x26,#a
-JNT1    a                               0x46,#a
-JNZ     a                               0x96,#a
-JTF     a                               0x16,#a
-JT0     a                               0x36,#a
-JT1     a                               0x56,#a
-JZ      a                               0xC6,#a
-JMP     a       a>0xFFF;2                   (((#a&0x7FF)>>3)&0xE0)|4,#a
-JMPP    @A                                    0xB3
-
-MOV     A,#d    d>0xFF;1                    0x23,#d
-        A,PSW                               0xC7
-        A,Rn    n>7;5                       #n|0xF8
-        A,@Rn   n>1;5                       #n|0xF0
-        A,T                                 0x42
-        PSW,A                               0xD7
-        Rn,A    n>7;5                       #n|0xA8
-        Rn,#d   n>7;5,d>0xFF;1              #n|0xB8,#d
-        @Rn,A   n>1;5                       #n|0xA0
-        @Rn,#d  n>7;5,d>0xFF;1              #n|0xB0,#d
-        T,A                                 0x62
-
-MOVD    Pc,A                                (#c&3)|0x3C
-        A,Pc                                (#c&3)|0x0C
-MOVP    A,@A                                0xA3
-MOVP3   A,@A                                0xE3
-MOVX    A,@Rn   n>1;5                       #n|0x80
-        @Rn,A   n>1;5                       #n|0x90
-NOP                                         0x00
-ORL     A,Rn    n>7;5                       #n|0x48
-        A,@Rn   n>1;5                       #n|0x40
-        A,#d    d>0xFF;1                    0x43,#d
-        BUS,#d  d>0xFF;1                    0x88,#d
-        Pc,#d   c<1||c>2;6                  #c|0x88,#d
-
-ORLD    Pc,A    c<4||c>7;6                  (#c&3)|0x8C
-OUTL    BUS,A                               0x02
-        Pc,A    c<1||c>2;6                  #c|0x38
-RET                                         0x83
-RETR                                        0x93
-RL      A                                   0xE7
-RLC     A                                   0xF7
-RR      A                                   0x77
-RRC     A                                   0x67
-SEL     MB0                                 0xE5
-        MB1                                 0xF5
-        RB0                                 0xC5
-        RB1                                 0xD5
-STOP    TCNT                                0x65
-STRT    CNT                                 0x45
-        T                                   0x55
-SWAP    A                                   0x47
-XCH     A,Rn    n>7;5                       #n|0x28
-        A,@Rn   n>1;5                       #n|0x20
-XCHD    A,@Rn   n>1;5                       #n|0x30
-XRL     A,Rn    n>7;5                       #n|0xD8
-        A,@Rn   n>1;1                       #n|0xD0
-        A,#d    d>0xFF;1                    0xD3,#d
+"ADD"  "A,Rn"          "#n>7;5"         "#n|0x68"
+""     "A,@Rn"         "#n>1;5"         "#n|0x60"
+""     "A,#d"          "#d>0xFF;1"      "0x03,#d"
+"ADDC" "A,Rn" "#n>7;5" "#n|0x78"
+""     "A,@Rn" "#n>1;5" "#n|0x70"
+""      "A,#d" "#d>0xFF;1" "0x13,#d"
+"ANL" "A,Rn" "#n>7;5" "#n|0x58"
+""    "A,@Rn" "#n>1;5" "#n|0x50"
+""    "A,#d" "#d>0xFF;1" "0x5,#d"
+""    "BUS,#d" "#d>0xFF;1" "0x98,#d"
+"ANL" "Pc,#d" "#c!=1 and #c!=2;6,#d>0xFF;1" "(#c|0x98),#d"
+"ANLD" "Pc,A" "#c<4 or #c>7;6" "(#c&3)|0x9C"
+"CALL" "a" "#a>0xFFF;2" "(((#a&0x7FF)>>3)&0xE0)|0x14,#a"
+"CLR" "A" "0x27"
+""     "C" "0x97"
+""     "Ff" "#f>1;7" "(#f<<5)|0x85"
+"DB" "a" "#a"
+"DA" "A" "0x37"
+"DEC" "A" "0x07"
+""     "Rn" "#r>7;5" "#n|0xC8"
+"DIS" "I" "0x15"
+"TCNTI" "0x35"
+"DJNZ" "Rn,a" "#n|0xE8,#a"
+"EN" "I" "0x05"
+"TCNTI" "0x25"
+"ENT0" "CLK" "0x75"
+"IN" "A,Pc" "#c<1 or #c>2;6" "#c|0x08"
+"INC" "A" "0x17"
+""    "Rn" "#n>7;5" "#n|0x18"
+""    "@Rn" "#n>1;5" "#n|0x10"
+"INS" "A,BUS" "0x08"
+"JB0" "a" "0x12,#a"
+"JB1" "a" "0x32,#a"
+"JB2" "a" "0x52,#a"
+"JB3" "a" "0x72,#a"
+"JB4" "a" "0x92,#a"
+"JB5" "a" "0xb2,#a"
+"JB6" "a" "0xd2,#a"
+"JB7" "a" "0xf2,#a"
+"JC" "a" "0xF6,#a"
+"JF0" "a" "0xB6,#a"
+"JF1" "a" "0x76,#a"
+"JNC" "a" "0xE6,#a"
+"JNI" "a" "0x86,#a"
+"JNT0" "a" "0x26,#a"
+"JNT1" "a" "0x46,#a"
+"JNZ" "a" "0x96,#a"
+"JTF" "a" "0x16,#a"
+"JT0" "a" "0x36,#a"
+"JT1" "a" "0x56,#a"
+"JZ" "a" "0xC6,#a"
+"JMP" "a" "#a>0xFFF;2" "(((#a&0x7FF)>>3)&0xE0)|4,#a"
+"JMPP" "@A" "0xB3"
+"MOV" "A,#d" "#d>0xFF;1" "0x23,#d"
+"" "A,PSW" "0xC7"
+"" "A,Rn" "#n>7;5" "#n|0xF8"
+"" "A,@Rn" "#n>1;5" "#n|0xF0"
+"" "A,T" "0x42"
+"" "PSW,A" "0xD7"
+"" "Rn,A" "#n>7;5" "#n|0xA8"
+"" "Rn,#d" "#n>7;5,#d>0xFF;1" "#n|0xB8,#d"
+"" "@Rn,A" "#n>1;5" "#n|0xA0"
+"" "@Rn,#d" "#n>7;5,#d>0xFF;1" "#n|0xB0,#d"
+"" "T,A" "0x62"
+"MOVD" "Pc,A" "(#c&3)|0x3C"
+""     "A,Pc" "(#c&3)|0x0C"
+"MOVP" "A,@A" "0xA3"
+"MOVP3" "A,@A" "0xE3"
+"MOVX" "A,@Rn" "#n>1;5" "#n|0x80"
+"@Rn,A" "#n>1;5" "#n|0x90"
+"NOP" "0x00"
+"ORL" "A,Rn" "#n>7;5" "#n|0x48"
+""    "A,@Rn" "#n>1;5" "#n|0x40"
+""    "A,#d" "#d>0xFF;1" "0x43,#d"
+""    "BUS,#d" "#d>0xFF;1" "0x88,#d"
+""    "Pc,#d" "#c<1 or #c>2;6" "#c|0x88,#d"
+"ORLD" "Pc,A" "#c<4 or #c>7;6" "(#c&3)|0x8C"
+"OUTL" "BUS,A" "0x02"
+""     "Pc,A" "#c<1 or #c>2;6" "#c|0x38"
+"RET" "0x83"
+"RETR" "0x93"
+"RL" "A" "0xE7"
+"RLC" "A" "0xF7"
+"RR" "A" "0x77"
+"RRC" "A" "0x67"
+"SEL" "MB0" "0xE5"
+""    "MB1" "0xF5"
+""    "RB0" "0xC5"
+""    "RB1" "0xD5"
+"STOP" "TCNT" "0x65"
+"STRT" "CNT" "0x45"
+""     "T" "0x55"
+"SWAP" "A" "0x47"
+"XCH" "A,Rn" "#n>7;5" "#n|0x28"
+""    "A,@Rn" "#n>1;5" "#n|0x20"
+"XCHD" "A,@Rn" "#n>1;5" "#n|0x30"
+"XRL" "A,Rn" "#n>7;5" "#n|0xD8"
+""    "A,@Rn" "#n>1;1" "#n|0xD0"
+""    "A,#d" "#d>0xFF;1" "0xD3,#d"

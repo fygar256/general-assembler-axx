@@ -4,6 +4,7 @@
 # axx general assembler designed and programmed by Taisuke Maekawa
 #
 
+import string
 import struct
 import sys
 pc=0
@@ -13,6 +14,7 @@ digits='0123456789'
 etc='$%_@'
 alphabet=lower+capital
 symbols={}
+pat=[]
 
 vars=[ 0 for i in range(26) ]
 
@@ -261,21 +263,23 @@ def readfile(fn):
     return af
     
 def set_symbol(i):
-    t=[ _ for _ in i if _]
-    if not (t[0]=='.setsym'):
+    if len(i)==0:
+        return False
+    if not i[0]=='.setsym':
     	return False
-    w=t[1]
-    s=t[2]+chr(0)
+    w=i[1]
+    s=i[3]+chr(0)
     (v,idx)=expression(s,0)
     symbols[w.upper()]=v
     return True
 
 def syms(i):
     global etc
-    t=[ _ for _ in i if _]
-    if not (t[0]=='.syms'):
+    if len(i)==0:
         return False
-    etc=t[1]
+    if not i[0]=='.syms':
+        return False
+    etc=i[3]
     return True
 
 def remove_comment(l):
@@ -290,38 +294,53 @@ def remove_comment(l):
     return l
 
 def readpat(fn):
+    global pat
     f=open(fn,"rt")
     p=[]
+    w=[]
     while(l:=f.readline()):
-        head=l[0]
         l=remove_comment(l)
-        s=l.replace('\n','').replace(chr(13),'').replace('\t',' ').split(' ')
-        t=[ i for i in s if i]
-        if head==' ':
-            t=['']+t
+        l=l.replace('\n',"").replace(chr(13),'').replace('\t',' ')
+        l+=chr(0)
+        idx=0
+        t=[]
+        while True:
+            if l[idx]==chr(0):
+                break
+            idx=getstr_(l,idx)
+            v,idx=getstr(l,idx)
+            t.append(v)
+
         if len(t)==1:
-            t=[t[0],'','','']
+            p=[t[0],'','','']
         elif len(t)==2:
-            t=[t[0],'','',t[1]]
+            p=[t[0],'','',t[1]]
         elif len(t)==3:
-            t=[t[0],t[1],'',t[2]]
+            p=[t[0],t[1],'',t[2]]
         elif len(t)==4:
-            pass
-        p.append(t)
+            p=[t[0],t[1],t[2],t[3]]
+        w.append(p)
+
+    pat=w
     f.close()
-    return [i for i in p if i]
+    return
 
 def evalf(s,idx):
     a=''
-    while s[idx]!=chr(0) and s[idx]!=',':
-        if s[idx]=='#':
-            idx+=1
-            v=get_vars(s[idx])
-            idx+=1
-            a+="("+str(v)+")"
+    while True:
+        if len(s)<=idx:
+            return (False,0)
+        if s[idx]!=chr(0) and s[idx]!=',' and s[idx]!=';':
+            if s[idx]=='#':
+                idx+=1
+                v=get_vars(s[idx])
+                idx+=1
+                a+="("+str(v)+")"
+            else:
+                a+=s[idx]
+                idx+=1
         else:
-            a+=s[idx]
-            idx+=1
+            break
     return (eval(a),idx)
 
 def makeobj(s):
@@ -348,6 +367,20 @@ def getword(s,idx):
         idx+=1
     return t,idx
     
+def getstr(s,idx):
+    t=''
+    idx+=1 if s[idx]=='"' else 0
+    while s[idx]!='"':
+        t=t+s[idx]
+        idx+=1
+    idx+=1 if s[idx]=='"' else 0
+    return t,idx
+
+def getstr_(s,idx):
+    while s[idx]!=chr(0) and s[idx]!='"':
+        idx+=1
+    return idx
+
 def match(s,t):
     s+=chr(0)
     t+=chr(0)
@@ -380,54 +413,66 @@ def match(s,t):
         idx_s+=1
         idx_t+=1
 
-def errorchk(s):
-    idx=0
+def error(s):
+    ch=','
     s+=chr(0)
-    ef=False
-    while True:
-        (x,idx)=expression(s,idx)
+    idx=0
+    error_occured=False
+    while (ch:=s[idx])!=chr(0):
+        if ch==',':
+            idx+=1
+            continue
+
+        u,idx=evalf(s,idx)
         if s[idx]==';':
             idx+=1
-            (e,idx)=expression(s,idx)
-        if x:
-            ef=True
-            print(f"error code:{e}")
-            if s[idx]==',':
-                idx+=1
-                continue
-            break
-        break
-    return ef
+        t,idx=evalf(s,idx)
+        if u:
+            print(f"error code {t} ")
+            error_occured=True
 
-def lineassemble(pat,line):
-    if line=="" or line=="\n":
-        return 0
+    return error_occured
+
+def lineassemble(line):
     prev=''
     line=line.replace('\t',' ')
+    line=line.replace('\n',' ')
+    line=line.upper()
+    if not line:
+        return 0
+    s=line+chr(0)
     l=[i for i in line.replace('\n','').upper().split(' ') if i]
     idx=0
-    of=0
+    se=False
     for i in pat:
-        if set_symbol(i):
-            continue
-        if syms(i):
-            continue
-        a=i[0]
-        if a=='':
-            a=prev
+        a=i[0] if i else ""
+        if set_symbol(i): continue
+        if syms(i): continue
+        if not a: a=prev
         prev=a
-        if len(l)==0:
-            continue
+        of=0
+        w=[_ for _ in i if _]
+        if not l: continue
         if a==l[0]:
-            if len(l)==1:
+            if len(w)==1 or len(w)==2:
                 of=makeobj(i[3])
                 break
-            elif len(l)==2 and match(l[1],i[1]):
-                if not errorchk(i[2]):
+            elif len(w)==3:
+                if match(l[1],i[1]):
                     of=makeobj(i[3])
                     break
-    if not of:
-        print("Syntax error.")
+            elif len(w)==4:
+                if match(l[1],i[1]):
+                    if error(i[2]):
+                        of = 0
+                        break
+                    else:
+                        of=makeobj(i[3])
+                        break
+    else:
+        se=True
+    if se:
+        print("Syntax error")
     return of
 
 def main():
@@ -435,18 +480,19 @@ def main():
     pc=0
 
     if len(sys.argv)==1:
-        print("Usage: axx.py patternfile.axx [sourcefile.s]")
+        print("axx general assembler programmed and designed by T.Maekawa")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
         return
 
     if len(sys.argv)>=2:
-        pat=readpat(sys.argv[1])
+        readpat(sys.argv[1])
     if len(sys.argv)==2:
         while line:=input(":"):
-            pc+=lineassemble(pat,line)
+            pc+=lineassemble(line)
     elif len(sys.argv)==3:
         af=readfile(sys.argv[2])
         for i in af:
-            pc+=lineassemble(pat,i)
+            pc+=lineassemble(i)
 
 if __name__=='__main__':
     main()
