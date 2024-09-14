@@ -13,6 +13,7 @@ lower="abcdefghijklmnopqrstuvwxyz"
 digits='0123456789'
 term=' '+chr(0)+'\n'+'\t'+',;()[]{}\"\''
 alphabet=lower+capital
+debug=0
 symbols={}
 pat=[]
 
@@ -485,6 +486,8 @@ def lineassemble(line):
     idx=0
     se=False
     for i in pat:
+        if debug:
+            print(symbols)
         a=i[0] if i else ""
         if set_symbol(i): continue
         if termc(i): continue
@@ -516,22 +519,28 @@ def lineassemble(line):
     return of
 
 def main():
-    global pc
+    global pc,debug
     pc=0
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by T.Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py [-d] patternfile.axx [sourcefile.s]")
         return
 
-    if len(sys.argv)>=2:
-        readpat(sys.argv[1])
-    if len(sys.argv)==2:
+    if sys.argv[1]=='-d':
+        print("Debug mode")
+        debug=1
+        argidx=2
+    else:
+        argidx=1
+    if len(sys.argv)>=3:
+        readpat(sys.argv[argidx])
+    if len(sys.argv)==argidx+1:
         while True:
             line=input(":")
             pc+=lineassemble(line)
-    elif len(sys.argv)==3:
-        af=readfile(sys.argv[2])
+    elif len(sys.argv)>=3:
+        af=readfile(sys.argv[argidx+1])
         for i in af:
             pc+=lineassemble(i)
 
