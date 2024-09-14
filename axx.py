@@ -11,7 +11,7 @@ pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digits='0123456789'
-etc='$%_@'
+term=' '+chr(0)+'\n'+'\t'+',;()[]{}\"\''
 alphabet=lower+capital
 symbols={}
 pat=[]
@@ -28,22 +28,27 @@ def put_vars(s,v):
     vars[c-ord('A')]=v
     return
 
+q=lambda s,t,idx:(s[idx:idx+len(t)].upper()==t.upper())
+
 def err(m):
     print(m)
     return -1
 
 def factor(s,idx):
+    x=0
     if s[idx]=='-':
         (x,idx)=factor(s,idx+1)
         x=-x
     elif s[idx]=='~':
         (x,idx)=factor(s,idx+1)
         x=~x
+    elif q(s,'#',idx):
+        (a,idx)=getword(s,idx+1)
+        if issymbol(a):
+            x=symbols[a]
     else:
         (x,idx)=factor1(s,idx)
     return (x,idx)
-
-q=lambda s,t,idx:(s[idx:idx+len(t)].upper()==t.upper())
 
 def factor1(s,idx):
     x = 0
@@ -249,6 +254,13 @@ def expression(s,idx):
     s+=chr(0)
     return term10(s,idx)
 
+def getsymval(w):
+    l=list(symbols.items())
+    for i in l:
+        if i[0]==w:
+            return w
+    return ''
+
 def issymbol(w):
     l=list(symbols.items())
     for i in l:
@@ -263,29 +275,58 @@ def readfile(fn):
     return af
     
 def set_symbol(i):
-    if len(i)==0:
+    if not i:
         return False
     if not i[0]=='.setsym':
     	return False
-    w=i[1]
-    s=i[3]+chr(0)
-    (v,idx)=expression(s,0)
-    symbols[w.upper()]=v
+    symbols[i[1].upper()],idx =expression(i[3],0)
     return True
 
-def syms(i):
+def eset_symbol(i):
+    if not i:
+        return False
+    if not i[0]=='.esetsym':
+        return False
+    symbols[i[1].upper()]=symbols[i[3]]
+    return True
+
+def termc(i):
     global etc
     if len(i)==0:
         return False
-    if not i[0]=='.syms':
+    if not i[0]=='.termc':
         return False
-    etc=i[3]
+    p=i[3]
+    s=''
+    idx=0
+    while idx<len(p):
+        if p[idx]=='\\':
+            idx+=1
+            if p[idx]=='n':
+                s+='\n'
+                idx+=1
+            elif p[idx]=='"':
+                s+='"'
+                idx+=1
+            elif p[idx]=='\'':
+                s+='\''
+                idx+=1
+            elif p[idx]=='t':
+                s+='\t'
+                idx+=1
+            elif p[idx]=='0':
+                s+=chr(0)
+                idx+=1
+        else:
+            s+=p[idx]
+            idx+=1
+    etc=s
     return True
 
 def remove_comment(l):
     idx=0
     while idx<len(l):
-        if len(l[idx:])>2 and l[idx:idx+2]=='//':
+        if len(l[idx:])>2 and l[idx:idx+2]=='/*':
             if idx==0:
                 return ""
             else:
@@ -304,9 +345,7 @@ def readpat(fn):
         l+=chr(0)
         idx=0
         t=[]
-        while True:
-            if l[idx]==chr(0):
-                break
+        while l[idx]!=chr(0):
             idx=getstr_(l,idx)
             v,idx=getstr(l,idx)
             t.append(v)
@@ -319,6 +358,8 @@ def readpat(fn):
             p=[t[0],t[1],'',t[2]]
         elif len(t)==4:
             p=[t[0],t[1],t[2],t[3]]
+        else:
+            p=[]
         w.append(p)
 
     pat=w
@@ -362,18 +403,20 @@ def makeobj(s):
 
 def getword(s,idx):
     t=""
-    while s[idx].upper() in capital+digits+etc and not s[idx]==' ':
+    while not (s[idx] in term):
         t+=s[idx].upper()
         idx+=1
     return t,idx
     
 def getstr(s,idx):
     t=''
-    idx+=1 if s[idx]=='"' else 0
+    if s[idx]=='"':
+        idx+=1
     while s[idx]!='"':
         t=t+s[idx]
         idx+=1
-    idx+=1 if s[idx]=='"' else 0
+    if s[idx]=='"':
+        idx+=1
     return t,idx
 
 def getstr_(s,idx):
@@ -447,7 +490,7 @@ def lineassemble(line):
     for i in pat:
         a=i[0] if i else ""
         if set_symbol(i): continue
-        if syms(i): continue
+        if termc(i): continue
         if not a: a=prev
         prev=a
         of=0
@@ -487,7 +530,8 @@ def main():
     if len(sys.argv)>=2:
         readpat(sys.argv[1])
     if len(sys.argv)==2:
-        while line:=input(":"):
+        while True:
+            line=input(":")
             pc+=lineassemble(line)
     elif len(sys.argv)==3:
         af=readfile(sys.argv[2])
