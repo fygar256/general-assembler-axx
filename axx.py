@@ -410,7 +410,7 @@ def makeobj(s):
     idx=0
     cnt=0
     while True:
-        (x,idx)=epression(s,idx)
+        (x,idx)=expression(s,idx)
         if x!=-1:
             x=int(x)&0xff
             print("0x%02x," % x,end='')
@@ -585,6 +585,8 @@ def main():
                 debug=0
                 print('undebug')
                 line=""
+            if debug:
+                print(symbols)
             pc+=lineassemble(line)
     elif len(sys_argv)>=3:
         af=readfile(sys_argv[2])
