@@ -43,10 +43,14 @@ def factor(s,idx):
     elif s[idx]=='~':
         (x,idx)=factor(s,idx+1)
         x=~x
-    elif q(s,'#',idx):
+    elif q(s,'##',idx):
         (a,idx)=getword(s,idx+1)
         if issymbol(a):
             x=symbols[a]
+    elif q(s,'#',idx):
+        chara=s[idx+1]
+        idx+=2
+        x=get_vars(chara)
     else:
         (x,idx)=factor1(s,idx)
     return (x,idx)
@@ -406,7 +410,7 @@ def makeobj(s):
     idx=0
     cnt=0
     while True:
-        (x,idx)=evalf(s,idx)
+        (x,idx)=epression(s,idx)
         if x!=-1:
             x=int(x)&0xff
             print("0x%02x," % x,end='')
@@ -415,10 +419,10 @@ def makeobj(s):
         ch=s[idx]
         if ch==chr(0):
             break
-        idx+=1
         if ch==',':
+            idx+=1
             continue
-
+        break
     print("")
     return cnt
 
@@ -588,5 +592,7 @@ def main():
             pc+=lineassemble(i)
 
 if __name__=='__main__':
+    s='(0+8),(9+8)'
+    print (expression(s,0))
     main()
     exit(0)
