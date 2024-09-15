@@ -4,16 +4,18 @@
 # axx general assembler designed and programmed by Taisuke Maekawa
 #
 
-import string
+import string as str
 import struct
 import sys
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-digits='0123456789'
-etc=' '+chr(0)+'\n'+'\t'+',;()[]{}\"\''
+nalphabet="abcdefghijklmn"
+salphabet="opqrstuvwxyz"
+digit='0123456789'
+xdigit="0123456789ABCDEF"
+etc=' ,;()[]{}\"\'\n\t'+chr(0)
 alphabet=lower+capital
-debug=0
 symbols={}
 pat=[]
 
@@ -26,10 +28,11 @@ def get_vars(s):
 def put_vars(s,v):
     global vars
     c=ord(s.upper())
-    vars[c-ord('A')]=v
+    vars[c-ord('A')]=int(v)
     return
 
-q=lambda s,t,idx:(s[idx:idx+len(t)].upper()==t.upper())
+def q(s,t,idx):
+    return s[idx:idx+len(t)].upper()==t.upper()
 
 def err(m):
     print(m)
@@ -43,20 +46,18 @@ def factor(s,idx):
     elif s[idx]=='~':
         (x,idx)=factor(s,idx+1)
         x=~x
-    elif q(s,'##',idx):
-        (a,idx)=getword(s,idx+1)
-        if issymbol(a):
-            x=symbols[a]
-    elif q(s,'#',idx):
-        chara=s[idx+1]
-        idx+=2
-        x=get_vars(chara)
     else:
         (x,idx)=factor1(s,idx)
     return (x,idx)
 
 def factor1(s,idx):
     x = 0
+
+    while True:
+        if s[idx]==' ' or s[idx]=='\t':
+            idx+=1
+            continue
+        break
 
     if q(s,'$$',idx):
         idx+=2
@@ -69,8 +70,8 @@ def factor1(s,idx):
 
     elif q(s,'0x',idx):
         idx+=2
-        while(s[idx].upper() in "0123456789ABCDEF"):
-            x=16*x+int(s[idx],16)
+        while(s[idx].upper() in xdigit):
+            x=16*x+int(s[idx].lower(),16)
             idx+=1
 
     elif q(s,'0d',idx):
@@ -89,28 +90,24 @@ def factor1(s,idx):
             idx+=1
         x=int.from_bytes(struct.pack('>f',float(fs)),"little")
 
-    elif s[idx] in digits:
-        while(s[idx] in digits):
-            x=10*x+ord(s[idx])-0x30
+    elif s[idx].isdigit():
+        while(s[idx].isdigit()):
+            x=10*x+int(s[idx])
             idx+=1
-        a=1
-        if (s[idx]=='.'):
-            idx+=1
-            while(s[idx] in digits):
-                x+=(a/10)*(ord(s[idx])-0x30)
-                a/=10
-                idx+=1
 
-    elif s[idx] in lower:
-        x=vars[ord(s[idx].upper())-0x41]
-        idx+=1
+    elif s[idx].islower():
+        ch=s[idx]
+        if s[idx+1:idx+3]==':=':
+            (x,idx)=expression(s,idx+3)
+            put_vars(ch,x)
+        else:
+            x=get_vars(s[idx])
+            idx+=1
     elif s[idx]=='(':
         (x,idx)=expression(s,idx+1)
         if s[idx]!=')':
             err("Missing ')'.")
-            idx=-1
-        else:
-            idx+=1
+        idx+=1
     return (x,idx)
 
 def term0(s,idx):
@@ -123,8 +120,6 @@ def term0(s,idx):
             (t,idx)=factor(s,idx+1)
             if t==0:
                 err("Division by 0 error.")
-                idx=-1
-                x=-1
             else:
                 x//=t
         elif s[idx]=='%':
@@ -227,8 +222,8 @@ def term7(s,idx):
     return (x,idx)
 
 def term8(s,idx):
-    if s[idx]=='!':
-        (x,idx)=term8(s,idx+1)
+    if s[idx:idx+4]=='not ':
+        (x,idx)=term8(s,idx+3)
         x=not x
     else:
         (x,idx)=term7(s,idx)
@@ -257,7 +252,8 @@ def term10(s,idx):
 
 def expression(s,idx):
     s+=chr(0)
-    return term10(s,idx)
+    (x,idx)=term10(s,idx)
+    return (x,idx)
 
 def getsymval(w):
     l=list(symbols.items())
@@ -280,11 +276,10 @@ def readfile(fn):
     return af
     
 def set_symbol(i):
-    if not i:
-        return False
-    if not i[0]=='.setsym':
+    if i[0]!='.setsym':
     	return False
-    symbols[i[1].upper()],idx =expression(i[3],0)
+    v,idx=expression(i[3],0)
+    (symbols[i[1].upper()],idx) =(v,idx)
     return True
 
 def termc(i):
@@ -328,21 +323,32 @@ def remove_comment(l):
         idx+=1
     return l
 
+def replace_garbages(s):
+    s=s.replace(chr(0),'')
+    s=s.replace('\n',"")
+    s=s.replace(chr(13),'')
+    s=s.replace('\t','')
+    s=s.replace(' ','')
+    return(s)
+
 def readpat(fn):
     global pat
     f=open(fn,"rt")
     p=[]
     w=[]
+    prev=''
     while(l:=f.readline()):
         l=remove_comment(l)
-        l=l.replace('\n',"").replace(chr(13),'').replace('\t',' ')
-        l+=chr(0)
+        l=l.replace('\t',' ')
+        l=l.replace('\n','')
+        l=l.split(' ')
+
+        if len(l)>0 and l[0]=="":
+            l[0]=prev
+        prev=l[0]
+        l=[_ for _ in l if _]
         idx=0
-        t=[]
-        while l[idx]!=chr(0):
-            idx=getstr_(l,idx)
-            v,idx=getstr(l,idx)
-            t.append(v)
+        t=l
 
         if len(t)==1:
             p=[t[0],'','','']
@@ -365,7 +371,7 @@ def evalfs(s,idx):
     while True:
         if s[idx]=='(':
             idx+=1
-            v,idx=evalf(s,idx+1)
+            v,idx=evalf(s,idx)
             return ("("+str(v)+")",idx)
         elif s[idx]==chr(0) or s[idx]==',' or s[idx]==';':
             break
@@ -377,8 +383,6 @@ def evalfs(s,idx):
             chara=s[idx]
             idx+=1
             if s[idx:idx+3]==':=(':
-                chara=s[idx]
-                idx+=1
                 (v,idx)=evalf(s,idx+2)
                 put_vars(chara,v)
                 if s[idx]==')':
@@ -405,17 +409,16 @@ def evalf(s,idx):
     return(a,idx)
 
 def makeobj(s):
-    ch=','
     s+=chr(0)
     idx=0
     cnt=0
     while True:
+        sidx=idx
         (x,idx)=expression(s,idx)
-        if x!=-1:
+        if sidx!=idx:
             x=int(x)&0xff
             print("0x%02x," % x,end='')
             cnt+=1
-
         ch=s[idx]
         if ch==chr(0):
             break
@@ -433,53 +436,50 @@ def getword(s,idx):
         idx+=1
     return t,idx
     
-def getstr(s,idx):
-    t=''
-    if s[idx]=='"':
-        idx+=1
-    while s[idx]!='"':
-        t=t+s[idx]
-        idx+=1
-    if s[idx]=='"':
-        idx+=1
-    return t,idx
-
-def getstr_(s,idx):
-    while s[idx]!=chr(0) and s[idx]!='"':
-        idx+=1
-    return idx
-
 def match(s,t):
     s+=chr(0)
     t+=chr(0)
     idx_s=0
     idx_t=0
     while True:
-        a=t[idx_t] # aはパターンファイル
         b=s[idx_s] # bはアセンブリライン
-        if b==chr(0):
+        a=t[idx_t] # aはパターンファイル
+
+        if a==chr(0) and b==chr(0):
             return True
-        elif a==b.upper():
-            pass
-        elif a==b:
-            pass
-        elif a in "abcdefghijklmn":
-            (v,idx_s)=expression(s,idx_s)
-            if idx_s==-1:
+        elif a.isupper():
+            if a==b.upper():
+                idx_s+=1
+                idx_t+=1
+                continue
+            else:
                 return False
-            put_vars(t[idx_t],v)
-            idx_t+=1
-            continue
-        elif a in "opqrstuvwxyz":
-            (w,idx_s)=getword(s,idx_s)
-            if issymbol(w):
-                put_vars(t[idx_t],symbols[w])
+        elif a.islower():
+          idx_t+=1
+          if a in nalphabet:
+            s_idx_s=idx_s
+            (v,s_idx_s)=expression(s,idx_s)
+            if idx_s==s_idx_s:
+                return False
+            else:
+                idx_s=s_idx_s
+                put_vars(a,v)
+                continue
+          elif a in salphabet:
+                (w,s_idx_s)=getword(s,idx_s)
+                if idx_s==s_idx_s:
+                    return false
+                idx_s=s_idx_s
+                if issymbol(w.upper()):
+                    put_vars(a,symbols[w.upper()])
+                continue
+
+        elif a==b:
+            idx_s+=1
             idx_t+=1
             continue
         elif a!=b:
             return False
-        idx_s+=1
-        idx_t+=1
 
 def error(s):
     ch=','
@@ -495,53 +495,46 @@ def error(s):
         if s[idx]==';':
             idx+=1
         t,idx=evalf(s,idx)
-        if u:
+        if u==0:
             print(f"error code {t} ")
             error_occured=True
 
     return error_occured
 
 def lineassemble(line):
-    line=line.replace('\t',' ')
-    line=line.replace('\n','')
-    line=line.upper()
-    lin=[i for i in line.replace('\n','').upper().split(' ') if i]
-    if not lin:
+    line=line.replace('\t','').replace('\n','').upper().split(' ')
+    lin=[_ for _ in line if _]
+    l=""
+    l2=""
+    if len(lin)>=1:
+        l=lin[0]
+    if len(lin)>=2:
+        l2=lin[1]
+    if  l=="":
         return 0
-    l=lin
     idx=0
     of=0
-    prev="/*"
     se=False
     for i in pat:
         #
         # i はパターンファイルのデータ
         # l はアセンブリライン
         #
-        if debug:
-            print(symbols)
-            print(i)
         if set_symbol(i): continue
         if termc(i): continue
-
-        a=i[0].upper()
-        if not a:
-            a=prev
-        else:
-            prev=a
-        w=[_ for _ in i if _]
-        if a=='/*':
-            pass
-        elif a==l[0].upper():
-            if len(w)==1 or len(w)==2:
+        lw=len([_ for _ in i if _])
+        if lw==0:
+            continue
+        if i[0].upper()==l.upper():
+            if lw==1 or lw==2:
                 of=makeobj(i[3])
                 break
-            elif len(w)==3:
-                if match(l[1],i[1]):
+            elif lw==3:
+                if match(l2,i[1]):
                     of=makeobj(i[3])
                     break
-            elif len(w)==4:
-                if match(l[1],i[1]):
+            elif lw==4:
+                if match(l2,i[1]):
                     if error(i[2]):
                         of = 0
                         break
@@ -555,7 +548,7 @@ def lineassemble(line):
     return of
 
 def main():
-    global pc,debug
+    global pc
     pc=0
 
     if len(sys.argv)==1:
@@ -563,30 +556,15 @@ def main():
         print("Usage: python axx.py [-d] patternfile.axx [sourcefile.s]")
         return
 
-    if sys.argv[1]=='-d':
-        print("Debug mode")
-        debug=1
-        ofs=1
-    else:
         ofs=0
 
-    sys_argv=sys.argv[ofs:]
+    sys_argv=sys.argv
     if len(sys_argv)>=2:
         readpat(sys_argv[1])
 
     if len(sys_argv)==2:
         while True:
-            line=input(":").replace(chr(13),'').replace('\n','')
-            if line=='debug':
-                debug=1
-                print('debug')
-                line=""
-            if line=='undebug':
-                debug=0
-                print('undebug')
-                line=""
-            if debug:
-                print(symbols)
+            line=input(":")
             pc+=lineassemble(line)
     elif len(sys_argv)>=3:
         af=readfile(sys_argv[2])
