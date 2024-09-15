@@ -231,7 +231,7 @@ Error checking is lax.
 ```mips.axx
 .setsym $v0 2
 .setsym $a0 4
-ADDI x,y,d (e:=(0b00100000000000000000000000000000000|(y<<21)|(x<<16)|d&0b1111111111111111))>>24,e>>16,e>>8,e
+ADDI	x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 
 ```
 
