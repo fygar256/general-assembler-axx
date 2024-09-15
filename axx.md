@@ -1,10 +1,4 @@
----
-title: アセンブラの一般化 General Assembler 'axx'
-tags: Terminal assembly Python
-author: fygar256
-slide: false
----
-GENERAL ASSEMBLER 'axx.py'
+## GENERAL ASSEMBLER 'axx.py'
 
 axx.pyはアセンブラを一般化したジェネラル（汎用）アセンブラです。
 
@@ -27,16 +21,14 @@ axxでは、アセンブリ言語ソースファイルや標準入力から入�
 パターンデータは次のように並んでいます。
 
 ```
-"mnemonic"   "operands"   "error_patterns"  "binary_list" 
-"mnemonic"   "operands"   "error_patterns"  "binary_list" 
-"mnemonic"   "operands"   "error_patterns"  "binary_list" 
+mnemonic   operands   error_patterns  binary_list
+mnemonic   operands   error_patterns  binary_list
+mnemonic   operands   error_patterns  binary_list
 :
 :
 ```
 
-mnemonic,operands,error_patterns,binary_listは必ず`""`(ダブルクオート)で括って下さい。
-
-mnemonicは2行目からは省略可です。省略する場合は、""として、ヌルストリングを指定して下さい。
+mnemonicは2行目からは省略可です。省略する場合は、スペースを指定して下さい。
 
 省略すると、前行のmnemonicが採用されます。
 
@@ -45,15 +37,14 @@ operandsはない場合があります。error_patternsは省略可です。bina
 パターンデータの種類は次の3種類になります。
 
 ```
-(1) "mnemonic"                                    "binary_list"
-(2) "mnemonic"    "operands"                      "binary_list"
-(3) "mnemonic"    "operands"   "error_patterns"   "binary_list"
+(1) mnemonic                                binary_list
+(2) mnemonic    operands                    binary_list
+(3) mnemonic    operands   error_patterns   binary_list
 ```
 
 ・コメント
 
-パターンファイル内に、'/*'を書くとその行の/*以降がコメントになります。今の所、\*/で閉じることはできません。その行の/*以降だけに有効です。
-
+パターンファイル内に、'/*'を書くとその行の`/*`以降がコメントになります。今の所、`*/`で閉じることはできません。その行の`/*`以降だけに有効です。
 
 ・大文字・小文字の区別、変数
 
@@ -67,11 +58,12 @@ operandsからは、変数にオペランドの変数の位置に当たる式や
 
 ・式、値
 
-エラーパターンとバイナリリストを評価するのはpythonで、eval関数を使っています。変数の参照には、プリフィックスとして、`#`を付けて下さい。
+エラーパターンを評価するのはpythonで、eval関数を使っています。変数の参照には、プリフィックスとして、`#`を付けて下さい。
 
-アセンブリラインの値を評価するのは、axx.pyの組み込み関数expressionです。
+アセンブリラインと、バイナリリストの値を評価するのは、axx.pyの組み込み関数expressionです。
 
-パターンファイルの.setsymにシンボルの値を渡すときには、プリフィックスに`#`を付けて下さい。
+代入オペレータとして`:=`があります。`d:=24`とすると、変数dに24が代入されます。代入オペレータが持つ値は、代入された値です。
+
 
 ・error_patterns
 
@@ -82,18 +74,18 @@ error_patternsは、変数と比較演算子を使い、エラーの出る条件
 例えば、次のようです。
 
 ```
-"a>3;4,b>7;5"
+a>3;4,b>7;5
 ```
 この例では、a>3のとき、エラーコード4を返し、b>7のときエラーコード5を返します。
 
 ・binary_list
 
-binary_listは、出力するコードを','で区切って指定します。例えば、0x03,#dとすると、0x3の次にdが出力されます。binary_listの要素は、pythonのeval関数を呼び出して値とします。
+binary_listは、出力するコードを','で区切って指定します。例えば、0x03,#dとすると、0x3の次にdが出力されます。
 
 8048を例に取ります。パターンファイルに
 
 ```
-"ADD"    "A,Rn"  "n>7;5"  "#n|0x68"
+ADD    A,Rn  n>7;5  n|0x68
 ```
 
 があるとし、アセンブリラインに`add a,rn`を渡すと、n>7のときエラーコード5を返し、`add a,r1`で、0x69のバイナリが生成されます
@@ -101,33 +93,33 @@ binary_listは、出力するコードを','で区切って指定します。例
 ・symbol
 
 ```
-".setsym" "symbol" "n"
+.setsym symbol n
 ```
 
 と書くと、symbolが値nで定義されます。
 
-シンボルは、アルファベット、数字などを含みますが、axxでは、次のキャラクタ以外をシンボルの構成キャラクタとしてます。` \t\n\0()[]{}\\\"\';,`。これをターミネーションキャラクタと呼びます。
+シンボルは、アルファベット、数字などを含みますが、axxでは、次のキャラクタ以外をシンボルの構成キャラクタとしてます。`,; \t\n\0()[]{}\\\"\'`。これをターミネーションキャラクタと呼びます。
 
 ターミネーションキャラクタは、`.termc`コマンドを書くことによって変えることができます。
 
 ```
-".termc" ",; \t\n\0()[]{}\\"
+.termc ,;\t\n\0()[]{}\\
 ```
 
 symbol定義のz80の例を挙げます。パターンファイル内に
 
 ```
-".setsym" "B" "0"
-".setsym" "C" "1
-".setsym" "D" "2
-".setsym" "E" "3
-".setsym" "H" "4
-".setsym" "L" "5
-".setsym" "A" "7
-".setsym" "BC" "0x00"
-".setsym" "DE" "0x10"
-".setsym" "HL" "0x20"
-".setsym" "SP" "0x30"
+.setsym B 0
+.setsym C 1
+.setsym D 2
+.setsym E 3
+.setsym H 4
+.setsym L 5
+.setsym A 7
+.setsym BC 0x00
+.setsym DE 0x10
+.setsym HL 0x20
+.setsym SP 0x30
 ```
 
 と書いておくと、シンボルB,C,D,E,H,L,A,BC,DE,HL,SPを、それぞれ0,1,2,3,4,5,7,0x00,0x10,0x20,0x30として定義します。シンボルには、大文字小文字の区別はありません。
@@ -135,15 +127,15 @@ symbol定義のz80の例を挙げます。パターンファイル内に
 パターンファイル中に同じシンボルの定義が複数あると、新しいものが古いものを更新します。すなわち、
 
 ```
-".setsym" "B" "0"
-".setsym" "C" "1"
-"ADD" "A,s"
+.setsym B 0
+.setsym C 1
+ADD A,s
 
-".setsym" "NZ" "0"
-".setsym" "Z"  "1"
-".setsym" "NC" "2"
-".setsym" "C"  "3"
-"RET" "s"
+.setsym NZ 0
+.setsym Z  1
+.setsym NC 2
+.setsym C  3
+RET s
 ```
 
 とあると、ADD A,CのCは1、RET CのCは3になります。
@@ -151,16 +143,16 @@ symbol定義のz80の例を挙げます。パターンファイル内に
 ・記号、数字、アルファベットが混在するシンボルの例
 
 ```
-".setsym" "$s5" "21"
+.setsym $s5 21
 ```
 
 ・バイナリ出力の例
 
 ```
-".setsym" "BC" "0x00"
-".setsym" "DE" "0x10"
-".setsym" "HL" "0x20"
-"LD"    "s,d"  "(s&0xf!=0)||(s>>4)>3;9"  "#s|0x01,#d&0xff,#d>>8"
+.setsym BC 0x00
+.setsym DE 0x10
+.setsym HL 0x20
+LD    s,d  (#s&0xf!=0)||(#s>>4)>3;9  s|0x01,d&0xff,d>>8
 ```
 
 で、`ld bc,0x1234, ld de,0x1234, ld hl,0x1234`が、それぞれ、`0x01,0x34,0x12、0x11,0x34,0x12、0x21,0x34,0x12`を出力します。
@@ -168,8 +160,8 @@ symbol定義のz80の例を挙げます。パターンファイル内に
 ・パターンの順番
 
 ```
-(1) "LD" "A,(HL)"
-(2) "LD" "A,d"
+(1) LD A,(HL)
+(2) LD A,d
 ```
 
 のように、パターンファイルは上から順に評価されますので、先に置かれたほうが優先します。
@@ -181,7 +173,7 @@ symbol定義のz80の例を挙げます。パターンファイル内に
 例えば、浮動小数点をオペランドに含むプロセッサがあるとし、 `MOVF fa,3.14` で、faレジスタに3.14がロードされ、そのオペコードは01とします。その場合、パターンデータは、
 
 ```
-"MOVF" "FA,d" "0x01,#d>>24,#d>>16,#d>>8,#d"
+MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
 となり、アセンブルラインに、`movf fa,0f3.14`を渡すと、バイナリ出力は、0x01,0xc3,0xf5,0x48,0x40となります。
@@ -201,6 +193,8 @@ symbol定義のz80の例を挙げます。パターンファイル内に
 ・エラーチェック
 
 エラーチェックが甘いです。
+
+
 
 ## Version
 
@@ -226,12 +220,34 @@ symbol定義のz80の例を挙げます。パターンファイル内に
 
 2024/09/15 シンボルでシンボルを定義可にする。 version 1.2.2
 
+2024/09/16 パターンファイルの記述方法を元へ戻す。やっと脱稿。 version 1.3.0
+
+### MIPSの例
+
+```mips.axx
+.setsym $v0 2
+.setsym $a0 4
+ADDI    x,y,d (e:=(0b00100000000000000000000000000000|(y<<21)|(x<<16)|d&0b1111111111111111))>>24,e>>16,e>>8,e
+
+```
+
+代入オペレータ`:=`を使っています。
+
+```
+$ axx.py mips.axx
+: addi $a0,$v0,9
+0x20,0x44,0x00,0x09,
+:
+```
+
 ### コメント
 
 ・表記の揺れは許して下さい。
 
 ・当たり前ですが、LISPマシンは記述できません。
 
+
 ### 謝辞
 
 問題を出してくれて、ヒントをくれた、師匠の浜田純市さんと東京電子設計と、協力してくれた電気通信大学と、そして、忘れられない誰か達に感謝を述べさせていただきます。ありがとうございます。
+
