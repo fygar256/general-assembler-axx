@@ -11,7 +11,7 @@ pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digits='0123456789'
-term=' '+chr(0)+'\n'+'\t'+',;()[]{}\"\''
+etc=' '+chr(0)+'\n'+'\t'+',;()[]{}\"\''
 alphabet=lower+capital
 debug=0
 symbols={}
@@ -66,7 +66,7 @@ def factor1(s,idx):
     elif q(s,'0x',idx):
         idx+=2
         while(s[idx].upper() in "0123456789ABCDEF"):
-            x=16*x+(ord(s[idx])-0x30 if s[idx] in digits else ord(s[idx].upper())-0x41+10 )
+            x=16*x+int(s[idx],16)
             idx+=1
 
     elif q(s,'0d',idx):
@@ -283,16 +283,8 @@ def set_symbol(i):
     symbols[i[1].upper()],idx =expression(i[3],0)
     return True
 
-def eset_symbol(i):
-    if not i:
-        return False
-    if not i[0]=='.esetsym':
-        return False
-    symbols[i[1].upper()]=symbols[i[3]]
-    return True
-
 def termc(i):
-    global etc
+    global etc 
     if len(i)==0:
         return False
     if not i[0]=='.termc':
@@ -364,44 +356,75 @@ def readpat(fn):
     f.close()
     return
 
-def evalf(s,idx):
+def evalfs(s,idx):
     a=''
     while True:
-        if len(s)<=idx:
-            return (False,0)
-        if s[idx]!=chr(0) and s[idx]!=',' and s[idx]!=';':
-            if s[idx]=='#':
-                idx+=1
-                v=get_vars(s[idx])
-                idx+=1
-                a+="("+str(v)+")"
-            else:
-                a+=s[idx]
-                idx+=1
-        else:
+        if s[idx]=='(':
+            idx+=1
+            v,idx=evalf(s,idx+1)
+            return ("("+str(v)+")",idx)
+        elif s[idx]==chr(0) or s[idx]==',' or s[idx]==';':
             break
-    return (eval(a),idx)
+        elif s[idx]==')':
+            idx+=1
+            break
+        elif s[idx]==chr(0x23):
+            idx+=1
+            chara=s[idx]
+            idx+=1
+            if s[idx:idx+3]==':=(':
+                chara=s[idx]
+                idx+=1
+                (v,idx)=evalf(s,idx+2)
+                put_vars(chara,v)
+                if s[idx]==')':
+                    idx+=1
+                else:
+                    pass
+            else:
+                v=get_vars(chara)
+            a+="("+str(v)+")"
+        else:
+            a+=s[idx]
+            idx+=1
+
+    return (a,idx)
+
+def evalf(s,idx):
+    x,idx=evalfs(s,idx)
+    try:
+        a=eval(x)
+    except:
+        a=-1
+    else:
+        pass
+    return(a,idx)
 
 def makeobj(s):
     ch=','
     s+=chr(0)
     idx=0
     cnt=0
-    while (ch:=s[idx])!=chr(0):
-        if ch==',':
-            idx+=1
-            continue
+    while True:
         (x,idx)=evalf(s,idx)
-        x=x&0xff
-        print("0x%02x," % x,end='')
-        cnt+=1
+        if x!=-1:
+            x=int(x)&0xff
+            print("0x%02x," % x,end='')
+            cnt+=1
+
+        ch=s[idx]
+        if ch==chr(0):
+            break
+        idx+=1
+        if ch==',':
+            continue
 
     print("")
     return cnt
 
 def getword(s,idx):
     t=""
-    while not (s[idx] in term):
+    while not (s[idx] in etc):
         t+=s[idx].upper()
         idx+=1
     return t,idx
@@ -428,11 +451,11 @@ def match(s,t):
     idx_s=0
     idx_t=0
     while True:
-        a=t[idx_t]
-        b=s[idx_s]
-        if a==chr(0) and b==chr(0):
+        a=t[idx_t] # aはパターンファイル
+        b=s[idx_s] # bはアセンブリライン
+        if b==chr(0):
             return True
-        if a in capital and a==b.upper():
+        elif a==b.upper():
             pass
         elif a==b:
             pass
@@ -475,28 +498,37 @@ def error(s):
     return error_occured
 
 def lineassemble(line):
-    prev=''
     line=line.replace('\t',' ')
-    line=line.replace('\n',' ')
+    line=line.replace('\n','')
     line=line.upper()
-    if not line:
+    lin=[i for i in line.replace('\n','').upper().split(' ') if i]
+    if not lin:
         return 0
-    s=line+chr(0)
-    l=[i for i in line.replace('\n','').upper().split(' ') if i]
+    l=lin
     idx=0
-    se=False
     of=0
+    prev="/*"
+    se=False
     for i in pat:
+        #
+        # i はパターンファイルのデータ
+        # l はアセンブリライン
+        #
         if debug:
             print(symbols)
-        a=i[0] if i else ""
+            print(i)
         if set_symbol(i): continue
         if termc(i): continue
-        if not a: a=prev
-        prev=a
+
+        a=i[0].upper()
+        if not a:
+            a=prev
+        else:
+            prev=a
         w=[_ for _ in i if _]
-        if not l: continue
-        if a==l[0]:
+        if a=='/*':
+            pass
+        elif a==l[0].upper():
             if len(w)==1 or len(w)==2:
                 of=makeobj(i[3])
                 break
@@ -524,28 +556,34 @@ def main():
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by T.Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py [-d] patternfile.axx [sourcefile.s]")
         return
 
-    if len(sys.argv)>=2:
-        readpat(sys.argv[1])
+    if sys.argv[1]=='-d':
+        print("Debug mode")
+        debug=1
+        ofs=1
+    else:
+        ofs=0
 
-    if len(sys.argv)==2:
+    sys_argv=sys.argv[ofs:]
+    if len(sys_argv)>=2:
+        readpat(sys_argv[1])
+
+    if len(sys_argv)==2:
         while True:
-            line=input(": ")
-            if line=="debug":
-                print("debug mode")
+            line=input(":").replace(chr(13),'').replace('\n','')
+            if line=='debug':
                 debug=1
-                continue
-            elif line=="undebug":
-                print("silent mode")
+                print('debug')
+                line=""
+            if line=='undebug':
                 debug=0
-                continue
-
+                print('undebug')
+                line=""
             pc+=lineassemble(line)
-
-    elif len(sys.argv)>=3:
-        af=readfile(sys.argv[2])
+    elif len(sys_argv)>=3:
+        af=readfile(sys_argv[2])
         for i in af:
             pc+=lineassemble(i)
 
