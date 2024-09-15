@@ -592,7 +592,5 @@ def main():
             pc+=lineassemble(i)
 
 if __name__=='__main__':
-    s='(0+8),(9+8)'
-    print (expression(s,0))
     main()
     exit(0)
