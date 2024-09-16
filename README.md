@@ -5,25 +5,25 @@ author: fygar256
 slide: false
 ---
 
-GENERAL ASSEMBLER 'axx.py'
+# GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a general assembler.
+axx.py is a generalized assembler.
 
 It is written in a general way, so the execution platform is not dependent on a specific processing system.
 
 It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. We plan to implement the practical functions of dedicated assemblers in the future.
 
 ・How to use
 
-Use it like this: `python axx.py 8048.axx [sample.s]`.
+Use it as follows: python axx.py 8048.axx [sample.s].
 
-axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+axx reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-In axx, an assembly language source file or a line input from standard input is called an assembly line.
+In axx, a line input from an assembly language source file or standard input is named an assembly line.
 
-・Explanation of pattern data
+・Pattern data explanation
 
 Pattern data is arranged as follows.
 
@@ -49,25 +49,25 @@ There are three types of pattern data:
 (3) mnemonic operands error_patterns binary_list
 ```
 
-・Comments
+・Comment
 
-If you write '/*' in a pattern file, the part after `/*' on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+If '/*' is written in the pattern file, the part after `/*` on that line becomes a comment. Currently, you cannot close a line with `*/`. It is only valid after the `/*` on that line.
 
 ・Case sensitivity, variables
 
-The mnemonic in the pattern file is a character constant, so please write it in uppercase. The constant characters in operands should also be in uppercase. The assembly line accepts uppercase and lowercase characters as the same.
+Uppercase letters in the mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as variables. The mnemonic and operands assign the value of the expression or symbol at that position to the variable.
 
-The lowercase letters in operands, error_patterns, and binary_list are variables.
+Lowercase variables are referenced from error_patterns and binary_list. Lowercase letters a through n represent expressions, and lowercase letters o through z represent symbols.
 
-The values ​​of the expressions or symbols that correspond to the variable positions in the operands are assigned to the variables from operands.
+The assembly line accepts uppercase and lowercase letters as the same.
 
-Lowercase letters a to n represent expressions, and o to z represent symbols. Values ​​are referenced from the variables in error_pattern and binary_list. A special variable in assembly line expressions is '$$', which represents the current location counter.
+The special variable in assembly line expressions is '$$', which represents the current location counter.
 
 ・Expression, value
 
-There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to the variable d. The value of the assignment operator is the assigned value.
+There is an assignment operator :=. If you enter d:=24, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
 
-The prefix operator `#` takes the value of the symbol that follows.
+The prefix operator `#` takes the value of the symbol that follows it.
 
 The prefix operator `@` returns the number of bits of the value that follows.
 
@@ -77,16 +77,17 @@ The binary operator `**` is exponentiation.
 
 error_patterns uses variables and comparison operators to specify the conditions under which an error occurs.
 
-Multiple error patterns can be specified, separated by ','. For example, as follows.
+Multiple error patterns can be specified, separated by ','. For example, as follows:
 
 ```
 a>3;4,b>7;5
 ```
+
 In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
 
 ・binary_list
 
-binary_list specifies the code to be output, separated by ','. For example, if you specify 0x03,#d, d will be output after 0x3.
+binary_list specifies the codes to be output, separated by ','. For example, if you specify 0x03,#d, d will be output after 0x3.
 
 Let's take 8048 as an example. If the pattern file contains
 
@@ -94,7 +95,7 @@ Let's take 8048 as an example. If the pattern file contains
 ADD A,Rn n>7;5 n|0x68
 ```
 
-and you pass `add a,rn` to the assembly line, it will return error code 5 when n>7, and `add a,r1` will generate binary 0x69.
+, and you pass add a,rn to the assembly line, it will return error code 5 if n>7, and add a,r1 will generate binary 0x69.
 
 ・symbol
 
@@ -102,17 +103,17 @@ and you pass `add a,rn` to the assembly line, it will return error code 5 when n
 .setsym symbol n
 ```
 
-When you write this, symbol is defined with the value n.
+Writing this defines symbol with the value n.
 
-Symbols include letters, numbers, etc., but axx uses characters other than the following as constituent characters of symbols. `,; \t\n\0()[]{}\\\"\'`. This is called the termination character.
+Symbols include letters, numbers, etc., but axx uses characters other than the following as constituent characters of the symbol: ,; \t\n\0()[]{}\\\"\'. This is called the termination character.
 
-The termination character can be changed by writing the `.termc` command.
+The termination character can be changed by writing the .termc command.
 
 ```
 .termc ,;\t\n\0()[]{}\\
 ```
 
-Here is an example of a symbol definition z80. In the pattern file
+Here is an example of the symbol definition z80. In the pattern file,
 
 ```
 .setsym B 0
@@ -128,9 +129,9 @@ Here is an example of a symbol definition z80. In the pattern file
 .setsym SP 0x30
 ```
 
-If you write this, the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP will be defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
+The symbols B, C, D, E, H, L, A, BC, DE, HL, and SP are defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in the pattern file, the new one will replace the old one. That is,
+If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,
 
 ```
 .setsym B 0
@@ -144,7 +145,7 @@ ADD A,s
 RET s
 ```
 
-If you write this, the C in ADD A,C will be 1, and the C in RET C will be 3.
+The C in ADD A,C will be 1, and the C in RET C will be 3.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
@@ -161,9 +162,9 @@ If you write this, the C in ADD A,C will be 1, and the C in RET C will be 3.
 LD s,d (#s&0xf!=0)||(#s>>4)>3;9 s|0x01,d&0xff,d>>8
 ```
 
-Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12`, respectively.
+So `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12,` respectively.
 
-・Order of patterns
+・Pattern order
 
 ```
 (1) LD A,(HL)
@@ -172,34 +173,33 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 
 Pattern files are evaluated from top to bottom, so the one placed first takes precedence.
 
-In this case, if (1) and (2) were reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so place LD A,(HL) in the pattern file before LD A,d. Place special patterns first and general patterns after.
+In this case, if (1) and (2) were reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so place LD A,(HL) in the pattern file before LD A,d. Special patterns are placed first, and general patterns are placed last.
 
 - Floating point
 
-For example, suppose you have a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data will be
+For example, suppose there is a processor that includes floating point operands, and MOVF fa,3.14 loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data would be
 
 ```
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
-If you pass `movf fa,0f3.14` to the assemble line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
+and if movf fa,0f3.14 is passed to the assemble line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
--Number notation
+- Number notation
 
 Prefix binary numbers with '0b'.
 
 Prefix hexadecimal numbers with '0x'.
 
-Prefix floating-point float (32bit) with '0f'.
+Prefix floating point float (32bit) with '0f'.
 
-Prefix floating-point double (float 64bit) with '0d'.
+For floating-point double (float 64bit), please prefix with '0d'.
 
--Error checking
+・Error check
 
-Error checking is lax.
+Error check is lax.
 
-## Version
-
+Version
 2024/02/21 First published
 
 2024/07/30 Sorry, there was a bug.
@@ -218,36 +218,37 @@ Error checking is lax.
 
 2024/09/13 22:00 Revised symbol definition specifications. version 1.1.5
 
-2024/09/14 Changed the way pattern files are written. Evaluation of errorpattern is now done with the eval function. version 1.2.0
+2024/09/14 Changed pattern file description method. Evaluate errorpattern with eval function. version 1.2.0
 
-2024/09/15 Symbols can now be defined with symbols. version 1.2.2
+2024/09/15 Allow symbols to be defined by symbols. version 1.2.2
 
-2024/09/16 Returned the way pattern files are written to the original. Finally finished. version 1.3.0
+2024/09/16 Reverted pattern file description method. Finally finished. version 1.3.0
 
-2024/09/16 13:00 Add the `#` prefix operator. version 1.3.2
+2024/09/16 13:00 Add #prefix operator. version 1.3.2
 
-2024/09/16 19:30 Add the `@` prefix operator. Add the power operator. Improved the match function to correct the notation for x86_64. version 1.3.8
+2024/09/16 19:30 Added the @ prefix operator. Added the power operator. Improved the match function to correct the notation for x86_64. version 1.3.8
 
-### MIPS example
+2024/09/17 02:40 Changed mnemonic to handle variables. version 1.4.0
 
-```mips.axx
+
+MIPS example
+```
 .setsym $v0 2
 .setsym $a0 4
 ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
-
 ```
 
 Assignment operator `:=` is used.
 
 ```
 $ axx.py mips.axx
-: addi $a0,$v0,9 0x20,0x44,0x00,0x09,
+: addi $a0,$v0,9
+0x20,0x44,0x00,0x09,
 :
 ```
 
-### Example of x86_64 instruction 
 
-x86_64.axx
+An example of x86_64 instructions
 
 ```
 .setsym rax 0
@@ -262,11 +263,12 @@ $ axx x86_64.axx
 0x48,0x8d,0x04,0x4b,0x10,
 ```
 
-### Comments
+Comments
 
-- Please forgive any inconsistencies in the notation.
+- Please forgive any variations in notation.
 
-- Obviously, it can't handle LISP machines.
+- Obviously, LISP machines cannot be described.
+
 
 ### Thanks
 
