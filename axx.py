@@ -508,7 +508,7 @@ def lineassemble(line):
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
-        if i[0].upper()==l.upper():
+        if match(l,i[0]):
             if lw==1 or lw==2:
                 of=makeobj(i[3])
                 break
