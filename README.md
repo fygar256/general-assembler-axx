@@ -253,7 +253,7 @@ x86_64.axx
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
-LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+LEAQ r,[s+t*d+e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 ```
 
 ```
