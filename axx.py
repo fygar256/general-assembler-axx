@@ -491,11 +491,11 @@ def error(s):
             idx+=1
             continue
 
-        u,idx=evalf(s,idx)
+        u,idx=expression(s,idx)
         if s[idx]==';':
             idx+=1
-        t,idx=evalf(s,idx)
-        if u==0:
+        t,idx=expression(s,idx)
+        if u:
             print(f"error code {t} ")
             error_occured=True
 
