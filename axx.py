@@ -62,6 +62,10 @@ def factor1(s,idx):
     if q(s,'$$',idx):
         idx+=2
         x=pc
+    elif q(s,'#',idx):
+        idx+=1
+        (t,idx)=getword(s,idx)
+        x=getsymval(t)
     elif q(s,'0b',idx):
         idx+=2
         while(s[idx].upper() in "01"):
@@ -259,8 +263,8 @@ def getsymval(w):
     l=list(symbols.items())
     for i in l:
         if i[0]==w:
-            return w
-    return ''
+            return symbols[w]
+    return 0 
 
 def issymbol(w):
     l=list(symbols.items())
@@ -511,7 +515,7 @@ def main():
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by T.Maekawa")
-        print("Usage: python axx.py [-d] patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
         return
 
         ofs=0
