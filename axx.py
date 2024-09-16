@@ -430,6 +430,15 @@ def match(s,t):
 
         if a==chr(0) and b==chr(0):
             return True
+
+        elif a in digit:
+            if b==a:
+                idx_s+=1
+                idx_t+=1
+                continue
+            else:
+                return False
+
         elif a.isupper():
             if a==b.upper():
                 idx_s+=1
