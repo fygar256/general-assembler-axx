@@ -1,4 +1,10 @@
-## GENERAL ASSEMBLER 'axx.py'
+---
+title: アセンブラの一般化 General Assembler 'axx'
+tags: Terminal assembly Python
+author: fygar256
+slide: false
+---
+GENERAL ASSEMBLER 'axx.py'
 
 axx.pyはアセンブラを一般化したジェネラル（汎用）アセンブラです。
 
@@ -6,7 +12,7 @@ axx.pyはアセンブラを一般化したジェネラル（汎用）アセン�
 
 DOSファイルの行末のchr(13)も無視するようにしています。pythonが動く処理系だったら動作すると思います。
 
-axxは、パターンデータを用意すれば、あらゆるプロセッサの命令セットを処理できる機能があると思いますが、専用のアセンブラの備えている実用的な機能はサポートされていません。今のヴァージョンは試験的実装です。これから、専用のアセンブラの持つ実用的な機能を実装していくつもりもあります。
+axxは、パターンデータを用意すれば、任意のプロセッサの命令セットを処理できると思いますが、専用のアセンブラの備えている実用的な機能はサポートされていません。今のヴァージョンは試験的実装です。これから、専用のアセンブラの持つ実用的な機能を実装していくつもりもあります。
 
 ・使い方
 
@@ -21,9 +27,9 @@ axxでは、アセンブリ言語ソースファイルや標準入力から入�
 パターンデータは次のように並んでいます。
 
 ```
-mnemonic   operands   error_patterns  binary_list
-mnemonic   operands   error_patterns  binary_list
-mnemonic   operands   error_patterns  binary_list
+mnemonic   operands   error_patterns  binary_list 
+mnemonic   operands   error_patterns  binary_list 
+mnemonic   operands   error_patterns  binary_list 
 :
 :
 ```
@@ -60,7 +66,11 @@ operandsからは、変数にオペランドの変数の位置に当たる式や
 
 代入オペレータとして`:=`があります。`d:=24`とすると、変数dに24が代入されます。代入オペレータが持つ値は、代入された値です。
 
-前置オペレータ#は、後に続くシンボルの値を取ります。
+前置オペレータ`#`は、後に続くシンボルの値を取ります。
+
+前置オペレータ`@`は、後に続く値が何ビットあるかを返します。
+
+2項演算子`**`は、べき乗です。
 
 ・error_patterns
 
@@ -189,8 +199,6 @@ MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 
 エラーチェックが甘いです。
 
-
-
 ## Version
 
 2024/02/21 初出
@@ -217,13 +225,17 @@ MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 
 2024/09/16 パターンファイルの記述方法を元へ戻す。やっと脱稿。 version 1.3.0
 
+2024/09/16 13:00 `#`前置演算子を付ける。 version 1.3.2
+
+2024/09/16 19:30 `@`前置演算子を付ける。べき乗演算子を付ける。x86_64用表記の修正のために、match関数を改良。 version 1.3.8
+
 ### MIPSの例
 
 ```mips.axx
 .setsym $v0 2
 .setsym $a0 4
-ADDI    x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
-
+ADDI	x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+                                             
 ```
 
 代入オペレータ`:=`を使っています。
@@ -232,7 +244,22 @@ ADDI    x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 $ axx.py mips.axx
 : addi $a0,$v0,9
 0x20,0x44,0x00,0x09,
-:
+: 
+```
+
+### x86_64の命令の一例
+
+```x86_64.axx
+.setsym rax 0
+.setsym rbx 3
+.setsym rcx 1
+LEAQ r,[s+t*d+e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+```
+
+```
+$ axx x86_64.axx
+:leaq rax,[rbx+rcx*2+0x10]
+0x48,0x8d,0x04,0x4b,0x10,
 ```
 
 ### コメント
@@ -245,4 +272,3 @@ $ axx.py mips.axx
 ### 謝辞
 
 問題を出してくれて、ヒントをくれた、師匠の浜田純市さんと東京電子設計と、協力してくれた電気通信大学と、そして、忘れられない誰か達に感謝を述べさせていただきます。ありがとうございます。
-
