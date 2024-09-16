@@ -4,15 +4,16 @@ tags: Terminal assembly Python
 author: fygar256
 slide: false
 ---
+
 GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a generalized assembler.
+axx.py is a general assembler.
 
 It is written in a general way, so the execution platform is not dependent on a specific processing system.
 
-It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
+It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
 
-I think axx has the ability to process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions that a dedicated assembler has. The current version is an experimental implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 ・How to use
 
@@ -50,7 +51,7 @@ There are three types of pattern data:
 
 ・Comments
 
-If you write `/*` in a pattern file, the part after `/*' on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+If you write '/*' in a pattern file, the part after `/*' on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
 
 ・Case sensitivity, variables
 
@@ -60,33 +61,32 @@ The lowercase letters in operands, error_patterns, and binary_list are variables
 
 The values ​​of the expressions or symbols that correspond to the variable positions in the operands are assigned to the variables from operands.
 
-Lowercase letters a to n represent expressions, and o to z represent symbols. Values ​​are referenced from the variables in error_pattern and binary_list. The special variable in assembly line expressions is '$$', which represents the current location counter.
+Lowercase letters a to n represent expressions, and o to z represent symbols. Values ​​are referenced from the variables in error_pattern and binary_list. A special variable in assembly line expressions is '$$', which represents the current location counter.
 
 ・Expression, value
 
-Error patterns are evaluated in Python using the eval function. Please prefix variables with `#`.
+There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to the variable d. The value of the assignment operator is the assigned value.
 
-There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
+The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator # takes the value of the symbol that follows it.
+The prefix operator `@` returns the number of bits of the value that follows.
+
+The binary operator `**` is exponentiation.
 
 ・error_patterns
 
-error_patterns uses variables and comparison operators to specify the conditions under which an error will occur.
+error_patterns uses variables and comparison operators to specify the conditions under which an error occurs.
 
-Multiple error patterns can be specified, separated by ','.
-
-For example, it looks like this:
+Multiple error patterns can be specified, separated by ','. For example, as follows.
 
 ```
 a>3;4,b>7;5
 ```
-
-In this example, when a>3, it returns error code 4, and when b>7, it returns error code 5.
+In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
 
 ・binary_list
 
-binary_list specifies the code to be output, separated by ','. For example, if 0x03,#d is specified, d will be output after 0x3.
+binary_list specifies the code to be output, separated by ','. For example, if you specify 0x03,#d, d will be output after 0x3.
 
 Let's take 8048 as an example. If the pattern file contains
 
@@ -94,7 +94,7 @@ Let's take 8048 as an example. If the pattern file contains
 ADD A,Rn n>7;5 n|0x68
 ```
 
-and `add a,rn` is passed to the assembly line, it will return error code 5 when n>7, and `add a,r1` will generate binary 0x69.
+and you pass `add a,rn` to the assembly line, it will return error code 5 when n>7, and `add a,r1` will generate binary 0x69.
 
 ・symbol
 
@@ -102,7 +102,7 @@ and `add a,rn` is passed to the assembly line, it will return error code 5 when 
 .setsym symbol n
 ```
 
-When written, symbol is defined with the value n.
+When you write this, symbol is defined with the value n.
 
 Symbols include letters, numbers, etc., but axx uses characters other than the following as constituent characters of symbols. `,; \t\n\0()[]{}\\\"\'`. This is called the termination character.
 
@@ -198,7 +198,6 @@ Prefix floating-point double (float 64bit) with '0d'.
 
 Error checking is lax.
 
-
 ## Version
 
 2024/02/21 First published
@@ -219,19 +218,22 @@ Error checking is lax.
 
 2024/09/13 22:00 Revised symbol definition specifications. version 1.1.5
 
-2024/09/14 Changed pattern file description method. Errorpattern evaluation is now also done with the eval function. version 1.2.0
+2024/09/14 Changed the way pattern files are written. Evaluation of errorpattern is now done with the eval function. version 1.2.0
 
-2024/09/15 Symbols can now be defined by symbols. version 1.2.2
+2024/09/15 Symbols can now be defined with symbols. version 1.2.2
 
-2024/09/16 Reverted pattern file description method to original. Finally finished. version 1.3.0
+2024/09/16 Returned the way pattern files are written to the original. Finally finished. version 1.3.0
 
+2024/09/16 13:00 Add the `#` prefix operator. version 1.3.2
+
+2024/09/16 19:30 Add the `@` prefix operator. Add the power operator. Improved the match function to correct the notation for x86_64. version 1.3.8
 
 ### MIPS example
 
 ```mips.axx
 .setsym $v0 2
 .setsym $a0 4
-ADDI	x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 
 ```
 
@@ -239,16 +241,32 @@ Assignment operator `:=` is used.
 
 ```
 $ axx.py mips.axx
-: addi $a0,$v0,9
-0x20,0x44,0x00,0x09,
+: addi $a0,$v0,9 0x20,0x44,0x00,0x09,
 :
+```
+
+### Example of x86_64 instruction 
+
+x86_64.axx
+
+```
+.setsym rax 0
+.setsym rbx 3
+.setsym rcx 1
+LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+```
+
+```
+$ axx x86_64.axx
+:leaq rax,[rbx+rcx*2+0x10]
+0x48,0x8d,0x04,0x4b,0x10,
 ```
 
 ### Comments
 
-- Please forgive the inconsistencies in the notation.
+- Please forgive any inconsistencies in the notation.
 
-- Obviously, I cannot write LISP machines.
+- Obviously, it can't handle LISP machines.
 
 ### Thanks
 
