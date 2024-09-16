@@ -441,7 +441,7 @@ def match(s,t):
           idx_t+=1
           if a in nalphabet:
             s_idx_s=idx_s
-            (v,s_idx_s)=expression(s,idx_s)
+            (v,s_idx_s)=factor(s,idx_s)
             if idx_s==s_idx_s:
                 return False
             else:
