@@ -68,6 +68,8 @@ Error patterns are evaluated in Python using the eval function. Please prefix va
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
 
+The prefix operator # takes the value of the symbol that follows it.
+
 ・error_patterns
 
 error_patterns uses variables and comparison operators to specify the conditions under which an error will occur.
