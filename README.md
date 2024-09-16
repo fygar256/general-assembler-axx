@@ -66,15 +66,13 @@ Lowercase letters a to n represent expressions, and o to z represent symbols. Va
 
 Error patterns are evaluated in Python using the eval function. Please prefix variables with `#`.
 
-The assembly line and binary list values ​​are evaluated using the expression built-in function in axx.py.
-
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
 
 ・error_patterns
 
 error_patterns uses variables and comparison operators to specify the conditions under which an error will occur.
 
-Multiple error patterns can be specified, separated by ','. Each element of error_patterns calls the python eval function.
+Multiple error patterns can be specified, separated by ','.
 
 For example, it looks like this:
 
