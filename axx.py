@@ -14,7 +14,7 @@ nalphabet="abcdefghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
-etc=' ,;()[]{}\"\'\n\t'+chr(0)
+etc='+-*/ ,;()[]{}\"\'\n\t'+chr(0)
 alphabet=lower+capital
 symbols={}
 pat=[]
@@ -38,6 +38,14 @@ def err(m):
     print(m)
     return -1
 
+def nbit(l):
+    b=0
+    r=l
+    while(r):
+        r>>=1
+        b+=1
+    return b
+
 def factor(s,idx):
     x=0
     if s[idx]=='-':
@@ -46,6 +54,9 @@ def factor(s,idx):
     elif s[idx]=='~':
         (x,idx)=factor(s,idx+1)
         x=~x
+    elif s[idx]=='@':
+        (x,idx)=factor(s,idx+1)
+        x=nbit(x)
     else:
         (x,idx)=factor1(s,idx)
     return (x,idx)
@@ -114,20 +125,30 @@ def factor1(s,idx):
         idx+=1
     return (x,idx)
 
-def term0(s,idx):
+def term0_0(s,idx):
     (x,idx)=factor(s,idx)
     while True:
+        if q(s,'**',idx):
+            (t,idx)=factor(s,idx+2)
+            x=x**t
+        else:
+            break
+    return(x,idx)
+
+def term0(s,idx):
+    (x,idx)=term0_0(s,idx)
+    while True:
         if (s[idx]=='*'):
-            (t,idx)=factor(s,idx+1)
+            (t,idx)=term0_0(s,idx+1)
             x*=t
         elif (s[idx]=='/'):
-            (t,idx)=factor(s,idx+1)
+            (t,idx)=term0_0(s,idx+1)
             if t==0:
                 err("Division by 0 error.")
             else:
                 x//=t
         elif s[idx]=='%':
-            (t,idx)=factor(s,idx+1)
+            (t,idx)=term0_0(s,idx+1)
             x=x%t
         else:
             break
