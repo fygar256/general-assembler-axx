@@ -366,48 +366,6 @@ def readpat(fn):
     f.close()
     return
 
-def evalfs(s,idx):
-    a=''
-    while True:
-        if s[idx]=='(':
-            idx+=1
-            v,idx=evalf(s,idx)
-            return ("("+str(v)+")",idx)
-        elif s[idx]==chr(0) or s[idx]==',' or s[idx]==';':
-            break
-        elif s[idx]==')':
-            idx+=1
-            break
-        elif s[idx]==chr(0x23):
-            idx+=1
-            chara=s[idx]
-            idx+=1
-            if s[idx:idx+3]==':=(':
-                (v,idx)=evalf(s,idx+2)
-                put_vars(chara,v)
-                if s[idx]==')':
-                    idx+=1
-                else:
-                    pass
-            else:
-                v=get_vars(chara)
-            a+="("+str(v)+")"
-        else:
-            a+=s[idx]
-            idx+=1
-
-    return (a,idx)
-
-def evalf(s,idx):
-    x,idx=evalfs(s,idx)
-    try:
-        a=eval(x)
-    except:
-        a=-1
-    else:
-        pass
-    return(a,idx)
-
 def makeobj(s):
     s+=chr(0)
     idx=0
