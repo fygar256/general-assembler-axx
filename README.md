@@ -265,7 +265,7 @@ $ axx x86_64.axx
 
 Comments
 
-- Please forgive any variations in notation.
+- sorry for original notation.
 
 - Obviously, LISP machines cannot be described.
 
