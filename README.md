@@ -230,6 +230,10 @@ Version
 
 2024/09/17 02:40 Changed mnemonic to handle variables. version 1.4.0
 
+2024/09/17 23:00 Added label processing. version 1.4.2
+
+2024/09/18 Added escape character `\` to mnemonic and operand notation. version 1.4.3
+
 
 MIPS example
 ```
