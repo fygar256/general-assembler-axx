@@ -14,9 +14,10 @@ nalphabet="abcdefghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
-etc='+-*/ ,;()[]{}\"\'\n\t'+chr(0)
+etc='+-*/ ,;:()[]{}\"\'\n\t'+chr(0)
 alphabet=lower+capital
 symbols={}
+labels={}
 pat=[]
 
 vars=[ 0 for i in range(26) ]
@@ -109,7 +110,9 @@ def factor1(s,idx):
         while(s[idx].isdigit()):
             x=10*x+int(s[idx])
             idx+=1
-
+    elif s[idx]==':':
+        t,idx=getword(s,idx+1)
+        x=labels[t]
     elif s[idx].islower():
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
@@ -124,6 +127,7 @@ def factor1(s,idx):
             err("Missing ')'.")
         idx+=1
     return (x,idx)
+
 
 def term0_0(s,idx):
     (x,idx)=factor(s,idx)
@@ -314,7 +318,7 @@ def termc(i):
     if not i[0]=='.termc':
         return False
     p=i[3]
-    s='"'
+    s=':'
     idx=0
     while idx<len(p):
         if p[idx]=='\\':
@@ -412,9 +416,15 @@ def makeobj(s):
     print("")
     return cnt
 
+def isword(s,idx):
+    t,idx_s=getword(s,idx)
+    if idx_s==idx:
+        return False
+    return True
+
 def getword(s,idx):
     t=""
-    while not (s[idx] in etc):
+    while len(s)>idx and not (s[idx] in etc):
         t+=s[idx].upper()
         idx+=1
     return t,idx
@@ -427,10 +437,12 @@ def match(s,t):
     while True:
         b=s[idx_s] # bはアセンブリライン
         a=t[idx_t] # aはパターンファイル
-
         if a==chr(0) and b==chr(0):
             return True
-
+        elif a==b:
+            idx_s+=1
+            idx_t+=1
+            continue
         elif a in digit:
             if b==a:
                 idx_s+=1
@@ -465,11 +477,6 @@ def match(s,t):
                 if issymbol(w.upper()):
                     put_vars(a,symbols[w.upper()])
                 continue
-
-        elif a==b:
-            idx_s+=1
-            idx_t+=1
-            continue
         elif a!=b:
             return False
 
@@ -493,15 +500,37 @@ def error(s):
 
     return error_occured
 
+def label_processing(l,l2,l3):
+    t=l
+    s,idx=getword(t,0)
+    if len(t)==idx:
+        return (l,l2,l3)
+    if len(t)>idx and t[idx]==':':
+        l=l2
+        l2=l3
+        l3=""
+
+    if l.upper()=='EQU':
+        u,idx=expression(l2,0)
+        labels[s]=u
+        return ("","","")
+    else:
+        labels[s]=pc
+        return (l,l2,"")
+
 def lineassemble(line):
     line=line.replace('\t','').replace('\n','').upper().split(' ')
     lin=[_ for _ in line if _]
     l=""
     l2=""
+    l3=""
     if len(lin)>=1:
         l=lin[0]
     if len(lin)>=2:
         l2=lin[1]
+    if len(lin)>=3:
+        l3=lin[2]
+    (l,l2,l3)=label_processing(l,l2,l3)
     if  l=="":
         return 0
     idx=0
@@ -544,7 +573,7 @@ def main():
     pc=0
 
     if len(sys.argv)==1:
-        print("axx general assembler programmed and designed by T.Maekawa")
+        print("axx general assembler programmed and designed by Taisuke Maekawa")
         print("Usage: python axx.py patternfile.axx [sourcefile.s]")
         return
 
@@ -556,7 +585,7 @@ def main():
 
     if len(sys_argv)==2:
         while True:
-            line=input(":")
+            line=input(">> ")
             pc+=lineassemble(line)
     elif len(sys_argv)>=3:
         af=readfile(sys_argv[2])
