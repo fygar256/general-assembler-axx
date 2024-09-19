@@ -50,7 +50,7 @@ There are three types of pattern data:
 
 ・Comments
 
-Writing '/*' in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+Writing `/*` in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
 
 ・Case sensitivity, variables
 
