@@ -123,9 +123,8 @@ def factor1(s,idx):
             idx+=1
     elif s[idx]=='(':
         (x,idx)=expression(s,idx+1)
-        if s[idx]!=')':
-            err("Missing ')'.")
-        idx+=1
+        if s[idx]==')':
+            idx+=1
     return (x,idx)
 
 
