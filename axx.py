@@ -14,7 +14,7 @@ nalphabet="abcdefghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
-etc='+-*/ .,;:()[]{}"\'\n\t'+chr(0)
+etc='+-*/ .,;:()[]{}\"\'\n\t'+chr(0)
 alphabet=lower+capital
 symbols={}
 labels={}
@@ -47,11 +47,37 @@ def nbit(l):
         b+=1
     return b
 
+def skipspc(s,idx):
+    while len(s)>idx:
+        if s[idx]==' ':
+            idx+=1
+            continue
+        break
+    return idx
+
+def get_param_to_spc(s,idx):
+    t=""
+    idx=skipspc(s,idx)
+    while len(s)>idx:
+        if s[idx]==' ':
+            break
+        t+=s[idx]
+        idx+=1
+    return t,idx
+
+def get_param_to_eol(s,idx):
+    t=""
+    idx=skipspc(s,idx)
+    while len(s)>idx:
+        t+=s[idx]
+        idx+=1
+    return t,idx
+
 def factor(s,idx):
     x=0
     if s[idx]=='-':
         (x,idx)=factor(s,idx+1)
-        x=-x
+
     elif s[idx]=='~':
         (x,idx)=factor(s,idx+1)
         x=~x
@@ -317,7 +343,7 @@ def termc(i):
     if not i[0]=='.termc':
         return False
     p=i[3]
-    s=''
+    s=chr(0)
     idx=0
     while idx<len(p):
         if p[idx]=='\\':
@@ -344,6 +370,17 @@ def remove_comment(l):
     idx=0
     while idx<len(l):
         if len(l[idx:])>2 and l[idx:idx+2]=='/*':
+            if idx==0:
+                return ""
+            else:
+                return l[0:idx-1]
+        idx+=1
+    return l
+
+def remove_comment_asm(l):
+    idx=0
+    while idx<len(l):
+        if len(l[idx:])>1 and l[idx:idx+1]==';':
             if idx==0:
                 return ""
             else:
@@ -522,20 +559,17 @@ def label_processing(l,l2,l3):
         return (l,l2,"")
 
 def lineassemble(line):
-    line=line.replace('\t','').replace('\n','').upper().split(' ')
-    lin=[_ for _ in line if _]
-    l=""
-    l2=""
-    l3=""
-    if len(lin)>=1:
-        l=lin[0]
-    if len(lin)>=2:
-        l2=lin[1]
-    if len(lin)>=3:
-        l3=lin[2]
+    line=line.replace('\t','').replace('\n','').upper()
+    line=remove_comment_asm(line)
+    ll=[ _ for _ in line.split(' ') if _]
+    idx=0
+    (l,idx)=get_param_to_spc(line,idx)
+    (l2,idx)=get_param_to_spc(line,idx)
+    (l3,idx)=get_param_to_eol(line,idx)
     (l,l2,l3)=label_processing(l,l2,l3)
     if  l=="":
         return 0
+    l2=l2.replace(' ','')
     idx=0
     of=0
     se=False
