@@ -234,7 +234,7 @@ Assignment operator `:=` is used.
 
 ### Example of x86_64 instruction 
 
-````x86_64.axx
+```x86_64.axx
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
