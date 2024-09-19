@@ -275,10 +275,11 @@ Comments
 
 - sorry for original notation.
 
+ ### Future issues
   
+- Allow spaces to be written in operands.
 
-
-### Thanks
+  ### Thanks
 
 I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi　Sekkei, who gave me problems and hints, the University of Electro-Communications　for their cooperation, and to some other unforgettable guys.
 Thank you very much.
