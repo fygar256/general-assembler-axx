@@ -68,7 +68,7 @@ There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to th
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns how many bits are in the value that follows. I named this the snake-rounded operator.
+The prefix operator `@` returns How many bits the value contains. I named this the snake-rounded operator.
 
 The binary operator `'` is used with `a'24`, which sign-extends the 24th bit of a as the sign bit. I named this the SEX operator.
 
