@@ -275,7 +275,7 @@ Comments
 
 - sorry for original notation.
 
-- Obviously, LISP machines cannot be described.
+  
 
 
 ### Thanks
