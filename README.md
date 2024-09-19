@@ -268,7 +268,7 @@ Error check is weak.
 
 ### Comment
 
--Please forgive the variation in notation.
+-Sorry for original notation.
 
 -I think it will work with a scalar processor. I don't think there is any processor that stores matrices and vectors directly in registers.
 
