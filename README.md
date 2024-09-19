@@ -6,23 +6,23 @@ slide: false
 ---
 ### GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a general assembler.
+axx.py is a generalized assembler.
 
-It is written in a general way, so the execution platform is not dependent on a specific processing system.
+It is written in a general way, so it does not depend on a specific processing system.
 
 It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. We plan to implement the practical functions of dedicated assemblers in the future.
 
 ・How to use
 
-Use it like this: `python axx.py 8048.axx [sample.s]`.
+Use it as follows: `python axx.py 8048.axx [sample.s]`.
 
-axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+ax reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-In axx, an assembly language source file or a line input from standard input is called an assembly line.
+In axx, a line input from an assembly language source file or standard input is named an assembly line.
 
-・Explanation of pattern data
+・Pattern data explanation
 
 Pattern data is arranged as follows.
 
@@ -38,7 +38,7 @@ Mnemonic can be omitted from the second line onwards. If omitted, specify a spac
 
 If omitted, the mnemonic from the previous line will be used.
 
-There may be no operands. error_patterns can be omitted. binary_list cannot be omitted.
+There may be no operands. Error_patterns can be omitted. Binary_list cannot be omitted.
 
 There are three types of pattern data:
 
@@ -50,7 +50,9 @@ There are three types of pattern data:
 
 ・Comments
 
-Writing `/*` in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+If you write '/*' in the pattern file, the part after `/*' on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+
+Comments on the assembly line are `;`.
 
 ・Case sensitivity, variables
 
@@ -64,13 +66,13 @@ A special variable in assembly line expressions is '$$', which represents the cu
 
 ・Expression, value
 
-There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to the variable d. The value of the assignment operator is the assigned value.
+There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to the variable d. The value of an assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns How many bits the value contains. I named this the snake-rounded operator.
+The prefix operator `@` returns the number of bits of the value that follows. I named this the snake-rounded operator.
 
-The binary operator `'` is used with `a'24`, which sign-extends the 24th bit of a as the sign bit. I named this the SEX operator.
+The binary operator `'`, when `a'24` is used, the 24th bit of a is made the sign bit and sign-extended. I named this the SEX operator.
 
 The binary operator `**` is exponentiation.
 
@@ -159,6 +161,12 @@ If you write this, the C in ADD A,C will be 1, and the C in RET C will be 3.
 .setsym $s5 21
 ```
 
+To clear all symbols, use `.clearsym`.
+
+```
+.clearsym
+```
+
 ・Example of binary output
 
 ```
@@ -199,6 +207,13 @@ label4: equ !label1
 
 The prefix operator `!` is used.
 
+・ORG
+ORG is defined from the assembly line as
+
+```
+org 0x800
+```
+
 ・Floating point
 
 For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data is
@@ -230,24 +245,7 @@ ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 
 Assignment operator `:=` is used.
 
-``` $ axx.py mips.axx : addi $a0,$v0,9 0x20,0x44,0x00,0x09, : ``` 
-
-### Example of x86_64 instruction 
-
-```x86_64.axx
-.setsym rax 0
-.setsym rbx 3
-.setsym rcx 1
-LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
-```
-
-```
-$ axx x86_64.axx
->> leaq rax,[rbx+rcx*2+0x10]
-0x48,0x8d,0x04,0x4b,0x10,
-```
-
- ### A64FX test
+``` $ axx.py mips.axx >> addi $a0,$v0,9 0x20,0x44,0x00,0x09, >> ```` ### Example of x86_64 instruction ````x86_64.axx .setsym rax 0 .setsym rbx 3 .setsym rcx 1 LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e ``` ``` $ axx x86_64.axx >> leaq rax,[rbx+rcx*2+0x10] 0x48,0x8d,0x04,0x4b,0x10, ``` ### A64FX test
 
 ```a64fx.axx
 .setsym v0 0
@@ -270,13 +268,11 @@ Error check is weak.
 
 -Sorry for original notation.
 
--I think it will work with a scalar processor. I don't think there is any processor that stores matrices and vectors directly in registers.
+-I think it will work on a scalar processor. I don't think there are any processors that directly store matrices and vectors in registers.
 
 ### Future work
 
--Make it possible to write spaces in the operand.
-
-. Make the assembly two-pass so that the all Labels can also be referenced.
+-Make it possible to write spaces in operands.
 
 ### Acknowledgements
 
