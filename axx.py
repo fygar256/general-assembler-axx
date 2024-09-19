@@ -110,7 +110,7 @@ def factor1(s,idx):
         while(s[idx].isdigit()):
             x=10*x+int(s[idx])
             idx+=1
-    elif s[idx]==':':
+    elif s[idx]=='!':
         t,idx=getword(s,idx+1)
         x=labels[t]
     elif s[idx].islower():
