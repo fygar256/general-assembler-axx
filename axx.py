@@ -317,7 +317,7 @@ def termc(i):
     if not i[0]=='.termc':
         return False
     p=i[3]
-    s=':'
+    s=''
     idx=0
     while idx<len(p):
         if p[idx]=='\\':
