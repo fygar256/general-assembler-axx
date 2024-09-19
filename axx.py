@@ -338,6 +338,13 @@ def readfile(fn):
     f.close()
     return af
     
+def clear_symbol(i):
+    global symbols
+    if i[0]!='.clearsym':
+    	return False
+    symbols={}
+    return True
+
 def set_symbol(i):
     if i[0]!='.setsym':
     	return False
@@ -567,6 +574,15 @@ def label_processing(l,l2,l3):
         labels[s]=pc
         return (l,l2,"")
 
+def org_processing(l1,l2):
+    global pc
+    if l1.upper()!="ORG":
+        return False
+    u,idx=expression(l2,0)
+    pc=u
+    print (u)
+    return True
+
 def lineassemble(line):
     line=line.replace('\t','').replace('\n','').upper()
     line=remove_comment_asm(line)
@@ -576,6 +592,8 @@ def lineassemble(line):
     (l2,idx)=get_param_to_spc(line,idx)
     (l3,idx)=get_param_to_eol(line,idx)
     (l,l2,l3)=label_processing(l,l2,l3)
+    if org_processing(l,l2):
+        return 0
     if  l=="":
         return 0
     l2=l2.replace(' ','')
@@ -588,6 +606,7 @@ def lineassemble(line):
         # l はアセンブリライン
         #
         if set_symbol(i): continue
+        if clear_symbol(i): continue
         if termc(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
