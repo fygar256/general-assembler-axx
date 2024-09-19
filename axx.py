@@ -14,7 +14,7 @@ nalphabet="abcdefghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
-etc='+-*/ ,;:()[]{}\"\'\n\t'+chr(0)
+etc='+-*/ .,;:()[]{}\"\'\n\t'+chr(0)
 alphabet=lower+capital
 symbols={}
 labels={}
@@ -439,7 +439,11 @@ def match(s,t):
         a=t[idx_t] # aはパターンファイル
         if a==chr(0) and b==chr(0):
             return True
-        elif a==b:
+        elif a=='\\':
+            idx_t+=1
+            a=t[idx_t].upper()
+
+        if a==b:
             idx_s+=1
             idx_t+=1
             continue
@@ -462,7 +466,7 @@ def match(s,t):
           idx_t+=1
           if a in nalphabet:
             s_idx_s=idx_s
-            (v,s_idx_s)=factor(s,idx_s)
+            (v,s_idx_s)=expression(s,idx_s)
             if idx_s==s_idx_s:
                 return False
             else:
@@ -472,7 +476,7 @@ def match(s,t):
           elif a in salphabet:
                 (w,s_idx_s)=getword(s,idx_s)
                 if idx_s==s_idx_s:
-                    return false
+                    return False
                 idx_s=s_idx_s
                 if issymbol(w.upper()):
                     put_vars(a,symbols[w.upper()])
