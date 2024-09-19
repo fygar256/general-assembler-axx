@@ -63,6 +63,10 @@ The assembly line accepts uppercase and lowercase letters as the same.
 
 The special variable in assembly line expressions is '$$', which represents the current location counter.
 
+・Escape character
+
+You can use the escape character \ in mnemonic and operands.
+
 ・Expression, value
 
 There is an assignment operator :=. If you enter d:=24, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
