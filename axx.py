@@ -19,6 +19,7 @@ alphabet=lower+capital
 symbols={}
 labels={}
 pat=[]
+pas=1
 
 vars=[ 0 for i in range(26) ]
 
@@ -88,6 +89,13 @@ def factor(s,idx):
         (x,idx)=factor1(s,idx)
     return (x,idx)
 
+def getdicval(dic,k):
+    l=list(dic.keys())
+    for _ in l:
+        if _==k:
+            return dic[k]
+    return -1
+
 def factor1(s,idx):
     x = 0
 
@@ -137,8 +145,9 @@ def factor1(s,idx):
             x=10*x+int(s[idx])
             idx+=1
     elif s[idx]=='!':
-        t,idx=getword(s,idx+1)
-        x=labels[t]
+        idx+=1
+        t,idx=getword(s,idx)
+        x=getdicval(labels,t)
     elif s[idx].islower():
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
@@ -436,12 +445,11 @@ def makeobj(s):
     idx=0
     cnt=0
     while True:
-        sidx=idx
         (x,idx)=expression(s,idx)
-        if sidx!=idx:
+        if pas==2:
             x=int(x)&0xff
             print("0x%02x," % x,end='')
-            cnt+=1
+        cnt+=1
         ch=s[idx]
         if ch==chr(0):
             break
@@ -449,7 +457,8 @@ def makeobj(s):
             idx+=1
             continue
         break
-    print("")
+    if pas==2:
+        print("")
     return cnt
 
 def isword(s,idx):
@@ -606,8 +615,7 @@ def lineassemble(line):
     return of
 
 def main():
-    global pc
-    pc=0
+    global pc,pas
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
@@ -621,11 +629,19 @@ def main():
         readpat(sys_argv[1])
 
     if len(sys_argv)==2:
+        pc=0
+        pas=2
         while True:
             line=input(">> ")
             pc+=lineassemble(line)
     elif len(sys_argv)>=3:
         af=readfile(sys_argv[2])
+        pc=0
+        pas=1
+        for i in af:
+            pc+=lineassemble(i)
+        pc=0
+        pas=2
         for i in af:
             pc+=lineassemble(i)
 
