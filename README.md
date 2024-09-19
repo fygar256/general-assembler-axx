@@ -276,7 +276,7 @@ Error check is weak.
 
 -Make it possible to write spaces in the operand.
 
-. Make the assembly two-pass so that the previous Label can also be referenced.
+. Make the assembly two-pass so that the all Labels can also be referenced.
 
 ### Acknowledgements
 
