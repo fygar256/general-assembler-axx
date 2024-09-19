@@ -1,3 +1,4 @@
+.clearsym
 .setsym	B	0
 .setsym	C	1
 .setsym	D	2
@@ -5,14 +6,29 @@
 .setsym	H	4
 .setsym	L	5
 .setsym	A	7
+LD	s,d							(s<<3)|0x6,d
+LD	s,t							0x40|(s<<3)|t
+
+.clearsym
 .setsym	BC	0
 .setsym	DE	1
 .setsym	HL	2
 .setsym	SP	3
 .setsym	AF	3
+LD	HL,d						0x21,d&0xff,d>>8
+LD	DE,d						0x11,d&0xff,d>>8
+LD	BC,d						0x01,d&0xff,d>>8
+LD	SP,d						0x31,d&0xff,d>>8
 
-LD	s,d							(s<<3)|0x6,d
-LD	s,t							0x40|(s<<3)|t
+
+.clearsym
+.setsym	B	0
+.setsym	C	1
+.setsym	D	2
+.setsym	E	3
+.setsym	H	4
+.setsym	L	5
+.setsym	A	7
 LD	SP,HL						0xf9
 LD	SP,IX						0xdd,0xf9
 LD	SP,IY						0xfd,0xf9
@@ -49,11 +65,6 @@ LD	I,A							0xed,0x47
 LD	R,A							0xed,0x4f
 LD	IX,d						0xdd,0x21,d&0xff,d>>8
 LD	IY,d						0xfd,0x21,d&0xff,d>>8
-LD	HL,d						0x21,d&0xff,d>>8
-LD	DE,d						0x11,d&0xff,d>>8
-LD	BC,d						0x01,d&0xff,d>>8
-LD	SP,d						0x31,d&0xff,d>>8
-LD	HL,d						0x21,d&0xff,d>>8
 LD	s,(d)						0xed,0x4b|s,d&0xff,d>>8
 LD	(d),s						0xed,0x43|s,d&0xff,d>>8
 PUSH	s						0xc5|(s<<4)
