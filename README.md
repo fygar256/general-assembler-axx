@@ -59,6 +59,8 @@ Uppercase letters in the mnemonic and operands in the pattern file are treated a
 
 Lowercase variables are referenced from error_patterns and binary_list. Lowercase letters a through n represent expressions, and lowercase letters o through z represent symbols.
 
+a through n are terms. For example, `ld a,1+2` will result in an error, so if you want to specify an equation, use `ld a,(1+2)`.
+
 The assembly line accepts uppercase and lowercase letters as the same.
 
 The special variable in assembly line expressions is '$$', which represents the current location counter.
