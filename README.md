@@ -4,26 +4,25 @@ tags: Terminal assembly Python
 author: fygar256
 slide: false
 ---
+GENERAL ASSEMBLER 'axx.py'
 
-# GENERAL ASSEMBLER 'axx.py'
-
-axx.py is a generalized assembler.
+axx.py is a general assembler.
 
 It is written in a general way, so the execution platform is not dependent on a specific processing system.
 
 It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. We plan to implement the practical functions of dedicated assemblers in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 ・How to use
 
-Use it as follows: python axx.py 8048.axx [sample.s].
+Use it like this: `python axx.py 8048.axx [sample.s]`.
 
-axx reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-In axx, a line input from an assembly language source file or standard input is named an assembly line.
+In axx, an assembly language source file or a line input from standard input is called an assembly line.
 
-・Pattern data explanation
+・Explanation of pattern data
 
 Pattern data is arranged as follows.
 
@@ -35,11 +34,11 @@ mnemonic operands error_patterns binary_list
 :
 ```
 
-mnemonic can be omitted from the second line onwards. If omitted, specify a space.
+Mnemonic can be omitted from the second line onwards. If omitted, specify a space.
 
 If omitted, the mnemonic from the previous line will be used.
 
-operands may not be present. error_patterns can be omitted. binary_list cannot be omitted.
+There may be no operands. error_patterns can be omitted. binary_list cannot be omitted.
 
 There are three types of pattern data:
 
@@ -49,44 +48,47 @@ There are three types of pattern data:
 (3) mnemonic operands error_patterns binary_list
 ```
 
-・Comment
+・Comments
 
-If '/*' is written in the pattern file, the part after `/*` on that line becomes a comment. Currently, you cannot close a line with `*/`. It is only valid after the `/*` on that line.
+Writing '/*' in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
 
 ・Case sensitivity, variables
 
-Uppercase letters in the mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as variables. The mnemonic and operands assign the value of the expression or symbol at that position to the variable.
+Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as variables. The value of the expression or symbol that corresponds to that position is assigned to the variable from mnemonic and operands.
 
-Lowercase variables are referenced from error_patterns and binary_list. Lowercase letters a through n represent expressions, and lowercase letters o through z represent symbols.
+Lowercase variables are referenced from error_patterns and binary_list. Lowercase letters a to n represent expressions, and o to z represent symbols.
 
 The assembly line accepts uppercase and lowercase letters as the same.
 
-The special variable in assembly line expressions is '$$', which represents the current location counter.
-
-・Escape character
-
-You can use the escape character \ in mnemonic and operands.
+A special variable in assembly line expressions is '$$', which represents the current location counter.
 
 ・Expression, value
 
-There is an assignment operator :=. If you enter d:=24, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
+There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to the variable d. The value of the assignment operator is the assigned value.
 
-The prefix operator `#` takes the value of the symbol that follows it.
+The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns the number of bits of the value that follows.
+The prefix operator `@` returns how many bits are in the value that follows. We call this the snake-like operator.
+
+The binary operator `'` is used with `a'24`, which sign-extends the 24th bit of a as the sign bit. We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
+
+The prefix operator `!` returns the value of the label that follows.
+
+・Escape character
+
+The escape character `\` can be used in mnemonic and operands.
 
 ・error_patterns
 
 error_patterns uses variables and comparison operators to specify the conditions under which an error occurs.
 
-Multiple error patterns can be specified, separated by ','. For example, as follows:
+You can specify multiple error patterns, separated by ','. For example, as follows.
 
 ```
 a>3;4,b>7;5
 ```
-
 In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
 
 ・binary_list
@@ -99,7 +101,7 @@ Let's take 8048 as an example. If the pattern file contains
 ADD A,Rn n>7;5 n|0x68
 ```
 
-, and you pass add a,rn to the assembly line, it will return error code 5 if n>7, and add a,r1 will generate binary 0x69.
+and you pass `add a,rn` to the assembly line, it will return error code 5 if n>7, and `add a,r1` will generate binary 0x69
 
 ・symbol
 
@@ -107,17 +109,17 @@ ADD A,Rn n>7;5 n|0x68
 .setsym symbol n
 ```
 
-Writing this defines symbol with the value n.
+When you write this, symbol is defined with the value n.
 
-Symbols include letters, numbers, etc., but axx uses characters other than the following as constituent characters of the symbol: ,; \t\n\0()[]{}\\\"\'. This is called the termination character.
+Symbols include letters, numbers, etc., but axx uses characters other than the following as constituent characters of the symbol. '+-*/ .,;:()[]{}"\'\n\t\0'. This is called the termination character.
 
-The termination character can be changed by writing the .termc command.
+The termination character can be changed by writing the `.termc` command.
 
 ```
 .termc ,;\t\n\0()[]{}\\
 ```
 
-Here is an example of the symbol definition z80. In the pattern file,
+Here is an example of a symbol definition z80. In the pattern file
 
 ```
 .setsym B 0
@@ -133,9 +135,9 @@ Here is an example of the symbol definition z80. In the pattern file,
 .setsym SP 0x30
 ```
 
-The symbols B, C, D, E, H, L, A, BC, DE, HL, and SP are defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
+If you write this, the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP will be defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,
+If there are multiple definitions of the same symbol in the pattern file, the new one will replace the old one. That is,
 
 ```
 .setsym B 0
@@ -149,7 +151,7 @@ ADD A,s
 RET s
 ```
 
-The C in ADD A,C will be 1, and the C in RET C will be 3.
+If you write this, the C in ADD A,C will be 1, and the C in RET C will be 3.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
@@ -166,9 +168,9 @@ The C in ADD A,C will be 1, and the C in RET C will be 3.
 LD s,d (#s&0xf!=0)||(#s>>4)>3;9 s|0x01,d&0xff,d>>8
 ```
 
-So `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12,` respectively.
+Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12`, respectively.
 
-・Pattern order
+・Order of patterns
 
 ```
 (1) LD A,(HL)
@@ -177,19 +179,37 @@ So `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,
 
 Pattern files are evaluated from top to bottom, so the one placed first takes precedence.
 
-In this case, if (1) and (2) were reversed, ld a,(hl) in the assembly line would put (hl) in the value of d, so place LD A,(HL) in the pattern file before LD A,d. Special patterns are placed first, and general patterns are placed last.
+In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will put (hl) in the value of d, so place LD A,(HL) in the pattern file before LD A,d. Place special patterns first and general patterns after.
 
-- Floating point
+・label
 
-For example, suppose there is a processor that includes floating point operands, and MOVF fa,3.14 loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data would be
+Labels can be defined from the assembly line in the following way.
+
+```
+label1:
+label2: equ 0x10
+label3: nop
+```
+
+To define a label with a label, do the following.
+
+```
+label4: equ !label1
+```
+
+The prefix operator `!` is used.
+
+・Floating point
+
+For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data is
 
 ```
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
-and if movf fa,0f3.14 is passed to the assemble line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
+If `movf fa,0f3.14` is passed to the assemble line, the binary output will be 0x01, 0xc3, 0xf5, 0x48, 0x40.
 
-- Number notation
+・Number notation
 
 Prefix binary numbers with '0b'.
 
@@ -197,89 +217,46 @@ Prefix hexadecimal numbers with '0x'.
 
 Prefix floating point float (32bit) with '0f'.
 
-For floating-point double (float 64bit), please prefix with '0d'.
+For floating-point double (float 64bit), prefix with '0d'.
 
-・Error check
+### MIPS example
 
-Error check is lax.
-
-Version
-2024/02/21 First published
-
-2024/07/30 Sorry, there was a bug.
-
-2024/07/30 ver 1.0.0 released
-
-2024/08/30 Documentation update
-
-2024/09/12 Documentation update, floating point support version 1.0.1
-
-2024/09/12 22:30 Special variable '$' to '$$'. version 1.0.2
-
-2024/09/13 Add eval function. version 1.0.9
-
-2024/09/13 15:14 Expanded eval function. Fixed pattern file syntax. version 1.1.0
-
-2024/09/13 22:00 Revised symbol definition specifications. version 1.1.5
-
-2024/09/14 Changed pattern file description method. Evaluate errorpattern with eval function. version 1.2.0
-
-2024/09/15 Allow symbols to be defined by symbols. version 1.2.2
-
-2024/09/16 Reverted pattern file description method. Finally finished. version 1.3.0
-
-2024/09/16 13:00 Add #prefix operator. version 1.3.2
-
-2024/09/16 19:30 Added the @ prefix operator. Added the power operator. Improved the match function to correct the notation for x86_64. version 1.3.8
-
-2024/09/17 02:40 Changed mnemonic to handle variables. version 1.4.0
-
-2024/09/17 23:00 Added label processing. version 1.4.2
-
-2024/09/18 Added escape character `\` to mnemonic and operand notation. version 1.4.3
-
-
-MIPS example
-```
+```mips.axx
 .setsym $v0 2
 .setsym $a0 4
 ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+
 ```
 
 Assignment operator `:=` is used.
 
-```
-$ axx.py mips.axx
-: addi $a0,$v0,9
-0x20,0x44,0x00,0x09,
-:
-```
+``` $ axx.py mips.axx : addi $a0,$v0,9 0x20,0x44,0x00,0x09, : ``` ### Example of x86_64 instruction ````x86_64.axx .setsym rax 0 .setsym rbx 3 .setsym rcx 1 LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e ``` ``` $ axx x86_64.axx :leaq rax,[rbx+rcx*2+0x10] 0x48,0x8d,0x04,0x4b,0x10, ``` ### A64FX test
 
-
-An example of x86_64 instructions
-
-```
-.setsym rax 0
-.setsym rbx 3
-.setsym rcx 1
-LEAQ r,[s+t*d+e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+```a64fx.axx
+.setsym v0 0
+.setsym x0 1
+ST1 {x.4\s},[y] 0x01,s,y,0
 ```
 
 ```
-$ axx x86_64.axx
-:leaq rax,[rbx+rcx*2+0x10]
-0x48,0x8d,0x04,0x4b,0x10,
+$ axx.py a64fx.axx
+>> st1 {v0.4s},[x0]
+0x01,0x00,0x01,0x00,
+>>
 ```
 
-Comments
+-Error check
 
-- sorry for original notation.
+Error check is weak.
 
- ### Future issues
-  
-- Allow spaces to be written in operands.
+### Comment
 
-  ### Thanks
+-Please forgive the variation in notation.
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi　Sekkei, who gave me problems and hints, the University of Electro-Communications　for their cooperation, and to some other unforgettable guys.
-Thank you very much.
+-I think it will work with a scalar processor. I don't think there is any processor that stores matrices and vectors directly in registers.
+
+### Future work
+
+-Make it possible to write spaces in the operand.
+
+. Make the assembly two-pass so that the previous Label can also be referenced.
