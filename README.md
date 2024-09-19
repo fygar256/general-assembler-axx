@@ -277,3 +277,7 @@ Error check is weak.
 -Make it possible to write spaces in the operand.
 
 . Make the assembly two-pass so that the previous Label can also be referenced.
+
+### Acknowledgements
+
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, and to some other unforgettable guys. Thank you very much.
