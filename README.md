@@ -254,12 +254,12 @@ $ axx.py mips.axx
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
-LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+LEAQ r,[s,t,d,e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 ```
 
 ``` 
 $ axx x86_64.axx
->> leaq rax,[rbx+rcx*2+0x10]
+>> leaq rax,[rbx,rcx,2,0x10]
 0x48,0x8d,0x04,0x4b,0x10,
 ```
 
