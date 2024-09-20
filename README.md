@@ -50,7 +50,7 @@ There are three types of pattern data:
 
 ・Comments
 
-If you write '/*' in the pattern file, the part after `/*' on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+If you write `/*` in the pattern file, the part after `/*' on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
 
 Comments on the assembly line are `;`.
 
