@@ -363,7 +363,8 @@ def set_symbol(i):
     if i[0]!='.setsym':
     	return False
     v,idx=expression(i[3],0)
-    symbols[upper(i[1])]=v
+    key=upper(i[1])
+    symbols[upper(key)]=v
     return True
 
 def wordc(i):
