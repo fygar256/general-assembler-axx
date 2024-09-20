@@ -20,6 +20,8 @@ Use it as follows: `python axx.py 8048.axx [sample.s]`.
 
 ax reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
+The result is output as text to the standard output, and at the same time a binary file named `axx.out` is output to the current directory.
+
 In axx, a line input from an assembly language source file or standard input is named an assembly line.
 
 ・Pattern data explanation
