@@ -97,7 +97,7 @@ In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is r
 
 ・binary_list
 
-binary_list specifies the codes to be output, separated by ','. For example, if you specify 0x03,#d, d will be output after 0x3.
+binary_list specifies the codes to be output, separated by ','. For example, if you specify 0x03,d, d will be output after 0x3.
 
 Let's take 8048 as an example. If the pattern file contains
 
@@ -169,7 +169,7 @@ To clear all symbols, use `.clearsym`.
 .setsym BC 0x00
 .setsym DE 0x10
 .setsym HL 0x20
-LD s,d (#s&0xf!=0)||(#s>>4)>3;9 s|0x01,d&0xff,d>>8
+LD s,d (s&0xf!=0)||(s>>4)>3;9 s|0x01,d&0xff,d>>8
 ```
 
 Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12`, respectively.
@@ -242,7 +242,28 @@ ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 
 Assignment operator `:=` is used.
 
-``` $ axx.py mips.axx >> addi $a0,$v0,9 0x20,0x44,0x00,0x09, >> ```` ### Example of x86_64 instruction ````x86_64.axx .setsym rax 0 .setsym rbx 3 .setsym rcx 1 LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e ``` ``` $ axx x86_64.axx >> leaq rax,[rbx+rcx*2+0x10] 0x48,0x8d,0x04,0x4b,0x10, ``` ### A64FX test
+```
+$ axx.py mips.axx
+>> addi $a0,$v0,9 0x20,0x44,0x00,0x09,
+>>
+```
+
+### Example of x86_64 instruction
+
+```x86_64.axx 
+.setsym rax 0
+.setsym rbx 3
+.setsym rcx 1
+LEAQ r,[s+t*d+e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+```
+
+``` 
+$ axx x86_64.axx
+>> leaq rax,[rbx+rcx*2+0x10]
+0x48,0x8d,0x04,0x4b,0x10,
+```
+
+ ### A64FX test
 
 ```a64fx.axx
 .setsym v0 0
@@ -263,7 +284,7 @@ Error check is weak.
 
 ### Comment
 
--Please forgive the variation in notation.
+-Sorry for original notation.
 
 -I think it will work on a scalar processor. I don't think there are any processors that directly store matrices and vectors in registers.
 
