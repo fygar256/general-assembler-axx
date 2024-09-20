@@ -70,9 +70,9 @@ There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to th
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns the number of bits of the value that follows. I named this the snake-rounded operator.
+The prefix operator `@` returns the number of bits of the value that follows. We call this the snake-like operator.
 
-The binary operator `'`, when `a'24` is used, the 24th bit of a is made the sign bit and sign-extended. I named this the SEX operator.
+The binary operator `'`, when `a'24` is used, the 24th bit of a is made the sign bit and sign-extended. We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
 
@@ -113,15 +113,9 @@ and you pass `add a,rn` to the assembly line, it will return error code 5 if n>7
 
 When you write this, symbol is defined with the value n.
 
-Symbols include letters, numbers, etc., but axx uses characters other than the following as constituent characters of the symbol. '+-*/ .,;:()[]{}"\'\n\t\0'. This is called the termination character.
+Symbols can be letters, numbers,
 
-The termination character can be changed by writing the `.termc` command.
-
-```
-.termc ,;\t\n\0()[]{}\\
-```
-
-Here is an example of a symbol definition z80. In the pattern file
+Here is an example of symbol definition z80. If you write
 
 ```
 .setsym B 0
@@ -137,9 +131,9 @@ Here is an example of a symbol definition z80. In the pattern file
 .setsym SP 0x30
 ```
 
-If you write this, the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP will be defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
+in a pattern file, it will define the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in the pattern file, the new one will replace the old one. That is,
+If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,
 
 ```
 .setsym B 0
@@ -153,7 +147,7 @@ ADD A,s
 RET s
 ```
 
-If you write this, the C in ADD A,C will be 1, and the C in RET C will be 3.
+In this case, the C in ADD A,C becomes 1, and the C in RET C becomes 3.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
@@ -178,7 +172,7 @@ LD s,d (#s&0xf!=0)||(#s>>4)>3;9 s|0x01,d&0xff,d>>8
 
 Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12`, respectively.
 
-・Order of patterns
+・Pattern order
 
 ```
 (1) LD A,(HL)
@@ -208,21 +202,22 @@ label4: equ !label1
 The prefix operator `!` is used.
 
 ・ORG
-ORG is defined from the assembly line as
+ORG is
 
 ```
 org 0x800
 ```
+from the assembly line.
 
 ・Floating point
 
-For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, with the opcode being 01. In this case, the pattern data is
+For example, suppose there is a processor that includes floating point as an operand, and `MOVF fa,3.14` loads 3.14 into the fa register, and the opcode is 01. In this case, the pattern data is
 
 ```
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
-If `movf fa,0f3.14` is passed to the assemble line, the binary output will be 0x01, 0xc3, 0xf5, 0x48, 0x40.
+and if `movf fa,0f3.14` is passed to the assembly line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
 ・Number notation
 
@@ -230,9 +225,9 @@ Prefix binary numbers with '0b'.
 
 Prefix hexadecimal numbers with '0x'.
 
-Prefix floating point float (32bit) with '0f'.
+Please prefix floating point float (32bit) with '0f'.
 
-For floating-point double (float 64bit), prefix with '0d'.
+Please prefix floating point double (float 64bit) with '0d'.
 
 ### MIPS example
 
@@ -266,7 +261,7 @@ Error check is weak.
 
 ### Comment
 
--Sorry for original notation.
+-Please forgive the variation in notation.
 
 -I think it will work on a scalar processor. I don't think there are any processors that directly store matrices and vectors in registers.
 
