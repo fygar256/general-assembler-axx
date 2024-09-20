@@ -7,6 +7,8 @@
 import string as str
 import struct
 import sys
+import os
+outfile="axx.out"
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
@@ -14,27 +16,39 @@ nalphabet="abcdefghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
-etc='+-*/ .,;:()[]{}\"\'\n\t'+chr(0)
+wordchars=digit+capital+lower+"%$"
 alphabet=lower+capital
 symbols={}
 labels={}
 pat=[]
 pas=1
+ff=""
 
 vars=[ 0 for i in range(26) ]
 
+def upper(o):
+    t=""
+    idx=0
+    while len(o)>idx:
+        a=o[idx]
+        if a in lower:
+            a=o[idx].upper()
+        t+=a
+        idx+=1
+    return t
+
 def get_vars(s):
-    c=ord(s.upper())
+    c=ord(upper(s))
     return vars[c-ord('A')]
 
 def put_vars(s,v):
     global vars
-    c=ord(s.upper())
+    c=ord(upper(s))
     vars[c-ord('A')]=int(v)
     return
 
 def q(s,t,idx):
-    return s[idx:idx+len(t)].upper()==t.upper()
+    return upper(s[idx:idx+len(t)])==upper(t)
 
 def err(m):
     print(m)
@@ -114,13 +128,13 @@ def factor1(s,idx):
         x=getsymval(t)
     elif q(s,'0b',idx):
         idx+=2
-        while(s[idx].upper() in "01"):
+        while(upper(s[idx]) in "01"):
             x=2*x+(ord(s[idx])-0x30)
             idx+=1
 
     elif q(s,'0x',idx):
         idx+=2
-        while(s[idx].upper() in xdigit):
+        while(upper(s[idx]) in xdigit):
             x=16*x+int(s[idx].lower(),16)
             idx+=1
 
@@ -349,37 +363,22 @@ def set_symbol(i):
     if i[0]!='.setsym':
     	return False
     v,idx=expression(i[3],0)
-    (symbols[i[1].upper()],idx) =(v,idx)
+    symbols[upper(i[1])]=v
     return True
 
-def termc(i):
+def wordc(i):
     global etc 
     if len(i)==0:
         return False
-    if not i[0]=='.termc':
+    if not i[0]=='.wordc':
         return False
     p=i[3]
     s=chr(0)
     idx=0
     while idx<len(p):
-        if p[idx]=='\\':
-            idx+=1
-            if p[idx]=='n':
-                s+='\n'
-                idx+=1
-            elif p[idx]=='\'':
-                s+='\''
-                idx+=1
-            elif p[idx]=='t':
-                s+='\t'
-                idx+=1
-            elif p[idx]=='0':
-                s+=chr(0)
-                idx+=1
-        else:
-            s+=p[idx]
-            idx+=1
-    etc=s
+        s+=p[idx]
+        idx+=1
+    wordc=s
     return True
 
 def remove_comment(l):
@@ -447,23 +446,34 @@ def readpat(fn):
     f.close()
     return
 
+def fwrite(file_path, position, x):
+    with open(file_path, 'r+b') as file:
+        file.seek(0, 2)
+        file_length = file.tell()
+        if position > file_length:
+            file.seek(file_length)
+            file.write(b'\x00' * (position - file_length))
+        file.seek(position)
+        file.write(struct.pack('B',x))
+
 def makeobj(s):
     s+=chr(0)
     idx=0
     cnt=0
     while True:
+        if s[idx]==chr(0):
+            break
         (x,idx)=expression(s,idx)
         if pas==2:
             x=int(x)&0xff
             print("0x%02x," % x,end='')
+            fwrite(outfile,pc+cnt,x)
         cnt+=1
-        ch=s[idx]
-        if ch==chr(0):
-            break
-        if ch==',':
+        if s[idx]==',':
             idx+=1
             continue
         break
+
     if pas==2:
         print("")
     return cnt
@@ -476,9 +486,12 @@ def isword(s,idx):
 
 def getword(s,idx):
     t=""
-    while len(s)>idx and not (s[idx] in etc):
-        t+=s[idx].upper()
-        idx+=1
+    if len(s)>idx and s[idx]!=':' and not s[idx] in digit and s[idx] in wordchars:
+            while len(s)>idx:
+                if not s[idx] in wordchars: 
+                    break
+                t+=upper(s[idx])
+                idx+=1
     return t,idx
     
 def match(s,t):
@@ -491,49 +504,37 @@ def match(s,t):
         a=t[idx_t] # aはパターンファイル
         if a==chr(0) and b==chr(0):
             return True
-        elif a=='\\':
+        if a==chr(0x5c):
             idx_t+=1
-            a=t[idx_t].upper()
-
-        if a==b:
-            idx_s+=1
-            idx_t+=1
-            continue
-        elif a in digit:
-            if b==a:
-                idx_s+=1
+            if upper(t[idx_t])==upper(b):
                 idx_t+=1
+                idx_s+=1
                 continue
             else:
                 return False
-
         elif a.isupper():
-            if a==b.upper():
+            if a==upper(b):
                 idx_s+=1
                 idx_t+=1
                 continue
             else:
                 return False
-        elif a.islower():
-          idx_t+=1
-          if a in nalphabet:
-            s_idx_s=idx_s
-            (v,s_idx_s)=expression(s,idx_s)
-            if idx_s==s_idx_s:
-                return False
-            else:
-                idx_s=s_idx_s
-                put_vars(a,v)
-                continue
-          elif a in salphabet:
-                (w,s_idx_s)=getword(s,idx_s)
-                if idx_s==s_idx_s:
-                    return False
-                idx_s=s_idx_s
-                if issymbol(w.upper()):
-                    put_vars(a,symbols[w.upper()])
-                continue
-        elif a!=b:
+        elif a in nalphabet:
+              idx_t+=1
+              (v,idx_s)=expression(s,idx_s)
+              put_vars(a,v)
+              continue
+        elif a in salphabet:
+              idx_t+=1
+              (w,idx_s)=getword(s,idx_s)
+              v=getsymval(w)
+              put_vars(a,v)
+              continue
+        elif a==b:
+            idx_t+=1
+            idx_s+=1
+            continue
+        else:
             return False
 
 def error(s):
@@ -566,7 +567,7 @@ def label_processing(l,l2,l3):
         l2=l3
         l3=""
 
-    if l.upper()=='EQU':
+    if upper(l)=='EQU':
         u,idx=expression(l2,0)
         labels[s]=u
         return ("","","")
@@ -576,15 +577,15 @@ def label_processing(l,l2,l3):
 
 def org_processing(l1,l2):
     global pc
-    if l1.upper()!="ORG":
+    if upper(l1)!="ORG":
         return False
     u,idx=expression(l2,0)
     pc=u
-    print (u)
     return True
 
 def lineassemble(line):
-    line=line.replace('\t','').replace('\n','').upper()
+    global pc
+    line=upper(line.replace('\t',' ').replace('\n',''))
     line=remove_comment_asm(line)
     ll=[ _ for _ in line.split(' ') if _]
     idx=0
@@ -593,9 +594,9 @@ def lineassemble(line):
     (l3,idx)=get_param_to_eol(line,idx)
     (l,l2,l3)=label_processing(l,l2,l3)
     if org_processing(l,l2):
-        return 0
+        return True
     if  l=="":
-        return 0
+        return False
     l2=l2.replace(' ','')
     idx=0
     of=0
@@ -607,7 +608,7 @@ def lineassemble(line):
         #
         if set_symbol(i): continue
         if clear_symbol(i): continue
-        if termc(i): continue
+        if wordc(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
@@ -631,10 +632,12 @@ def lineassemble(line):
         se=True
     if se:
         print("Syntax error")
-    return of
+        return False
+    pc+=of
+    return True
 
 def main():
-    global pc,pas
+    global pc,pas,ff
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
@@ -647,22 +650,30 @@ def main():
     if len(sys_argv)>=2:
         readpat(sys_argv[1])
 
+    try:
+        os.remove("axx.out")
+    except:
+        pass
+    else:
+        pass
+    f=open(outfile,"wb")
+    f.close()
     if len(sys_argv)==2:
         pc=0
         pas=2
         while True:
             line=input(">> ")
-            pc+=lineassemble(line)
+            lineassemble(line)
     elif len(sys_argv)>=3:
         af=readfile(sys_argv[2])
         pc=0
         pas=1
         for i in af:
-            pc+=lineassemble(i)
+            lineassemble(i)
         pc=0
         pas=2
         for i in af:
-            pc+=lineassemble(i)
+            lineassemble(i)
 
 if __name__=='__main__':
     main()
