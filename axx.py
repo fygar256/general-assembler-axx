@@ -24,7 +24,7 @@ pat=[]
 pas=1
 ff=""
 
-vars=[ 0 for i in range(26) ]
+vars=[ "" for i in range(26) ]
 
 def upper(o):
     t=""
@@ -170,6 +170,9 @@ def factor1(s,idx):
         else:
             x=get_vars(s[idx])
             idx+=1
+            if x=="":
+                print("error: undefined symbol")
+                return(-1,idx)
     elif s[idx]=='(':
         (x,idx)=expression(s,idx+1)
         if s[idx]==')':
@@ -337,7 +340,7 @@ def getsymval(w):
     for i in l:
         if i[0]==w:
             return symbols[w]
-    return 0 
+    return "" 
 
 def issymbol(w):
     l=list(symbols.items())
@@ -529,6 +532,8 @@ def match(s,t):
               idx_t+=1
               (w,idx_s)=getword(s,idx_s)
               v=getsymval(w)
+              if (v==""):
+                  return False
               put_vars(a,v)
               continue
         elif a==b:
