@@ -22,8 +22,7 @@ symbols={}
 labels={}
 pat=[]
 pas=1
-ff=""
-debug=1
+debug=0
 
 vars=[ "" for i in range(26) ]
 
@@ -593,7 +592,7 @@ def lineassemble(line):
         return False
     if pas==2:
         if debug:
-            print (f"LINE: {line} : ",end='')
+            print (f"{line} : ",end='')
     ll=[ _ for _ in line.split(' ') if _]
     idx=0
     (l,idx)=get_param_to_spc(line,idx)
@@ -644,7 +643,7 @@ def lineassemble(line):
     return True
 
 def main():
-    global pc,pas,ff
+    global pc,pas
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
