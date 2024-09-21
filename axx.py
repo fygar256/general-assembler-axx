@@ -467,6 +467,9 @@ def readpat(fn):
         l=r
         prev=l[0]
         l=[_ for _ in l if _]
+        for i in range(4):
+            if len(l)>i:
+                l[i]=l[i].replace(' ','')
         idx=0
         if len(l)==1:
             p=[l[0],'','','']
@@ -636,6 +639,7 @@ def lineassemble(line):
     line=label_processing(line)
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
+    l=l.replace(' ','')
     l2=l2.replace(' ','')
     if org_processing(l,l2):
         return True
