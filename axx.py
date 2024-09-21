@@ -8,7 +8,8 @@ import string as str
 import struct
 import sys
 import os
-VAR_UNDEF = 99999
+import re
+VAR_UNDEF = 999999999
 outfile="axx.out"
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -23,6 +24,7 @@ symbols={}
 labels={}
 pat=[]
 pas=1
+quotemode=0
 debug=0
 
 vars=[ VAR_UNDEF for i in range(26) ]
@@ -180,7 +182,6 @@ def factor1(s,idx):
         if s[idx]==')':
             idx+=1
     return (x,idx)
-
 
 def term0_0(s,idx):
     (x,idx)=factor(s,idx)
@@ -362,15 +363,22 @@ def readfile(fn):
     
 def clear_symbol(i):
     global symbols
+    if len(i)==0:
+        return False
     if i[0]!='.clearsym':
     	return False
     symbols={}
     return True
 
 def set_symbol(i):
-    if i[0]!='.setsym':
+    if len(i)==0:
+        return False
+    if len(i)>1 and i[0]!='.setsym':
     	return False
-    v,idx=expression(i[3],0)
+    if len(i)>3:
+        v,idx=expression(i[3],0)
+    else:
+        v=-1
     key=upper(i[1])
     symbols[upper(key)]=v
     return True
@@ -414,6 +422,28 @@ def replace_garbages(s):
     s=s.replace(' ','')
     return(s)
 
+def get_params1(l,idx):
+    if quotemode==1:
+        idx=skipspc(l,idx)
+        s=""
+        if len(l)>idx and l[idx]=='"':
+            idx+=1
+            while len(l)>idx:
+                if '"'==l[idx]:
+                    idx+=1
+                    break
+                s+=l[idx]
+                idx+=1
+        else:
+            return ("",idx)
+    else:
+        (s,idx)=get_param_to_spc(l,idx)
+    print(s)
+    return (s,idx)
+
+def reduce_spaces(text):
+    return re.sub(r'\s{2,}', ' ', text)
+
 def readpat(fn):
     global pat
     f=open(fn,"rt")
@@ -424,23 +454,29 @@ def readpat(fn):
         l=remove_comment(l)
         l=l.replace('\t',' ')
         l=l.replace('\n','')
-        l=l.split(' ')
-
-        if len(l)>0 and l[0]=="":
-            l[0]=prev
+        l=reduce_spaces(l)
+        r=[]
+        idx=0
+        if len(l)>1 and l[0]==' ':
+            l=prev+" "+l
+        while True:
+            s,idx=get_params1(l,idx)
+            idx=skipspc(l,idx)
+            r+=[s]
+            if len(l)<=idx:
+                break
+        l=r
         prev=l[0]
         l=[_ for _ in l if _]
         idx=0
-        t=l
-
-        if len(t)==1:
-            p=[t[0],'','','']
-        elif len(t)==2:
-            p=[t[0],'','',t[1]]
-        elif len(t)==3:
-            p=[t[0],t[1],'',t[2]]
-        elif len(t)==4:
-            p=[t[0],t[1],t[2],t[3]]
+        if len(l)==1:
+            p=[l[0],'','','']
+        elif len(l)==2:
+            p=[l[0],'','',l[1]]
+        elif len(l)==3:
+            p=[l[0],l[1],'',l[2]]
+        elif len(l)==4:
+            p=[l[0],l[1],l[2],l[3]]
         else:
             p=[]
         w.append(p)
@@ -592,12 +628,12 @@ def org_processing(l1,l2):
 def lineassemble(line):
     global pc
     line=upper(line.replace('\t',' ').replace('\n',''))
+    line=reduce_spaces(line)
     line=remove_comment_asm(line)
     if line=='':
         return False
-    if pas==2:
-        if debug:
-            print (f"{line} : ",end='')
+    if pas==2 and debug:
+        print (f"{line} : ",end='')
     line=label_processing(line)
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
@@ -645,18 +681,23 @@ def lineassemble(line):
     return True
 
 def main():
-    global pc,pas
+    global pc,pas,quotemode
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py [q] patternfile.axx [sourcefile.s]")
         return
 
+    if sys.argv[1]=='q':
+        quotemode=1
+        ofs = 1
+    else:
+        quotemode=0
         ofs=0
 
     sys_argv=sys.argv
-    if len(sys_argv)>=2:
-        readpat(sys_argv[1])
+    if len(sys_argv)>=2+ofs:
+        readpat(sys_argv[1+ofs])
 
     try:
         os.remove("axx.out")
@@ -666,14 +707,14 @@ def main():
         pass
     f=open(outfile,"wb")
     f.close()
-    if len(sys_argv)==2:
+    if len(sys_argv)==2+ofs:
         pc=0
         pas=2
         while True:
             line=input(">> ")
             lineassemble(line)
-    elif len(sys_argv)>=3:
-        af=readfile(sys_argv[2])
+    elif len(sys_argv)>=3+ofs:
+        af=readfile(sys_argv[2+ofs])
         pc=0
         pas=1
         for i in af:
