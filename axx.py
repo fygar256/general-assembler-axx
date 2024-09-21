@@ -438,7 +438,6 @@ def get_params1(l,idx):
             return ("",idx)
     else:
         (s,idx)=get_param_to_spc(l,idx)
-    print(s)
     return (s,idx)
 
 def reduce_spaces(text):
