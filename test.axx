@@ -1,0 +1,16 @@
+.setsym v0  0
+.setsym x0  1
+ST1 {x.4\s},[y] 0x01,x,y,0
+
+.setsym $s5 21
+.setsym $v0 2
+.setsym $a0 4
+ADDI	x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+NOP 0x00
+LD A,B     e:=(8),e|2
+
+.setsym rax 0
+.setsym rbx 3
+.setsym rcx 1
+LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+NOP 0
