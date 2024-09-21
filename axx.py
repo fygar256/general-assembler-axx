@@ -23,6 +23,7 @@ labels={}
 pat=[]
 pas=1
 ff=""
+debug=1
 
 vars=[ "" for i in range(26) ]
 
@@ -196,8 +197,9 @@ def term0(s,idx):
         if (s[idx]=='*'):
             (t,idx)=term0_0(s,idx+1)
             x*=t
-        elif (s[idx]=='/'):
-            (t,idx)=term0_0(s,idx+1)
+        elif q(s,'//',idx):
+            idx+=2
+            (t,idx)=term0_0(s,idx)
             if t==0:
                 err("Division by 0 error.")
             else:
@@ -397,14 +399,8 @@ def remove_comment(l):
     return l
 
 def remove_comment_asm(l):
-    idx=0
-    while idx<len(l):
-        if len(l[idx:])>1 and l[idx:idx+1]==';':
-            if idx==0:
-                return ""
-            else:
-                return l[0:idx-1]
-        idx+=1
+    if ';' in l:
+        return l[0:l.index(';')].replace(' ','')
     return l
 
 def replace_garbages(s):
@@ -593,6 +589,11 @@ def lineassemble(line):
     global pc
     line=upper(line.replace('\t',' ').replace('\n',''))
     line=remove_comment_asm(line)
+    if line=='':
+        return False
+    if pas==2:
+        if debug:
+            print (f"LINE: {line} : ",end='')
     ll=[ _ for _ in line.split(' ') if _]
     idx=0
     (l,idx)=get_param_to_spc(line,idx)
