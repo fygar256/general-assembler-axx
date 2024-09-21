@@ -423,7 +423,7 @@ def replace_garbages(s):
     return(s)
 
 def get_params1(l,idx):
-    if quotemode==1:
+    if len(l)>idx and l[idx]=='"':
         idx=skipspc(l,idx)
         s=""
         if len(l)>idx and l[idx]=='"':
@@ -444,12 +444,14 @@ def reduce_spaces(text):
     return re.sub(r'\s{2,}', ' ', text)
 
 def readpat(fn):
-    global pat
+    global pat,quotemode
     f=open(fn,"rt")
     p=[]
     w=[]
     prev=''
     while(l:=f.readline()):
+        if '"' in l:
+            quotemode=1
         l=remove_comment(l)
         l=l.replace('\t',' ')
         l=l.replace('\n','')
@@ -684,19 +686,14 @@ def lineassemble(line):
     return True
 
 def main():
-    global pc,pas,quotemode
+    global pc,pas
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py [q] patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
         return
 
-    if sys.argv[1]=='q':
-        quotemode=1
-        ofs = 1
-    else:
-        quotemode=0
-        ofs=0
+    ofs=0
 
     sys_argv=sys.argv
     if len(sys_argv)>=2+ofs:
