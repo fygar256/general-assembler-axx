@@ -65,17 +65,38 @@ Lowercase variables are referenced from error_patterns and binary_list. Lowercas
 
 The assembly line accepts uppercase and lowercase letters as the same.
 
-The special variable in the assembly line expressions is '$$', which represents the current location counter.
+The special variable in assembly line expressions is '$$', which represents the current location counter.
 
-・Expression, value
+### Operator precedence
 
-There is an assignment operator `:=`. When `d:=24` is entered, 24 is assigned to the variable d. The value of the assignment operator is the assigned value.
+Operators and precedence are based on Python and are as follows.
+
+```
+(expression) Expression enclosed in parentheses
+!,# Operators that return a label, operators that return a symbol
+-,~ Negative, bitwise NOT
+@ Snake Marmuta operator
+:= Assignment operator
+** Exponentiation
+*,// Multiplication, integer division
++,- Addition, subtraction
+<<,>> Left shift, right shift
+& Bitwise AND
+| Bitwise OR
+' Sign extension
+<=,<,>,>=,!=,== Comparison operators
+not(x) Logical NOT
+&& Logical AND
+|| Logical OR
+```
+
+`:=` is available as an assignment operator. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns the number of bits of the value that follows. This is called the snake-shaped operator.
+The prefix operator `@` returns the number of bits in the value that follows. We call this the snake-shaped operator.
 
-The binary operator `'` is entered as `a'24`, which sign-extends the 24th bit of a as the sign bit. This is called the SEX operator.
+The binary operator `'`, for example `a'24`, sign extends the 24th bit of a as the sign bit (sign EXtend). We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
 
@@ -83,23 +104,22 @@ The prefix operator `!` returns the value of the label that follows.
 
 ・Escape character
 
-The escape character `\` can be used in mnemonic and operands.
+You can use the escape character `\` in mnemonic and operands.
 
 ・error_patterns
 
-error_patterns uses variables and comparison operators to specify the conditions under which an error occurs.
+error_patterns uses variables and comparison operators to specify the conditions that will cause an error.
 
-You can specify multiple error patterns, separated by ','. For example, as follows.
+Multiple error patterns can be specified, separated by ','. For example, as follows.
 
 ```
 a>3;4,b>7;5
 ```
-
-In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
+In this example, when a>3, it returns error code 4, and when b>7, it returns error code 5.
 
 ・binary_list
 
-binary_list specifies the codes to be output, separated by ','. For example, if you specify 0x03,d, d will be output after 0x3.
+binary_list specifies the code to be output, separated by ','. For example, if you specify 0x03,d, d will be output after 0x3.
 
 Let's take 8048 as an example. If the pattern file contains
 
@@ -107,7 +127,7 @@ Let's take 8048 as an example. If the pattern file contains
 ADD A,Rn n>7;5 n|0x68
 ```
 
-and you pass `add a,rn` to the assembly line, it will return error code 5 if n>7, and `add a,r1` will generate binary 0x69
+and you pass `add a,rn` to the assembly line, it will return error code 5 when n>7, and `add a,r1` will generate binary 0x69.
 
 ・symbol
 
@@ -207,32 +227,46 @@ The prefix operator `!` is used.
 
 ・ORG
 
-ORG is
+ORG is from the assembly line,
 
 ```
 org 0x800
 ```
-from the assembly line.
 
+・Quotes
+
+If you want to write spaces in the pattern file, enclose it in double quotes`"`.
+
+```
+ADD A,Rn "n > 7 ; 5" "n | 0x68"
+```
+
+is the same as
+
+```
+ADD A,Rn n>7;5 n|0x68
+```
+
+.
 ・Floating point
 
-For example, suppose there is a processor that includes floating point as an operand, and `MOVF fa,3.14` loads 3.14 into the fa register, and the opcode is 01. In this case, the pattern data is
+For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, and the opcode is 01. In this case, the pattern data is
 
 ```
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
-and if `movf fa,0f3.14` is passed to the assembly line, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
+The assembly line will contain `movf If you pass fa,0f3.14, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
-・Number notation
+-Number notation
 
 Prefix binary numbers with '0b'.
 
 Prefix hexadecimal numbers with '0x'.
 
-Floating point float (32bit) should be prefixed with '0f'.
+Prefix floating-point numbers (32bit) with '0f'.
 
-Floating point double (float 64bit) should be prefixed with '0d'.
+Prefix floating-point numbers (64bit) with '0d'.
 
 ### MIPS example
 
@@ -247,27 +281,29 @@ Assignment operator `:=` is used.
 
 ```
 $ axx.py mips.axx
->> addi $a0,$v0,9 0x20,0x44,0x00,0x09,
+>> addi $a0,$v0,9
+0x20,0x44,0x00,0x09,
 >>
 ```
 
-### Example of x86_64 instruction 
-```x86_64.axx 
+### Example of x86_64 command
+
+```x86_64.axx
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
-LEAQ r,[s,t,d,e] 0x48 ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 ```
 
-``` 
+```
 $ axx x86_64.axx
 >> leaq rax,[rbx,rcx,2,0x10]
 0x48,0x8d,0x04,0x4b,0x10,
 ```
 
-### A64FX test
+### Testing A64FX
 
-```a64fx.axx
+```a64fx.axx 
 .setsym v0 0
 .setsym x0 1
 ST1 {x.4\s},[y] 0x01,x,y,0
@@ -282,20 +318,20 @@ $ axx.py a64fx.axx
 
 -Error check
 
-Error check is weak.
+Error check is lax.
 
-### Comment
+### Comments
 
--Please forgive the variation in notation.
+-Please excuse the inconsistencies in notation.
 
--I think it will work with a scalar processor. I don't think there are any processors that directly store matrices and vectors in registers.
+-I think it will work with a scalar processor. I don't think there are any processors that store matrices and vectors directly in registers.
 
 ### Future issues
 
--Make it possible to write spaces in operands.
-
 -The order of evaluation of pattern files is difficult, so I will do something about it.
+
+-As it stands now, I can only assemble a single file, so I will make it possible for the linker to handle it.
 
 ### Acknowledgements
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, and to some other unforgettable guys. Thank you very much.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design for giving me problems and hints, the University of Electro-Communications for their cooperation, and to some other unforgettable guys. Thank you very much.
