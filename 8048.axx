@@ -17,7 +17,7 @@ CLR     A                                       0x27
 DB      d                                       d
 DA      A                                       0x37
 DEC     A                                       0x07
-        Rn              r>7;5                   n|0xC8
+        Rn              n>7;5                   n|0xC8
 DIS     I                                       0x15
         TCNTI                                   0x35
 DJNZ    Rn,a                                    n|0xE8,a

@@ -8,6 +8,7 @@ import string as str
 import struct
 import sys
 import os
+VAR_UNDEF = 99999
 outfile="axx.out"
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -24,7 +25,7 @@ pat=[]
 pas=1
 debug=0
 
-vars=[ "" for i in range(26) ]
+vars=[ VAR_UNDEF for i in range(26) ]
 
 def upper(o):
     t=""
@@ -168,11 +169,12 @@ def factor1(s,idx):
             (x,idx)=expression(s,idx+3)
             put_vars(ch,x)
         else:
-            x=get_vars(s[idx])
+            x=get_vars(ch)
             idx+=1
-            if x=="":
-                print("error: undefined symbol")
-                return(-1,idx)
+            if x==VAR_UNDEF:
+                if pas==2:
+                    print("error: undefined symbol")
+                return(VAR_UNDEF,idx)
     elif s[idx]=='(':
         (x,idx)=expression(s,idx+1)
         if s[idx]==')':
