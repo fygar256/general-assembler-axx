@@ -403,7 +403,7 @@ def remove_comment(l):
 
 def remove_comment_asm(l):
     if ';' in l:
-        return l[0:l.index(';')].replace(' ','')
+        return l[0:l.index(';')]
     return l
 
 def replace_garbages(s):
@@ -562,23 +562,24 @@ def error(s):
 
     return error_occured
 
-def label_processing(l,l2,l3):
-    t=l
-    s,idx=getword(t,0)
-    if len(t)==idx:
-        return (l,l2,l3)
-    if len(t)>idx and t[idx]==':':
-        l=l2
-        l2=l3
-        l3=""
-
-    if upper(l)=='EQU':
-        u,idx=expression(l2,0)
-        labels[s]=u
-        return ("","","")
-    else:
-        labels[s]=pc
-        return (l,l2,"")
+def label_processing(l):
+    if ':' in l:
+        idx=l.index(':')
+        label=l[0:idx]
+        idx+=1
+        idx=skipspc(l,idx+1)
+        idx1=idx
+        e,idx=get_param_to_spc(l,idx)
+        if upper(e)=='EQU':
+            idx=skipspc(l,idx)
+            s=l.replace(' ','')
+            u,idx=expression(l,idx)
+            labels[label]=u
+            return ""
+        else:
+            labels[label]=pc
+            return l[idx1:]
+    return l
 
 def org_processing(l1,l2):
     global pc
@@ -597,17 +598,14 @@ def lineassemble(line):
     if pas==2:
         if debug:
             print (f"{line} : ",end='')
-    ll=[ _ for _ in line.split(' ') if _]
-    idx=0
-    (l,idx)=get_param_to_spc(line,idx)
-    (l2,idx)=get_param_to_spc(line,idx)
-    (l3,idx)=get_param_to_eol(line,idx)
-    (l,l2,l3)=label_processing(l,l2,l3)
+    line=label_processing(line)
+    (l,idx)=get_param_to_spc(line,0)
+    (l2,idx)=get_param_to_eol(line,idx)
+    l2=l2.replace(' ','')
     if org_processing(l,l2):
         return True
     if  l=="":
         return False
-    l2=l2.replace(' ','')
     idx=0
     of=0
     se=False
