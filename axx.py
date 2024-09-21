@@ -305,8 +305,10 @@ def term7(s,idx):
     return (x,idx)
 
 def term8(s,idx):
-    if s[idx:idx+4]=='not ':
-        (x,idx)=term8(s,idx+3)
+    if s[idx:idx+4]=='not(':
+        (x,idx)=expression(s,idx+3)
+        if s[idx]==')':
+            idx+=1
         x=not x
     else:
         (x,idx)=term7(s,idx)
