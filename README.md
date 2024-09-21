@@ -4,27 +4,28 @@ tags: Terminal assembly Python
 author: fygar256
 slide: false
 ---
-### GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a generalized assembler.
+# GENERAL ASSEMBLER 'axx.py'
 
-It is written in a general way, so it does not depend on a specific processing system.
+axx.py is a general assembler.
+
+It is written in a general way, so the execution platform is not dependent on a specific processing system.
 
 It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. We plan to implement the practical functions of dedicated assemblers in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 ・How to use
 
-Use it as follows: `python axx.py 8048.axx [sample.s]`.
+Use it like this: `python axx.py 8048.axx [sample.s]`.
 
-ax reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-The result is output as text to the standard output, and at the same time a binary file named `axx.out` is output to the current directory.
+The result is output as text to standard output, and at the same time a binary file named `axx.out` is output to the current directory.
 
-In axx, a line input from an assembly language source file or standard input is named an assembly line.
+In axx, assembly language source files and lines input from standard input are named assembly lines.
 
-・Pattern data explanation
+・Explanation of pattern data
 
 Pattern data is arranged as follows.
 
@@ -40,7 +41,7 @@ Mnemonic can be omitted from the second line onwards. If omitted, specify a spac
 
 If omitted, the mnemonic from the previous line will be used.
 
-There may be no operands. Error_patterns can be omitted. Binary_list cannot be omitted.
+operands may not be present. error_patterns can be omitted. binary_list cannot be omitted.
 
 There are three types of pattern data:
 
@@ -52,9 +53,9 @@ There are three types of pattern data:
 
 ・Comments
 
-If you write `/*` in the pattern file, the part after `/*` on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+Writing `/*` in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close the line with `*/`. It is only valid for the part after `/*` on that line.
 
-Comments on the assembly line are `;`.
+Assembly line comments are `;`.
 
 ・Case sensitivity, variables
 
@@ -64,17 +65,17 @@ Lowercase variables are referenced from error_patterns and binary_list. Lowercas
 
 The assembly line accepts uppercase and lowercase letters as the same.
 
-A special variable in assembly line expressions is '$$', which represents the current location counter.
+The special variable in the assembly line expressions is '$$', which represents the current location counter.
 
 ・Expression, value
 
-There is an assignment operator `:=`. When `d:=24` is used, 24 is assigned to the variable d. The value of an assignment operator is the assigned value.
+There is an assignment operator `:=`. When `d:=24` is entered, 24 is assigned to the variable d. The value of the assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns the number of bits of the value that follows. We call this the snake-like operator.
+The prefix operator `@` returns the number of bits of the value that follows. This is called the snake-shaped operator.
 
-The binary operator `'`, when `a'24` is used, the 24th bit of a is made the sign bit and sign-extended. We call this the SEX operator.
+The binary operator `'` is entered as `a'24`, which sign-extends the 24th bit of a as the sign bit. This is called the SEX operator.
 
 The binary operator `**` is exponentiation.
 
@@ -93,6 +94,7 @@ You can specify multiple error patterns, separated by ','. For example, as follo
 ```
 a>3;4,b>7;5
 ```
+
 In this example, if a>3, error code 4 is returned, and if b>7, error code 5 is returned.
 
 ・binary_list
@@ -228,9 +230,9 @@ Prefix binary numbers with '0b'.
 
 Prefix hexadecimal numbers with '0x'.
 
-Please prefix floating point float (32bit) with '0f'.
+Floating point float (32bit) should be prefixed with '0f'.
 
-Please prefix floating point double (float 64bit) with '0d'.
+Floating point double (float 64bit) should be prefixed with '0d'.
 
 ### MIPS example
 
@@ -249,13 +251,12 @@ $ axx.py mips.axx
 >>
 ```
 
-### Example of x86_64 instruction
-
+### Example of x86_64 instruction 
 ```x86_64.axx 
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
-LEAQ r,[s,t,d,e] ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+LEAQ r,[s,t,d,e] 0x48 ,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 ```
 
 ``` 
@@ -264,7 +265,7 @@ $ axx x86_64.axx
 0x48,0x8d,0x04,0x4b,0x10,
 ```
 
- ### A64FX test
+### A64FX test
 
 ```a64fx.axx
 .setsym v0 0
@@ -285,13 +286,15 @@ Error check is weak.
 
 ### Comment
 
--Sorry for original notation.
+-Please forgive the variation in notation.
 
--I think it will work on a scalar processor. I don't think there are any processors that directly store matrices and vectors in registers.
+-I think it will work with a scalar processor. I don't think there are any processors that directly store matrices and vectors in registers.
 
-### Future work
+### Future issues
 
 -Make it possible to write spaces in operands.
+
+-The order of evaluation of pattern files is difficult, so I will do something about it.
 
 ### Acknowledgements
 
