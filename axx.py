@@ -9,7 +9,7 @@ import struct
 import sys
 import os
 import re
-UNDEF = 999999999
+UNDEF = (~(0))
 outfile="axx.out"
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
