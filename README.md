@@ -300,7 +300,7 @@ $ axx x86_64.axx
 
 ### Testing A64FX 
 
-````a64fx.axx 
+```a64fx.axx 
 .setsym v0 0
 .setsym x0 1
 ST1 {x.4\s},[y] 0x01,x,y,0
