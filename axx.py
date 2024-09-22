@@ -166,10 +166,6 @@ def factor1(s,idx):
         while(s[idx].isdigit()):
             x=10*x+int(s[idx])
             idx+=1
-    elif s[idx]=='!':
-        idx+=1
-        t,idx=getword(s,idx)
-        x=getdicval(labels,t)
     elif expmode==0 and s[idx] in lower:
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
@@ -181,9 +177,8 @@ def factor1(s,idx):
     else:
         if expmode==1 and (s[idx] in wordchars or s[idx]=='.'):
             w,idx=getword(s,idx)
-            x=getdicval(labels,w)
-            if pas==2 and x==UNDEF:
-                print("Undefined label")
+            if issymbol(w)==False:
+                x=getdicval(labels,w)
     return (x,idx)
 
 def term0_0(s,idx):
@@ -366,7 +361,7 @@ def issymbol(w):
     for i in l:
         if i[0]==w:
             return w
-    return ''
+    return False
     
 def readfile(fn):
     f=open(fn,"rt")
@@ -436,21 +431,20 @@ def replace_garbages(s):
     return(s)
 
 def get_params1(l,idx):
-    if len(l)>idx and l[idx]=='"':
+    idx=skipspc(l,idx)
+    if len(l)<=idx:
+        return ("",idx)
+    if not l[idx]=='\"':
         idx=skipspc(l,idx)
-        s=""
-        if len(l)>idx and l[idx]=='"':
+        return get_param_to_spc(l,idx)
+    s=""
+    idx+=1
+    while True:
+        if '\"'==l[idx]:
             idx+=1
-            while len(l)>idx:
-                if '"'==l[idx]:
-                    idx+=1
-                    break
-                s+=l[idx]
-                idx+=1
-        else:
-            return ("",idx)
-    else:
-        (s,idx)=get_param_to_spc(l,idx)
+            break
+        s+=l[idx]
+        idx+=1
     return (s,idx)
 
 def reduce_spaces(text):
@@ -473,16 +467,12 @@ def readpat(fn):
             l=prev+" "+l
         while True:
             s,idx=get_params1(l,idx)
-            idx=skipspc(l,idx)
             r+=[s]
             if len(l)<=idx:
                 break
         l=r
         prev=l[0]
         l=[_ for _ in l if _]
-        for i in range(4):
-            if len(l)>i:
-                l[i]=l[i].replace(' ','')
         idx=0
         if len(l)==1:
             p=[l[0],'','','']
@@ -556,6 +546,8 @@ def match(s,t):
     idx_s=0
     idx_t=0
     while True:
+        idx_s=skipspc(s,idx_s)
+        idx_t=skipspc(t,idx_t)
         b=s[idx_s] # bはアセンブリライン
         a=t[idx_t] # aはパターンファイル
         if a==chr(0) and b==chr(0):
@@ -662,8 +654,7 @@ def lineassemble(line):
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
     l=l.replace(' ','')
-    l2=l2.replace(' ','')
-    if org_processing(l,l2):
+    if org_processing(l,l2.replace(' ','')):
         return True
     if  l=="":
         return False
@@ -720,7 +711,7 @@ def main():
         readpat(sys_argv[1+ofs])
 
     try:
-        os.remove("axx.out")
+        os.remove(outfile)
     except:
         pass
     else:
