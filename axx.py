@@ -24,6 +24,7 @@ symbols={}
 labels={}
 pat=[]
 pas=1
+expmode=0
 debug=0
 
 vars=[ UNDEF for i in range(26) ]
@@ -108,8 +109,8 @@ def factor(s,idx):
 def getdicval(dic,k):
     k=k.upper()
     l=list(dic.keys())
-    for _ in l:
-        if _==k:
+    for i in l:
+        if i==k:
             return dic[k]
     return UNDEF
 
@@ -169,7 +170,7 @@ def factor1(s,idx):
         idx+=1
         t,idx=getword(s,idx)
         x=getdicval(labels,t)
-    elif s[idx] in lower:
+    elif expmode==0 and s[idx] in lower:
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
             (x,idx)=expression(s,idx+3)
@@ -177,13 +178,12 @@ def factor1(s,idx):
         else:
             x=get_vars(ch)
             idx+=1
-    elif s[idx] in wordchars:
-        s_idx=idx
-        s,idx=getword(s,idx)
-        if idx!=s_idx:
-            x=getdicval(labels,s)
-            if x==UNDEF:
-                idx=s_idx
+    else:
+        if expmode==1 and s[idx] in wordchars:
+            w,idx=getword(s,idx)
+            x=getdicval(labels,w)
+            if pas==2 and x==UNDEF:
+                print("Undefined label")
     return (x,idx)
 
 def term0_0(s,idx):
@@ -344,6 +344,16 @@ def expression(s,idx):
     (x,idx)=term10(s,idx)
     return (x,idx)
 
+def expression0(s,idx):
+    global expmode
+    expmode=0
+    return expression(s,idx)
+
+def expression1(s,idx):
+    global expmode
+    expmode=1
+    return expression(s,idx)
+
 def getsymval(w):
     l=list(symbols.items())
     for i in l:
@@ -379,7 +389,7 @@ def set_symbol(i):
     if len(i)>1 and i[0]!='.setsym':
     	return False
     if len(i)>3:
-        v,idx=expression(i[3],0)
+        v,idx=expression0(i[3],0)
     else:
         v=-1
     key=upper(i[1])
@@ -507,7 +517,7 @@ def makeobj(s):
     while True:
         if s[idx]==chr(0):
             break
-        (x,idx)=expression(s,idx)
+        (x,idx)=expression0(s,idx)
         if pas==2:
             x=int(x)&0xff
             print("0x%02x," % x,end='')
@@ -530,7 +540,7 @@ def isword(s,idx):
 
 def getword(s,idx):
     t=""
-    if len(s)>idx and s[idx]!=':' and not s[idx] in digit and s[idx] in wordchars:
+    if len(s)>idx and (s[idx]=='.' or not s[idx] in digit and s[idx] in wordchars):
             while len(s)>idx:
                 if not s[idx] in wordchars: 
                     break
@@ -565,7 +575,7 @@ def match(s,t):
                 return False
         elif a in nalphabet:
               idx_t+=1
-              (v,idx_s)=expression(s,idx_s)
+              (v,idx_s)=expression1(s,idx_s)
               put_vars(a,v)
               continue
         elif a in salphabet:
@@ -593,11 +603,11 @@ def error(s):
             idx+=1
             continue
 
-        u,idx=expression(s,idx)
+        u,idx=expression0(s,idx)
         if s[idx]==';':
             idx+=1
-        t,idx=expression(s,idx)
-        if u:
+        t,idx=expression0(s,idx)
+        if pas==2 and u:
             print(f"error code {t} ")
             error_occured=True
 
@@ -607,9 +617,12 @@ def label_processing(l):
     if ':' in l:
         idx=l.index(':')
         label=l[0:idx]
-        if len(label)<2:
+        if pas==2 and len(label)<2:
             print("Label too short")
             return "" 
+        if l=="":
+            labels[label]=pc
+            return ""
         idx+=1
         idx=skipspc(l,idx+1)
         idx1=idx
@@ -617,7 +630,7 @@ def label_processing(l):
         if upper(e)=='EQU':
             idx=skipspc(l,idx)
             s=l.replace(' ','')
-            u,idx=expression(l,idx)
+            u,idx=expression1(l,idx)
             labels[label]=u
             return ""
         else:
@@ -629,7 +642,7 @@ def org_processing(l1,l2):
     global pc
     if upper(l1)!="ORG":
         return False
-    u,idx=expression(l2,0)
+    u,idx=expression1(l2,0)
     pc=u
     return True
 
@@ -685,7 +698,7 @@ def lineassemble(line):
     else:
         se=True
     if se and pas==2:
-        print("Syntax error")
+        print(f"{sl}: Syntax error")
         return False
     pc+=of
     return True

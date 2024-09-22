@@ -1,5 +1,6 @@
-    org 0
+nop
 L1:
+nop
 mov a,#l2
 L2:
 ADD     A,R1
