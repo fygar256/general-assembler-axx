@@ -1,7 +1,3 @@
-;
-;
-;
-;
 LD SP,HL
 LD SP,IX
 LD SP,IY
@@ -47,14 +43,12 @@ LD SP,0x56
 LD HL,0x56
 LD E,0x56
 LD E,B
-
 PUSH  BC
 PUSH IX
 PUSH IY
 POP BC
 POP IX
 POP IY
-
 ADD A,(HL)
 ADD A,(IX)
 ADD A,(IY)
@@ -62,7 +56,6 @@ ADD A,(IX+0x12)
 ADD A,(IY+0x12)
 ADD A,E
 ADD A,0x56
-
 ADC A,(HL)
 ADC A,(IX)
 ADC A,(IY)
@@ -70,7 +63,6 @@ ADC A,(IX+0x12)
 ADC A,(IY+0x12)
 ADC A,E
 ADC A,0x56
-
 SUB A,(HL)
 SUB A,(IX)
 SUB A,(IY)
@@ -78,7 +70,6 @@ SUB A,(IX+0x12)
 SUB A,(IY+0x12)
 SUB A,E
 SUB A,0x56
-
 SBC A,(HL)
 SBC A,(IX)
 SBC A,(IY)
@@ -86,7 +77,6 @@ SBC A,(IX+0x12)
 SBC A,(IY+0x12)
 SBC A,E
 SBC A,0x56
-
 AND A,(HL)
 AND A,(IX)
 AND A,(IY)
@@ -94,7 +84,6 @@ AND A,(IX+3)
 AND A,(IY+3)
 AND A,E
 AND A,0x56
-
 OR A,(HL)
 OR A,(IX)
 OR A,(IY)
@@ -102,7 +91,6 @@ OR A,(IX+0x12)
 OR A,(IY+0x12)
 OR A,E
 OR A,0x56
-
 XOR A,(HL)
 XOR A,(IX)
 XOR A,(IY)
@@ -110,7 +98,6 @@ XOR A,(IX+0x12)
 XOR A,(IY+0x12)
 XOR A,E
 XOR A,0x56
-
 CP A,(HL)
 CP A,(IX)
 CP A,(IY)
@@ -118,41 +105,35 @@ CP A,(IX+0x12)
 CP A,(IY+0x12)
 CP A,E
 CP A,0x56
-
 INC HL
 INC IY
 INC IX
 INC BC
 INC DE
 INC SP
-
 DEC HL
 DEC IY
 DEC IX
 DEC BC
 DEC DE
 DEC SP
-
 INC (HL)
 INC (IX)
 INC (IY)
 INC (IX+0x56)
 INC (IY+0x56)
 INC E
-
 DEC (HL)
 DEC (IX)
 DEC (IY)
 DEC (IX+0x56)
 DEC (IY+0x56)
 DEC E
-
 ADD HL,de
 ADC HL,de
 SBC HL,de
 ADD IX,de
 ADD IY,de
-
 DAA
 CPL
 NEG
@@ -165,14 +146,12 @@ EI
 IM 0
 IM 1
 IM 2
-
 EX DE,HL
 EX AF,AF'
 EXX
 EX (SP),HL
 EX (SP),IX
 EX (SP),IY
-
 LDI
 LDIR
 LDD
@@ -181,71 +160,58 @@ CPI
 CPIR
 CPD
 CPDR
-
 BIT b,E
 BIT b,(HL)
 BIT b,(IX)
 BIT b,(IY)
 BIT b,(IX+0x56)
 BIT b,(IY)
-
 SET b,E
 SET b,(HL)
 SET b,(IX)
 SET b,(IY)
 SET b,(IX+0x56)
 SET b,(IY)
-
 RES b,E
 RES b,(HL)
 RES b,(IX)
 RES b,(IY)
 RES b,(IX+0x56)
 RES b,(IY+0x56)
-
 RLCA
 RLA
 RRCA
 RRA
-
 RLC (HL)
 RLC (IX)
 RLC (IY)
 RLC E
-
 RL (HL)
 RL (IX)
 RL (IY)
 RL E
-
 RRC (HL)
 RRC (IX)
 RRC (IY)
 RRC E
-
 RR (HL)
 RR (IX)
 RR (IY)
 RR E
-
 SLA (HL)
 SLA (IX)
 SLA (IY)
 SLA E
-
 SRA (HL)
 SRA (IX)
 SRA (IY)
 SRA E
-
 SRL (HL)
 SRL (IX)
 SRL (IY)
 SRL E
-
 RLD
 RRD
-
 JP (HL)
 JP (IX)
 JP (IY)
@@ -257,7 +223,6 @@ JR NC,0x90
 JR C,0x90
 JR 0x90
 DJNZ 0x90
-
 CALL C,0x56
 CALL 0x56
 RET C
@@ -265,7 +230,6 @@ RET
 RETI
 RETN
 RST 0x08
-
 IN A,(1)
 IN E,(C)
 INI
@@ -278,4 +242,3 @@ OUTI
 OTIR
 OUTD
 OTDR
-

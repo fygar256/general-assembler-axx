@@ -1,5 +1,5 @@
 ADD     A,\@Rn           n>1;5                  n|0x60
-        A,Rn            n>7;5                  n|0x68
+        "A , R n"        "n > 7 ; 5"                  "n | 0x68"
         A,\#d            d>0xFF;1               0x03,d
 ADDC    A,\@Rn           n>1;5                  n|0x70
         A,Rn            n>7;5                   n|0x78

@@ -1,8 +1,9 @@
+    org 0
 L1:
-mov a,#!l2
+mov a,#l2
 L2:
+ADD     A,R1
 mov     @R1,#2
-ADD     A,R4
 MOV     A,#4
 add     A,@R1
 MOV     A,PSW
@@ -21,7 +22,7 @@ ADDC    A,@R1
 MOV     A,#1
 addc    A,#1
 DB 12
-org 0x1000
+;org 0x1000
 ANL     A,R1
 anl     A,@R1
 anl     A,#1
