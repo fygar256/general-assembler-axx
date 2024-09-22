@@ -9,19 +9,19 @@ slide: false
 
 axx.py is a generalized assembler.
 
-The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
+The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. We plan to implement the practical functions of dedicated assemblers in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 ・How to use
 
-Use it as follows: `python axx.py 8048.axx [sample.s]`.
+Use it like this: `python axx.py 8048.axx [sample.s]`.
 
-axx reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-The results are output as text to standard output, and at the same time a binary file named `axx.out` is output to the current directory.
+The result is output as text to standard output, and at the same time a binary file named `axx.out` is output to the current directory.
 
-In axx, the assembly language source file or the lines input from standard input are called assembly lines.
+In axx, assembly language source files and lines input from standard input are named assembly lines.
 
 ・Explanation of pattern data
 
@@ -39,7 +39,7 @@ Mnemonic can be omitted from the second line onwards. If omitted, specify a spac
 
 If omitted, the mnemonic from the previous line will be used.
 
-There may be no operands. Error_patterns can be omitted. Binary_list cannot be omitted.
+operands may not be present. error_patterns can be omitted. binary_list cannot be omitted.
 
 There are three types of pattern data:
 
@@ -51,31 +51,31 @@ There are three types of pattern data:
 
 ・Comments
 
-If you write `/*` in the pattern file, the part after `/*` on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+Writing `/*` in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close the line with `*/`. It is only valid for the part after `/*` on that line.
 
-Comments on the assembly line are `;`.
+Assembly line comments are `;`.
 
 ・Case sensitivity, variables
 
-Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. If they are lowercase, they are treated as one-character variables. From mnemonic and operands, the value of the expression or symbol that corresponds to that position is assigned to the variable.
+Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as one-character variables. From mnemonic and operands, the value of the expression or symbol that corresponds to that position is assigned to the variable.
 
 Lowercase variables are referenced from error_patterns and binary_list. Lowercase letters a to n represent expressions, and o to z represent symbols.
 
-From the assembly line, uppercase and lowercase are accepted as the same.
+The assembly line accepts uppercase and lowercase letters as the same.
 
 The special variable in assembly line expressions is '$$', which represents the current location counter.
 
 ### Operator precedence
 
-The operators and precedence are based on Python and are as follows
+Operators and precedence are based on Python and are as follows
 
 ```
 (expression) An expression enclosed in parentheses
-!,# Operators that return the value of a label, operators that return the value of a symbol
+# An operator that returns the value of a symbol
 -,~ Negative, bitwise NOT
-@ Unary operator that returns the number of bits in the value that follows
+@ A unary operator that returns how many bits the value that follows consists of
 := Assignment operator
-** Power
+** Exponentiation
 *,// Multiplication, integer division
 +,- Addition, subtraction
 <<,>> Left shift, right shift
@@ -88,21 +88,19 @@ not(x) Logical NOT
 || Logical OR
 ```
 
-There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
+`:=` is available as an assignment operator. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns the number of bits in the value that follows. We call this the snake-shaped operator.
+The prefix operator `@` returns the number of bits in the value that follows. We call this the snake-rounded operator.
 
-The binary operator `'`, for example `a'24`, sign extends the 24th bit of a as the sign bit (sign EXtend). We call this the SEX operator.
+For the binary operator `'`, if we use `a'24`, the 24th bit of a is made the sign bit and sign-extended (Sign EXtend). We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
 
-The prefix operator `!` returns the value of the label that follows. Even without a prefix operator, label returns the value of label.
-
 ・Escape character
 
-You can use the escape character `\` in mnemonic and operands.
+The escape character `\` can be used in mnemonic and operands.
 
 ・error_patterns
 
@@ -135,9 +133,16 @@ and you pass `add a,rn` to the assembly line, it will return error code 5 when n
 
 When you write this, symbol is defined with the value n.
 
-Symbols can be letters, numbers,
+Symbols are letters, numbers, and a string of several symbols.
 
-Here is an example of symbol definition z80. If you write
+To define symbol2 with symbol1, write it as follows.
+
+```
+.setsym symbol1 1
+.setsym symbol2 #symbol1
+```
+
+Here is an example of a symbol definition z80. In a pattern file,
 
 ```
 .setsym B 0
@@ -153,7 +158,7 @@ Here is an example of symbol definition z80. If you write
 .setsym SP 0x30
 ```
 
-in a pattern file, it will define the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
+If you write the following, the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP will be defined as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
 If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,
 
@@ -169,7 +174,7 @@ ADD A,s
 RET s
 ```
 
-In this case, the C in ADD A,C becomes 1, and the C in RET C becomes 3.
+In this case, the C in ADD A,C is 1, and the C in RET C is 3.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
@@ -201,7 +206,7 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 (2) LD A,d
 ```
 
-Pattern files are evaluated from top to bottom, so the first one takes precedence.
+Pattern files are evaluated from top to bottom, so the one placed first takes priority.
 
 In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will result in (hl) being entered as the value of d, so place LD A,(HL) in the pattern file before LD A,d. Place special patterns first and general patterns after.
 
@@ -215,7 +220,7 @@ label2: equ 0x10
 label3: nop
 ```
 
-Labels are strings of letters, numbers, and symbols that begin with a non-numeric character and are two or more characters long.
+A label is a string of letters, numbers, and symbols, starting with a non-numeric ``.`, an alphabet, or some symbols, and is two or more characters long.
 
 To define a label with a label, do the following.
 
@@ -262,73 +267,69 @@ Prefix binary numbers with '0b'.
 
 Prefix hexadecimal numbers with '0x'.
 
-Prefix floating-point numbers (32bit) with '0f'.
+Prefix floating-point float (32bit) with '0f'.
 
-Prefix floating-point numbers (64bit) with '0d'.
+Prefix floating-point double (float 64bit) with '0d'.
 
-### MIPS example
+### Test some instructions for some processors
 
-```mips.axx
+```test.axx
+/* ARM64
+.setsym r1 2
+.setsym r2 3
+.setsym r3 4
+.setsym lsl 6
+ADD "w, x, y z #d" 0x88,d
+
+/* A64FX
+.setsym v0 0
+.setsym x0 1
+ST1 {x.4\s},[y] 0x01,x,y,0
+
+/* MIPS
+.setsym $s5 21
 .setsym $v0 2
 .setsym $a0 4
-ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8 ,e
 
-```
-
-Assignment operator `:=` is used.
-
-```
-$ axx.py mips.axx
->> addi $a0,$v0,9
-0x20,0x44,0x00,0x09,
->>
-```
-
-### Example of x86_64 command
-
-```x86_64.axx
+/* x86_64
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
 LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 ```
 
-``` 
-$ axx x86_64.axx
->> leaq rax,[rbx,rcx,2,0x10] 0x48,0x8d,0x04,0x4b,0x10,
+```test.s
+leaq rax , [ rbx , rcx , 2, 0x40]
+addi $v0,$a0,5
+st1 {v0.4S},[x0]
+add r1, r2, r3 lsl #20
 ```
 
-### Testing A64FX 
-
-```a64fx.axx 
-.setsym v0 0
-.setsym x0 1
-ST1 {x.4\s},[y] 0x01,x,y,0
-```
+Execution example
 
 ```
-$ axx.py a64fx.axx
->> st1 {v0.4s},[x0]
+axx.py test.axx test.s
+0x48,0x8d,0x04,0x4b,0x40,
+0x20,0x82,0x00,0x05,
 0x01,0x00,0x01,0x00,
->>
+0x88,0x14,
 ```
 
--Error checking
+-Error check
 
-Error checking is insufficient.
+Error check is weak.
 
-### Comments
+### Comment
 
--Please excuse the inconsistencies in notation.
-
--I think it can handle memory vector machines, but it probably can't handle vector register machines due to the notation.
+-Please forgive the variation in notation.
 
 ### Future issues
 
--The order of evaluation of pattern files is difficult, so I'll do something about it.
+-The order of evaluation of pattern files is difficult, so will do something about it.
 
--As it stands now, it can only assemble a single file, so I'll make it so that the linker can handle it.
+-As it is now, we can only assemble a single file, so will make it possible for the linker to handle it.
 
 ### Acknowledgements
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design for giving me problems and hints, the University of Electro-Communications for their cooperation, and to some other unforgettable guys. Thank you very much.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei for giving me problems and hints, the University of Electro-Communications for their cooperation, and to some other unforgettable guys. Thank you very much.
