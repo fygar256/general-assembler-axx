@@ -700,7 +700,7 @@ def lineassemble(line):
     else:
         se=True
     if se and pas==2:
-        print(f"{sl}: Syntax error")
+        print(f"{sl.replace('\n','')}: Syntax error")
         return False
     pc+=of
     return True
