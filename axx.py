@@ -9,7 +9,7 @@ import struct
 import sys
 import os
 import re
-VAR_UNDEF = 999999999
+UNDEF = 999999999
 outfile="axx.out"
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -27,7 +27,7 @@ pas=1
 quotemode=0
 debug=0
 
-vars=[ VAR_UNDEF for i in range(26) ]
+vars=[ UNDEF for i in range(26) ]
 
 def upper(o):
     t=""
@@ -107,11 +107,12 @@ def factor(s,idx):
     return (x,idx)
 
 def getdicval(dic,k):
+    k=k.upper()
     l=list(dic.keys())
     for _ in l:
         if _==k:
             return dic[k]
-    return -1
+    return UNDEF
 
 def factor1(s,idx):
     x = 0
@@ -122,7 +123,11 @@ def factor1(s,idx):
             continue
         break
 
-    if q(s,'$$',idx):
+    if s[idx]=='(':
+        (x,idx)=expression(s,idx+1)
+        if s[idx]==')':
+            idx+=1
+    elif q(s,'$$',idx):
         idx+=2
         x=pc
     elif q(s,'#',idx):
@@ -165,7 +170,7 @@ def factor1(s,idx):
         idx+=1
         t,idx=getword(s,idx)
         x=getdicval(labels,t)
-    elif s[idx].islower():
+    elif s[idx] in lower:
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
             (x,idx)=expression(s,idx+3)
@@ -173,14 +178,13 @@ def factor1(s,idx):
         else:
             x=get_vars(ch)
             idx+=1
-            if x==VAR_UNDEF:
-                if pas==2:
-                    print("error: undefined symbol")
-                return(VAR_UNDEF,idx)
-    elif s[idx]=='(':
-        (x,idx)=expression(s,idx+1)
-        if s[idx]==')':
-            idx+=1
+    elif s[idx] in wordchars:
+        s_idx=idx
+        s,idx=getword(s,idx)
+        if idx!=s_idx:
+            x=getdicval(labels,s)
+            if x==UNDEF:
+                idx=s_idx
     return (x,idx)
 
 def term0_0(s,idx):
