@@ -24,7 +24,6 @@ symbols={}
 labels={}
 pat=[]
 pas=1
-quotemode=0
 debug=0
 
 vars=[ UNDEF for i in range(26) ]
@@ -448,14 +447,12 @@ def reduce_spaces(text):
     return re.sub(r'\s{2,}', ' ', text)
 
 def readpat(fn):
-    global pat,quotemode
+    global pat
     f=open(fn,"rt")
     p=[]
     w=[]
     prev=''
     while(l:=f.readline()):
-        if '"' in l:
-            quotemode=1
         l=remove_comment(l)
         l=l.replace('\t',' ')
         l=l.replace('\n','')
@@ -612,7 +609,7 @@ def label_processing(l):
         label=l[0:idx]
         if len(label)<2:
             print("Label too short")
-            return l
+            return "" 
         idx+=1
         idx=skipspc(l,idx+1)
         idx1=idx
@@ -638,6 +635,7 @@ def org_processing(l1,l2):
 
 def lineassemble(line):
     global pc
+    sl=line
     line=upper(line.replace('\t',' ').replace('\n',''))
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -686,7 +684,7 @@ def lineassemble(line):
                         break
     else:
         se=True
-    if se:
+    if se and pas==2:
         print("Syntax error")
         return False
     pc+=of
