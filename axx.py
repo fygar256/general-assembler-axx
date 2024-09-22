@@ -610,6 +610,9 @@ def label_processing(l):
     if ':' in l:
         idx=l.index(':')
         label=l[0:idx]
+        if len(label)<2:
+            print("Label too short")
+            return l
         idx+=1
         idx=skipspc(l,idx+1)
         idx1=idx
