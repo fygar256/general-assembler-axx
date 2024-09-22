@@ -15,7 +15,7 @@ axx can process the instruction set of any processor if you prepare pattern data
 
 ・How to use
 
-Use it like this: `python axx.py 8048.axx [sample.s]`.
+Use it like this: `python axx.py patternfile.axx [sample.s]`.
 
 axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
