@@ -179,7 +179,7 @@ def factor1(s,idx):
             x=get_vars(ch)
             idx+=1
     else:
-        if expmode==1 and s[idx] in wordchars:
+        if expmode==1 and (s[idx] in wordchars or s[idx]=='.'):
             w,idx=getword(s,idx)
             x=getdicval(labels,w)
             if pas==2 and x==UNDEF:
@@ -541,11 +541,13 @@ def isword(s,idx):
 def getword(s,idx):
     t=""
     if len(s)>idx and (s[idx]=='.' or not s[idx] in digit and s[idx] in wordchars):
-            while len(s)>idx:
-                if not s[idx] in wordchars: 
-                    break
-                t+=upper(s[idx])
-                idx+=1
+        t=s[idx]
+        idx+=1
+        while len(s)>idx:
+            if not s[idx] in wordchars : 
+                break
+            t+=upper(s[idx])
+            idx+=1
     return t,idx
     
 def match(s,t):
