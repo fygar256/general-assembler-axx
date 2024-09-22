@@ -7,23 +7,21 @@ slide: false
 
 # GENERAL ASSEMBLER 'axx.py'
 
-axx.py is a general assembler.
+axx.py is a generalized assembler.
 
-It is written in a general way, so the execution platform is not dependent on a specific processing system.
+The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
 
-It is also set to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that runs python.
-
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of dedicated assemblers. The current version is an experimental implementation. We plan to implement the practical functions of dedicated assemblers in the future.
 
 ・How to use
 
-Use it like this: `python axx.py 8048.axx [sample.s]`.
+Use it as follows: `python axx.py 8048.axx [sample.s]`.
 
-axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+axx reads the assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
-The result is output as text to standard output, and at the same time a binary file named `axx.out` is output to the current directory.
+The results are output as text to standard output, and at the same time a binary file named `axx.out` is output to the current directory.
 
-In axx, assembly language source files and lines input from standard input are named assembly lines.
+In axx, the assembly language source file or the lines input from standard input are called assembly lines.
 
 ・Explanation of pattern data
 
@@ -41,7 +39,7 @@ Mnemonic can be omitted from the second line onwards. If omitted, specify a spac
 
 If omitted, the mnemonic from the previous line will be used.
 
-operands may not be present. error_patterns can be omitted. binary_list cannot be omitted.
+There may be no operands. Error_patterns can be omitted. Binary_list cannot be omitted.
 
 There are three types of pattern data:
 
@@ -53,31 +51,31 @@ There are three types of pattern data:
 
 ・Comments
 
-Writing `/*` in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close the line with `*/`. It is only valid for the part after `/*` on that line.
+If you write `/*` in the pattern file, the part after `/*` on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
 
-Assembly line comments are `;`.
+Comments on the assembly line are `;`.
 
 ・Case sensitivity, variables
 
-Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as variables. The value of the expression or symbol that corresponds to that position is assigned to the variable from mnemonic and operands.
+Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. If they are lowercase, they are treated as one-character variables. From mnemonic and operands, the value of the expression or symbol that corresponds to that position is assigned to the variable.
 
 Lowercase variables are referenced from error_patterns and binary_list. Lowercase letters a to n represent expressions, and o to z represent symbols.
 
-The assembly line accepts uppercase and lowercase letters as the same.
+From the assembly line, uppercase and lowercase are accepted as the same.
 
 The special variable in assembly line expressions is '$$', which represents the current location counter.
 
 ### Operator precedence
 
-Operators and precedence are based on Python and are as follows.
+The operators and precedence are based on Python and are as follows
 
 ```
-(expression) Expression enclosed in parentheses
-!,# Operators that return a label, operators that return a symbol
+(expression) An expression enclosed in parentheses
+!,# Operators that return the value of a label, operators that return the value of a symbol
 -,~ Negative, bitwise NOT
-@ Snake Marmuta operator
+@ Unary operator that returns the number of bits in the value that follows
 := Assignment operator
-** Exponentiation
+** Power
 *,// Multiplication, integer division
 +,- Addition, subtraction
 <<,>> Left shift, right shift
@@ -90,7 +88,7 @@ not(x) Logical NOT
 || Logical OR
 ```
 
-`:=` is available as an assignment operator. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
+There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows.
 
@@ -100,7 +98,7 @@ The binary operator `'`, for example `a'24`, sign extends the 24th bit of a as t
 
 The binary operator `**` is exponentiation.
 
-The prefix operator `!` returns the value of the label that follows.
+The prefix operator `!` returns the value of the label that follows. Even without a prefix operator, label returns the value of label.
 
 ・Escape character
 
@@ -203,9 +201,9 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 (2) LD A,d
 ```
 
-Pattern files are evaluated from top to bottom, so the one placed first takes precedence.
+Pattern files are evaluated from top to bottom, so the first one takes precedence.
 
-In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will put (hl) in the value of d, so place LD A,(HL) in the pattern file before LD A,d. Place special patterns first and general patterns after.
+In this case, if (1) and (2) are reversed, ld a,(hl) in the assembly line will result in (hl) being entered as the value of d, so place LD A,(HL) in the pattern file before LD A,d. Place special patterns first and general patterns after.
 
 ・label
 
@@ -217,17 +215,17 @@ label2: equ 0x10
 label3: nop
 ```
 
+Labels are strings of letters, numbers, and symbols that begin with a non-numeric character and are two or more characters long.
+
 To define a label with a label, do the following.
 
 ```
-label4: equ !label1
+label4: equ label1
 ```
-
-The prefix operator `!` is used.
 
 ・ORG
 
-ORG is from the assembly line,
+ORG is defined from the assembly line as
 
 ```
 org 0x800
@@ -295,15 +293,14 @@ $ axx.py mips.axx
 LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 ```
 
-```
+``` 
 $ axx x86_64.axx
->> leaq rax,[rbx,rcx,2,0x10]
-0x48,0x8d,0x04,0x4b,0x10,
+>> leaq rax,[rbx,rcx,2,0x10] 0x48,0x8d,0x04,0x4b,0x10,
 ```
 
-### Testing A64FX
+### Testing A64FX 
 
-```a64fx.axx 
+````a64fx.axx 
 .setsym v0 0
 .setsym x0 1
 ST1 {x.4\s},[y] 0x01,x,y,0
@@ -316,21 +313,21 @@ $ axx.py a64fx.axx
 >>
 ```
 
--Error check
+-Error checking
 
-Error check is lax.
+Error checking is insufficient.
 
 ### Comments
 
 -Please excuse the inconsistencies in notation.
 
--I think it will work with a scalar processor. I don't think there are any processors that store matrices and vectors directly in registers.
+-I think it can handle memory vector machines, but it probably can't handle vector register machines due to the notation.
 
 ### Future issues
 
--The order of evaluation of pattern files is difficult, so I will do something about it.
+-The order of evaluation of pattern files is difficult, so I'll do something about it.
 
--As it stands now, I can only assemble a single file, so I will make it possible for the linker to handle it.
+-As it stands now, it can only assemble a single file, so I'll make it so that the linker can handle it.
 
 ### Acknowledgements
 
