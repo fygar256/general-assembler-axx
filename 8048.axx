@@ -1,6 +1,6 @@
-ADD     A,\@Rn           n>1;5                  n|0x60
+ADD     A,\@Ra           n>1;5                  n|0x60
         A,#d            d>0xFF;1               0x03,d
-        "A , R n"        "n > 7 ; 5"                  "n | 0x68"
+        " A ,R a"        " n > 7 ; 5"           "n | 0x68"
 ADDC    A,\@Rn           n>1;5                  n|0x70
         A,Rn            n>7;5                   n|0x78
         A,\#d            d>0xFF;1                0x13,d

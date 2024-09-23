@@ -23,7 +23,7 @@ ADDC    A,@R1
 MOV     A,#1
 addc    A,#1
 DB 12
-;org 0x1000
+        org 0x1000
 ANL     A,R1
 anl     A,@R1
 anl     A,#1

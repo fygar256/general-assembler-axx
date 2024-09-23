@@ -343,12 +343,16 @@ def expression(s,idx):
 def expression0(s,idx):
     global expmode
     expmode=0
-    return expression(s,idx)
+    t,i=expression(s,idx)
+    i=skipspc(s,i)
+    return (t,i)
 
 def expression1(s,idx):
     global expmode
     expmode=1
-    return expression(s,idx)
+    t,i=expression(s,idx)
+    i=skipspc(s,i)
+    return (t,i)
 
 def getsymval(w):
     l=list(symbols.items())
@@ -422,14 +426,6 @@ def remove_comment_asm(l):
     if ';' in l:
         return l[0:l.index(';')]
     return l
-
-def replace_garbages(s):
-    s=s.replace(chr(0),'')
-    s=s.replace('\n',"")
-    s=s.replace(chr(13),'')
-    s=s.replace('\t','')
-    s=s.replace(' ','')
-    return(s)
 
 def get_params1(l,idx):
     idx=skipspc(l,idx)
@@ -593,6 +589,7 @@ def match(s,t):
             return False
 
 def error(s):
+    s=s.replace(' ','')
     ch=','
     s+=chr(0)
     idx=0
@@ -601,13 +598,12 @@ def error(s):
         if ch==',':
             idx+=1
             continue
-
         u,idx=expression0(s,idx)
         if s[idx]==';':
             idx+=1
         t,idx=expression0(s,idx)
         if pas==2 and u:
-            print(f"error code {t} ")
+            print(f"error code : {t}")
             error_occured=True
 
     return error_occured
