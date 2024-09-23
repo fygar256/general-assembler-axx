@@ -238,7 +238,7 @@ org 0x800
 If you want to write spaces in the pattern file, enclose it in double quotes`"`.
 
 ```
-ADD A,Rn "n > 7 ; 5" "n | 0x68"
+ADD "A , Rn" "n > 7 ; 5" "n | 0x68"
 ```
 
 is the same as
