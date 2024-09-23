@@ -180,6 +180,12 @@ def factor1(s,idx):
             w,idx=getword(s,idx)
             if issymbol(w)==False:
                 x=getdicval(labels,w)
+    while True:
+        if s[idx]==' ' or s[idx]=='\t':
+            idx+=1
+            continue
+        break
+
     return (x,idx)
 
 def term0_0(s,idx):
@@ -589,7 +595,6 @@ def match(s,t):
             return False
 
 def error(s):
-    s=s.replace(' ','')
     ch=','
     s+=chr(0)
     idx=0
