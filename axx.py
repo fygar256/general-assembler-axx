@@ -22,7 +22,7 @@ xdigit="0123456789ABCDEF"
 outfile="axx.out"
 pc=0
 alphabet=lower+capital
-wordchars=digit+alphabet+"_."+"%$-~"
+wordchars=digit+alphabet+"_"+"%$-~"
 symbols={}
 labels={}
 pat=[]
@@ -547,6 +547,7 @@ def match(s,t):
         idx_t=skipspc(t,idx_t)
         b=s[idx_s] # bはアセンブリライン
         a=t[idx_t] # aはパターンファイル
+        print(b,a)
         if a==chr(0) and b==chr(0):
             return True
         if a==chr(0x5c):
