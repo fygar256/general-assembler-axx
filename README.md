@@ -283,7 +283,7 @@ ADD "w, x, y z #d" 0x88,d
 /* A64FX
 .setsym v0 0
 .setsym x0 1
-ST1 {x.4\s},[y] 0x01,x,y,0
+ST1 {x.4S},[y] 0x01,x,y,0
 
 /* MIPS
 .setsym $s5 21
