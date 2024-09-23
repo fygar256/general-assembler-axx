@@ -118,11 +118,7 @@ def getdicval(dic,k):
 def factor1(s,idx):
     x = 0
 
-    while True:
-        if s[idx]==' ' or s[idx]=='\t':
-            idx+=1
-            continue
-        break
+    idx=skipspc(s,idx)
 
     if s[idx]=='(':
         (x,idx)=expression(s,idx+1)
@@ -180,12 +176,7 @@ def factor1(s,idx):
             w,idx=getword(s,idx)
             if issymbol(w)==False:
                 x=getdicval(labels,w)
-    while True:
-        if s[idx]==' ' or s[idx]=='\t':
-            idx+=1
-            continue
-        break
-
+    idx=skipspc(s,idx)
     return (x,idx)
 
 def term0_0(s,idx):
@@ -350,14 +341,12 @@ def expression0(s,idx):
     global expmode
     expmode=0
     t,i=expression(s,idx)
-    i=skipspc(s,i)
     return (t,i)
 
 def expression1(s,idx):
     global expmode
     expmode=1
     t,i=expression(s,idx)
-    i=skipspc(s,i)
     return (t,i)
 
 def getsymval(w):
