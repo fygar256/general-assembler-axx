@@ -30,6 +30,7 @@ pas=1
 expmode=EXP_PAT
 debug=0
 cl=""
+ln=0
 vars=[ UNDEF for i in range(26) ]
 
 def upper(o):
@@ -179,7 +180,7 @@ def factor1(s,idx):
             if issymbol(w)==False:
                 x=getdicval(labels,w)
                 if pas==2 and x==UNDEF:
-                    print(f"{cl} : Undefined label")
+                    print(f"{ln,cl} : Undefined label")
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -640,7 +641,8 @@ def org_processing(l1,l2):
     return True
 
 def lineassemble(line):
-    global pc,cl
+    global pc,cl,ln
+    ln+=1
     cl=line.replace('\n','')
     line=upper(line.replace('\t',' ').replace('\n',''))
     line=reduce_spaces(line)
@@ -690,7 +692,7 @@ def lineassemble(line):
     else:
         se=True
     if se and pas==2:
-        print(f"{cl}: Syntax error")
+        print(f"{ln,cl} : Syntax error")
         return False
     pc+=of
     return True
@@ -720,6 +722,7 @@ def main():
     if len(sys_argv)==2+ofs:
         pc=0
         pas=2
+        ln=0
         while True:
             line=input(">> ")
             lineassemble(line)
@@ -727,10 +730,12 @@ def main():
         af=readfile(sys_argv[2+ofs])
         pc=0
         pas=1
+        ln=0
         for i in af:
             lineassemble(i)
         pc=0
         pas=2
+        ln=0
         for i in af:
             lineassemble(i)
 
