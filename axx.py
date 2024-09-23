@@ -547,7 +547,8 @@ def match(s,t):
         idx_t=skipspc(t,idx_t)
         b=s[idx_s] # bはアセンブリライン
         a=t[idx_t] # aはパターンファイル
-        print(b,a)
+        if debug and pas==2:
+            print(b,a)
         if a==chr(0) and b==chr(0):
             return True
         if a==chr(0x5c):
