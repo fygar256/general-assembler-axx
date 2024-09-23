@@ -56,7 +56,7 @@ Comments on the assembly line are `;`.
 
 ・Case sensitivity, variables
 
-Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. If they are lowercase, they are treated as one-character variables. The value of the factor, expression, or symbol that corresponds to that position is assigned to the variable from mnemonic and operands, and it is referenced from error_patterns and binary_list. Lowercase letters a to g represent constants and other factors, h to n represent expressions, and o to z represent symbols.
+Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. If they are lowercase, they are treated as one-character variables. The value of the factor, expression, or symbol that corresponds to that position is assigned to the variable from mnemonic and operands, and it is referenced from error_patterns and binary_list. Lowercase letters , a to g represent expressions,h to n represent constants and other factors, and o to z represent symbols.
 
 The assembly line accepts uppercase and lowercase letters as the same.
 
