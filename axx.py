@@ -14,7 +14,8 @@ outfile="axx.out"
 pc=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-nalphabet="abcdefghijklmn"
+calphabet='abc'
+nalphabet="defghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
@@ -567,6 +568,10 @@ def match(s,t):
                 continue
             else:
                 return False
+        elif a in calphabet:
+              idx_t+=1
+              (v,idx_s)=factor(s,idx_s)
+              put_vars(a,v)
         elif a in nalphabet:
               idx_t+=1
               (v,idx_s)=expression1(s,idx_s)
