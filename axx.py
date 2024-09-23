@@ -10,8 +10,8 @@ import sys
 import os
 import re
 UNDEF = (~(0))
-outfile="axx.out"
-pc=0
+EXP_PAT=0
+EXP_ASM=1
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 nalphabet="abcdefg"
@@ -19,15 +19,17 @@ calphabet="hijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
+outfile="axx.out"
+pc=0
 alphabet=lower+capital
-wordchars=digit+alphabet+"_"+"%$-~"
+wordchars=digit+alphabet+"_."+"%$-~"
 symbols={}
 labels={}
 pat=[]
 pas=1
-expmode=0
+expmode=EXP_PAT
 debug=0
-
+cl=""
 vars=[ UNDEF for i in range(26) ]
 
 def upper(o):
@@ -163,7 +165,7 @@ def factor1(s,idx):
         while(s[idx].isdigit()):
             x=10*x+int(s[idx])
             idx+=1
-    elif expmode==0 and s[idx] in lower:
+    elif expmode==EXP_PAT and s[idx] in lower:
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
             (x,idx)=expression(s,idx+3)
@@ -172,10 +174,12 @@ def factor1(s,idx):
             x=get_vars(ch)
             idx+=1
     else:
-        if expmode==1 and (s[idx] in wordchars or s[idx]=='.'):
+        if expmode==EXP_ASM and (s[idx] in wordchars or s[idx]=='.'):
             w,idx=getword(s,idx)
             if issymbol(w)==False:
                 x=getdicval(labels,w)
+                if pas==2 and x==UNDEF:
+                    print(f"{cl} : Undefined label")
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -339,13 +343,13 @@ def expression(s,idx):
 
 def expression0(s,idx):
     global expmode
-    expmode=0
+    expmode=EXP_PAT
     t,i=expression(s,idx)
     return (t,i)
 
 def expression1(s,idx):
     global expmode
-    expmode=1
+    expmode=EXP_ASM
     t,i=expression(s,idx)
     return (t,i)
 
@@ -552,6 +556,10 @@ def match(s,t):
                 continue
             else:
                 return False
+        elif a==b:
+            idx_t+=1
+            idx_s+=1
+            continue
         elif a.isupper():
             if a==upper(b):
                 idx_s+=1
@@ -576,10 +584,6 @@ def match(s,t):
                   return False
               put_vars(a,v)
               continue
-        elif a==b:
-            idx_t+=1
-            idx_s+=1
-            continue
         else:
             return False
 
@@ -636,8 +640,8 @@ def org_processing(l1,l2):
     return True
 
 def lineassemble(line):
-    global pc
-    sl=line
+    global pc,cl
+    cl=line.replace('\n','')
     line=upper(line.replace('\t',' ').replace('\n',''))
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -686,7 +690,7 @@ def lineassemble(line):
     else:
         se=True
     if se and pas==2:
-        print(f"{sl.replace('\n','')}: Syntax error")
+        print(f"{cl}: Syntax error")
         return False
     pc+=of
     return True
