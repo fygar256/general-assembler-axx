@@ -41,9 +41,9 @@ operands may not be present. error_patterns can be omitted. binary_list cannot b
 There are three types of pattern data:
 
 ```
-(1) mnemonic binary_list
-(2) mnemonic operands binary_list
-(3) mnemonic operands error_patterns binary_list
+(1) mnemonic                                 binary_list
+(2) mnemonic   operands                      binary_list
+(3) mnemonic   operands    error_patterns    binary_list
 ```
 
 #### Comments
@@ -67,22 +67,22 @@ A special variable is '$$', which represents the current location counter.
 The operators and precedence are as follows, based on Python
 
 ```
-(expression) An expression enclosed in parentheses
-# An operator that returns the value of a symbol
--,~ Negative, bitwise NOT
-@ A unary operator that returns the number of bits in the value that follows
-:= Assignment operator
-** Exponentiation
-*,// Multiplication, integer division
-+,- Addition, subtraction
-<<,>> Left shift, right shift
-& Bitwise AND
-| Bitwise OR
-' Sign extension
+(expression)    An expression enclosed in parentheses
+#               An operator that returns the value of a symbol
+-,~             Negative, bitwise NOT
+@               A unary operator that returns the position from the right of the most significant bit of the value that follows.
+:= 　　　   　　　Assignment operator
+**              Exponentiation
+*,//            Multiplication, integer division
++,-             Addition, subtraction
+<<,>>           Left shift, right shift
+&               Bitwise AND
+|               Bitwise OR
+'               Sign extension
 <=,<,>,>=,!=,== Comparison operators
-not(x) Logical NOT
-&& Logical AND
-|| Logical OR
+not             Logical NOT
+&&              Logical AND
+||              Logical OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
