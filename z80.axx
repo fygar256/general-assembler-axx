@@ -22,17 +22,13 @@ INC x  0x00|x<<3
 DEC x  0x15|x<<3
 .clearsym
 
-INC (IX)                      0xdd,0x34,00
-INC (IY)                      0xfd,0x34,00
-DEC (IX)                      0xdd,0x35,00
-DEC (IY)                      0xfd,0x35,00
 INC (HL)                      0x34
 DEC (HL)                      0x35
 
-DEC	(IY+d)				    0xfd,0x35,d
-INC	(IY+d)				    0xfd,0x34,d
-DEC	(IX+d)				    0xdd,0x35,d
-INC	(IX+d)				    0xdd,0x34,d
+DEC	(IY[[+d]])				    0xfd,0x35,d
+INC	(IY[[+d]])				    0xfd,0x34,d
+DEC	(IX[[+d]])				    0xdd,0x35,d
+INC	(IX[[+d]])				    0xdd,0x34,d
 
 
 .setsym	BC	0
@@ -71,7 +67,7 @@ LD	(IY+d),s					0xfd,(s<<3)|0x70,d
 LD	(IX),s					0xdd,(s<<3)|0x70,0
 LD	(IX+d),s					0xdd,(s<<3)|0x70,d
 LD	s,(IX)					0xdd,0x46|(s<<3),0
-LD	s,(IX+d)					0xdd,0x46|(s<<3),d
+LD	s,(IX+d)	     		0xdd,0x46|(s<<3),d
 LD	s,(IY)					0xfd,0x46|(s<<3),0
 LD	s,(IY+d)					0xfd,0x46|(s<<3),d
 LD	s,(d)						0xed,0x4b|s,d&0xff,d>>8

@@ -12,10 +12,11 @@ import re
 UNDEF = (~(0))
 EXP_PAT=0
 EXP_ASM=1
+LV_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-nalphabet="abcdefg"
-calphabet="hijklmn"
+ealphabet="abcdefg"
+falphabet="hijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
@@ -26,12 +27,12 @@ wordchars=digit+alphabet+"_"+"%$-~"
 symbols={}
 labels={}
 pat=[]
-pas=1
 expmode=EXP_PAT
+pas=1
 debug=0
 cl=""
 ln=0
-vars=[ UNDEF for i in range(26) ]
+vars=[ LV_UNDEF for i in range(26) ]
 
 def upper(o):
     t=""
@@ -181,7 +182,7 @@ def factor1(s,idx):
             if issymbol(w)==False:
                 x=getdicval(labels,w)
                 if pas==2 and x==UNDEF:
-                    print(f"{ln,cl} : Undefined label")
+                    print(f"{ln} : {cl} : Undefined label")
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -537,10 +538,8 @@ def getword(s,idx):
             t+=upper(s[idx])
             idx+=1
     return t,idx
-    
+
 def match(s,t):
-    s+=chr(0)
-    t+=chr(0)
     idx_s=0
     idx_t=0
     while True:
@@ -548,8 +547,6 @@ def match(s,t):
         idx_t=skipspc(t,idx_t)
         b=s[idx_s] # bはアセンブリライン
         a=t[idx_t] # aはパターンファイル
-        if debug and pas==2:
-            print(a,b)
         if a==chr(0) and b==chr(0):
             return True
         if a==chr(0x5c):
@@ -571,11 +568,11 @@ def match(s,t):
                 continue
             else:
                 return False
-        elif a in calphabet:
+        elif a in falphabet:
               idx_t+=1
               (v,idx_s)=factor(s,idx_s)
               put_vars(a,v)
-        elif a in nalphabet:
+        elif a in ealphabet:
               idx_t+=1
               (v,idx_s)=expression1(s,idx_s)
               put_vars(a,v)
@@ -589,7 +586,29 @@ def match(s,t):
               put_vars(a,v)
               continue
         else:
-            return False
+              return False
+
+def remove_ookakko(t):
+    if '[[' in t and ']]' in t:
+        i = t.index('[[')
+        c = t.index(']]')
+        return t[0:i]+t[c+2:]
+    return t
+    
+
+def match0(s,t):
+    s+=chr(0)
+    t+=chr(0)
+
+    tt=remove_ookakko(t)
+    if match(s,tt)==True:
+        return True
+
+    tt=t.replace('[[','').replace(']]','')
+    if match(s,tt)==True:
+        return True
+
+    return False
 
 def error(s):
     ch=','
@@ -646,13 +665,13 @@ def lineassemble(line):
     global pc,cl,ln
     ln+=1
     cl=line.replace('\n','')
+    for a in lower:
+        put_vars(a,LV_UNDEF)
     line=upper(line.replace('\t',' ').replace('\n',''))
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
     if line=='':
         return False
-    if pas==2 and debug:
-        print (f"{line} : ",end='')
     line=label_processing(line)
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
@@ -675,16 +694,16 @@ def lineassemble(line):
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
-        if match(l,i[0]):
+        if match0(l,i[0])==True:
             if lw==1 or lw==2:
                 of=makeobj(i[3])
                 break
             elif lw==3:
-                if match(l2,i[1]):
+                if match0(l2,i[1])==True:
                     of=makeobj(i[3])
                     break
             elif lw==4:
-                if match(l2,i[1]):
+                if match0(l2,i[1])==True:
                     if error(i[2]):
                         of = 0
                         break
@@ -694,13 +713,13 @@ def lineassemble(line):
     else:
         se=True
     if se and pas==2:
-        print(f"{ln,cl} : Syntax error")
+        print(f"{ln} : {cl} : Syntax error")
         return False
     pc+=of
     return True
 
 def main():
-    global pc,pas
+    global pc,pas,ln
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
