@@ -636,7 +636,7 @@ def label_processing(l):
 
 def org_processing(l1,l2):
     global pc
-    if upper(l1)!="ORG":
+    if upper(l1)!=".ORG":
         return False
     u,idx=expression1(l2,0)
     pc=u
