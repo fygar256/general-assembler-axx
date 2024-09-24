@@ -134,10 +134,11 @@ def factor1(s,idx):
         idx+=1
         (t,idx)=getword(s,idx)
         x=getsymval(t)
+
     elif q(s,'0b',idx):
         idx+=2
-        while(upper(s[idx]) in "01"):
-            x=2*x+(ord(s[idx])-0x30)
+        while s[idx] in "01":
+            x=2*x+int(s[idx],2)
             idx+=1
 
     elif q(s,'0x',idx):
@@ -548,7 +549,7 @@ def match(s,t):
         b=s[idx_s] # bはアセンブリライン
         a=t[idx_t] # aはパターンファイル
         if debug and pas==2:
-            print(b,a)
+            print(a,b)
         if a==chr(0) and b==chr(0):
             return True
         if a==chr(0x5c):
@@ -610,20 +611,18 @@ def error(s):
     return error_occured
 
 def label_processing(l):
-    if ':' in l:
-        idx=l.index(':')
-        label=l[0:idx]
+    if l=="":
+        return ""
+    label,idx=getword(l,0)
+    if len(l)>idx and l[idx]==':':
+        idx+=1
         if pas==2 and len(label)<2:
             print("Label too short")
             return "" 
-        if l=="":
-            labels[label]=pc
-            return ""
-        idx+=1
-        idx=skipspc(l,idx+1)
+        idx=skipspc(l,idx)
         idx1=idx
         e,idx=get_param_to_spc(l,idx)
-        if upper(e)=='EQU':
+        if upper(e)=='.EQU':
             idx=skipspc(l,idx)
             s=l.replace(' ','')
             u,idx=expression1(l,idx)
@@ -632,7 +631,8 @@ def label_processing(l):
         else:
             labels[label]=pc
             return l[idx1:]
-    return l
+    else:
+        return l
 
 def org_processing(l1,l2):
     global pc

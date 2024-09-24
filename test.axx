@@ -3,6 +3,7 @@
 .setsym r2  3
 .setsym r3  4
 .setsym lsl 6
+ADD "x, y, e" 0x91,x,y,e
 ADD "w, x, y z #d" 0x88,d
 
 /* A64FX

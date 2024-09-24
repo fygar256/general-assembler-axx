@@ -105,9 +105,9 @@ LD	DE,d						0x11,d&0xff,d>>8
 LD	BC,d						0x01,d&0xff,d>>8
 LD	SP,d						0x31,d&0xff,d>>8
 LD	HL,d						0x21,d&0xff,d>>8
-LD	s,d							(s<<3)|0x6,d
-LD	s,t							0x40|(s<<3)|t
 LD	(HL),d	    				0x36,d
+LD  s,d							(s<<3)|0x6,d
+LD  s,t							0x40|(s<<3)|t
 
 PUSH	s						0xc5|(s<<4)
 PUSH	IX						0xdd,0xe5
