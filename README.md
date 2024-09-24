@@ -278,7 +278,7 @@ Prefix floating point doubles (float 64bit) with '0d'.
 
 This is a test, so the binary will not be the actual code.
 
-``｀
+```
 /* ARM64
 .setsym r1 2
 .setsym r2 3
@@ -331,3 +331,6 @@ $ axx.py test.axx test.s
 ・From homemade processors to supercomputers.
 
 ・Error checking is poor.
+
+### Acknowledgements
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, and to some other unforgettable guys. Thank you very much.
