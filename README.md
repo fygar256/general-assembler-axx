@@ -333,4 +333,4 @@ $ axx.py test.axx test.s
 ・Error checking is poor.
 
 ### Acknowledgements
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, Qiita, and to some other unforgettable guys. Thank you very much.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, IEEE, Qiita, and to some other unforgettable guys. Thank you very much.
