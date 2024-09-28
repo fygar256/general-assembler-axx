@@ -519,13 +519,15 @@ def makeobj(s):
     s+=chr(0)
     idx=0
     cnt=0
+    if pas==2:
+        print("%016x:" % pc,end='')
     while True:
         if s[idx]==chr(0):
             break
         (x,idx)=expression0(s,idx)
         if pas==2:
             x=int(x)&0xff
-            print("0x%02x," % x,end='')
+            print(" 0x%02x" % x,end='')
             fwrite(outfile,pc+cnt,x)
         cnt+=1
         if s[idx]==',':
@@ -774,6 +776,7 @@ def main():
         pas=2
         ln=0
         while True:
+            print("%016x:" % pc,end='')
             line=input(">> ")
             lineassemble(line)
     elif len(sys_argv)>=3+ofs:
