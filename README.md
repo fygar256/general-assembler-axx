@@ -10,7 +10,7 @@ axx.py is a general assembler that generalizes assemblers.
 
 The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is an experimental implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 #### How to use
 
@@ -41,9 +41,9 @@ operands may not be present. error_patterns can be omitted. binary_list cannot b
 There are three types of pattern data:
 
 ```
-(1) mnemonic                                 binary_list
-(2) mnemonic   operands                      binary_list
-(3) mnemonic   operands    error_patterns    binary_list
+(1) mnemonic binary_list
+(2) mnemonic operands binary_list
+(3) mnemonic operands error_patterns binary_list
 ```
 
 #### Comments
@@ -67,22 +67,22 @@ A special variable is '$$', which represents the current location counter.
 The operators and precedence are as follows, based on Python
 
 ```
-(expression)    An expression enclosed in parentheses
-#               An operator that returns the value of a symbol
--,~             Negative, bitwise NOT
-@               A unary operator that returns the position from the right of the most significant bit of the value that follows.
-:= 　　　   　　　Assignment operator
-**              Exponentiation
-*,//            Multiplication, integer division
-+,-             Addition, subtraction
-<<,>>           Left shift, right shift
-&               Bitwise AND
-|               Bitwise OR
-'               Sign extension
+(expression) An expression enclosed in parentheses
+# An operator that returns the value of a symbol
+-,~ Negative, bitwise NOT
+@ A unary operator that returns the bit position from the right of the most significant bit of the following value
+:= Assignment operator
+** Exponentiation
+*,// Multiplication, integer division
++,- Addition, subtraction
+<<,>> Left shift, right shift
+& Bitwise AND
+| Bitwise OR
+' Sign extension
 <=,<,>,>=,!=,== Comparison operators
-not             Logical NOT
-&&              Logical AND
-||              Logical OR
+not(x) Logical NOT
+&& Logical AND
+|| Logical OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
@@ -225,7 +225,7 @@ label2: .equ 0x10
 label3: nop
 ```
 
-A label is a string of letters, numbers, and symbols, starting with a non-numeric ``.`, an alphabet, or some symbols, and is two or more characters long.
+A label is a string of letters, numbers, and symbols, starting with a non-numeric ``.`, alphabet, or symbol, and is two or more characters long.
 
 To define a label with a label, do the following:
 
@@ -235,11 +235,30 @@ label4: .equ label1
 
 #### ORG
 
-ORG is the assemble line,
+ORG is set to
 
 ```
 .org 0x800
 ```
+from the assemble line.
+
+#### alignment and padding
+
+Setting
+
+```
+.padding 0x12
+```
+
+from the pattern file will set the padding bytecode to 0x12. The default is 0x00.
+
+Setting
+
+```
+.align 16
+```
+
+from the assemble line will align to 16.
 
 #### Quotation
 
@@ -278,7 +297,7 @@ Prefix floating point doubles (float 64bit) with '0d'.
 
 This is a test, so the binary will not be the actual code.
 
-```
+``test.axx
 /* ARM64
 .setsym r1 2
 .setsym r2 3
@@ -292,16 +311,16 @@ ADD "w, x, y z #d" 0x88,d
 ST1 {x.4S},[y] 0x01,x,y,0 
 
 /* MIPS 
-.setsym $s5 21
-.setsym $v0 2
-.setsym $a0 4
+.setsym $s5 21 
+.setsym $v0 2 
+.setsym $a0 4 
 ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e
 
 /* x86_64 
 .setsym rax 0 
 .setsym rbx 3 
 .setsym rcx 1 
-LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e 
 LEAQ "r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i 
 ```
 
@@ -313,8 +332,8 @@ st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
 ```
 
- Example 
- 
+Example 
+
 ```
 $ axx.py test.axx test.s
 0x48,0x8d,0x04,0x4b,0x40,
@@ -328,9 +347,27 @@ $ axx.py test.axx test.s
 
 ・Sorry for original notation.
 
-・From homemade processors to supercomputers.
+・Error checking is weak.
 
-・Error checking is poor.
+・From homemade processors to supercomputers, please use it.
+
+## Future issues
+
+・The order of evaluation of pattern files is difficult, so we will do something about it.
+
+・As it stands now, it can only assemble a single file, so we will make it possible to handle the linker.
+
+・Improve the handling of symbols, labels, and variables.
+
+・Add practical functions
+
+・Perform more error checking.
+
+・Allow multiple omission double brackets. To do this, enclose the expression in `{{',`}}` so that it will accept multiple operands.
+
+- Escape characters in expressions do not work, and I would like to solve this problem.
+
+- x86_64 MMX and AVX instructions require the alignment to be specified in advance, and I would like to solve this problem.
 
 ### Acknowledgements
 I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, IEEE, Qiita, and to some other unforgettable guys. Thank you very much.
