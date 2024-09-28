@@ -22,6 +22,7 @@ digit='0123456789'
 xdigit="0123456789ABCDEF"
 outfile="axx.out"
 pc=0
+padding=0
 alphabet=lower+capital
 wordchars=digit+alphabet+"_"+"%$-~"
 symbols={}
@@ -398,6 +399,19 @@ def set_symbol(i):
     symbols[upper(key)]=v
     return True
 
+def paddingp(i):
+    global padding
+    if len(i)==0:
+        return False
+    if len(i)>1 and i[0]!='.padding':
+    	return False
+    if len(i)>3:
+        v,idx=expression0(i[3],0)
+    else:
+        v=0
+    padding=int(v)
+    return True
+
 def wordc(i):
     global etc 
     if len(i)==0:
@@ -495,7 +509,9 @@ def fwrite(file_path, position, x):
         file_length = file.tell()
         if position > file_length:
             file.seek(file_length)
-            file.write(b'\x00' * (position - file_length))
+            for i in range(position-file_length):
+                file.write(struct.pack("B",padding))
+            # file.write(f"{padding:#b}" * (position - file_length))
         file.seek(position)
         file.write(struct.pack('B',x))
 
@@ -653,6 +669,17 @@ def label_processing(l):
     else:
         return l
 
+def align_processing(l1,l2):
+    global pc
+    if upper(l1)!=".ALIGN":
+        return False
+    u,idx=expression1(l2,0)
+    if len(l2)>idx and l2[idx]==',':
+        v,idx=expression1(l2,idx+1)
+        b=nbit(int(v))
+        npc=(((pc>>b)+1)<<b)
+    return True
+
 def org_processing(l1,l2):
     global pc
     if upper(l1)!=".ORG":
@@ -676,7 +703,10 @@ def lineassemble(line):
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
     l=l.replace(' ','')
-    if org_processing(l,l2.replace(' ','')):
+    ll2=l2.replace(' ','')
+    if align_processing(l,ll2):
+        return True
+    if org_processing(l,ll2):
         return True
     if  l=="":
         return False
@@ -691,6 +721,7 @@ def lineassemble(line):
         if set_symbol(i): continue
         if clear_symbol(i): continue
         if wordc(i): continue
+        if paddingp(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
