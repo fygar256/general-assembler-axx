@@ -777,7 +777,10 @@ def main():
         ln=0
         while True:
             print("%016x:" % pc,end='')
-            line=input(">> ")
+            try:
+                line=input(">> ")
+            except EOFError: # EOF
+                break
             lineassemble(line)
     elif len(sys_argv)>=3+ofs:
         af=readfile(sys_argv[2+ofs])
