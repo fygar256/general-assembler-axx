@@ -674,10 +674,8 @@ def align_processing(l1,l2):
     if upper(l1)!=".ALIGN":
         return False
     u,idx=expression1(l2,0)
-    if len(l2)>idx and l2[idx]==',':
-        v,idx=expression1(l2,idx+1)
-        b=nbit(int(v))
-        npc=(((pc>>b)+1)<<b)
+    a=pc%int(u)
+    pc+=(u-a)
     return True
 
 def org_processing(l1,l2):
