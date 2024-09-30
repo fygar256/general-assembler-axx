@@ -345,7 +345,7 @@ $ axx.py test.axx test.s
 
 ### Comments
 
-・Sorry for the original notation.
+・Sorry for original notation.
 
 ・Error checking is lax.
 
