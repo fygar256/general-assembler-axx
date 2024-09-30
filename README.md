@@ -345,11 +345,15 @@ $ axx.py test.axx test.s
 
 ### Comments
 
-・Sorry for original notation.
+・Sorry for the original notation.
 
-・Error checking is weak.
+・Error checking is lax.
 
-・From homemade processors to supercomputers, please use it.
+・I know this is a bit ridiculous, but quantum computers and LISP machines are not supported.
+
+・From homemade processors to supercomputers, you can use it.
+
+・Runtime variable-length byte instructions are not supported.
 
 ## Future issues
 
