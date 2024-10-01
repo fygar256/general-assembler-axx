@@ -12,7 +12,8 @@ The execution platform is not dependent on a specific processing system. It is a
 
 axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
-Also, because the pattern file is separate from the source file, if you don't mind the effort of coding, you can use pattern data for one instruction set to generate machine code for a processor with a different instruction set.
+Also, because the pattern files are separate from the source files, it is possible to generate machine code for a processor with one instruction set from a source file with a different instruction set, provided that coding effort is not taken into consideration.
+
 
 #### How to use
 
