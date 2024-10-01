@@ -730,11 +730,11 @@ def lineassemble(line):
                 of=makeobj(i[3])
                 break
             elif lw==3:
-                if match0(l2,i[1])==True:
+                if match0(ll2,i[1])==True:
                     of=makeobj(i[3])
                     break
             elif lw==4:
-                if match0(l2,i[1])==True:
+                if match0(ll2,i[1])==True:
                     if error(i[2]):
                         of = 0
                         break
