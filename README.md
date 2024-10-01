@@ -268,7 +268,7 @@ from the assemble line will align to 16.
 If you want to write a space in the pattern file, enclose it in double quotation marks`"`.
 
 ```
-"ADD" "A , Rn" "n > 7 ; 5" "n | 0x68"
+ADD "A , Rn" "n > 7 ; 5" "n | 0x68"
 ```
 
 is the same as
