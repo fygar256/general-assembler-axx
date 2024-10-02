@@ -376,5 +376,7 @@ $ axx.py test.axx test.s
 
 - x86_64 MMX and AVX instructions require the alignment to be specified in advance, and I would like to solve this problem.
 
+・It's no good because it's divided into two parts, mnemonic and operands. I want to unify it into one, "mnemonic operands." However, for traditional reasons, it's currently divided into two.
+
 ### Acknowledgements
 I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, IEEE, Qiita, and to some other unforgettable guys. Thank you very much.
