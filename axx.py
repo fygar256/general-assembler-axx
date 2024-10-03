@@ -755,7 +755,7 @@ def main():
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py patternfile.axx [[sourcefile.s] outfile.bin")
         return
 
     ofs=0
