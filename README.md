@@ -300,7 +300,7 @@ Prefix floating point doubles (float 64bit) with '0d'.
 
 This is a test, so the binary will not be the actual code.
 
-``test.axx
+```test.axx
 /* ARM64
 .setsym r1 2
 .setsym r2 3
