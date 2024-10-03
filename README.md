@@ -17,7 +17,7 @@ Also, because the pattern files are separate from the source files, it is possib
 
 #### How to use
 
-Use it like this: `python axx.py patternfile.axx [sample.s]`.
+Use it like this: `python axx.py patternfile.axx [[sample.s] outfile.bin]`.
 
 axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
 
