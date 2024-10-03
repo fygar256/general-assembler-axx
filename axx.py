@@ -764,12 +764,6 @@ def main():
     if len(sys_argv)>=2+ofs:
         readpat(sys_argv[1+ofs])
 
-    try:
-        os.remove(outfile)
-    except:
-        pass
-    else:
-        pass
     if len(sys_argv)>=4+ofs:
         outfile=sys.argv[3+ofs]
         f=open(outfile,"wb")
