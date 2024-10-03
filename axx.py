@@ -766,6 +766,12 @@ def main():
 
     if len(sys_argv)>=4+ofs:
         outfile=sys.argv[3+ofs]
+        try:
+            os.remove(outfile)
+        except:
+            pass
+        else:
+            pass
         f=open(outfile,"wb")
         f.close()
     if len(sys_argv)==2+ofs:
