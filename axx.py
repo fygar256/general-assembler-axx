@@ -20,7 +20,7 @@ falphabet="hijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
-outfile="axx.out"
+outfile=""
 pc=0
 padding=0
 alphabet=lower+capital
@@ -528,7 +528,8 @@ def makeobj(s):
         if pas==2:
             x=int(x)&0xff
             print(" 0x%02x" % x,end='')
-            fwrite(outfile,pc+cnt,x)
+            if outfile!="":
+                fwrite(outfile,pc+cnt,x)
         cnt+=1
         if s[idx]==',':
             idx+=1
@@ -750,7 +751,7 @@ def lineassemble(line):
     return True
 
 def main():
-    global pc,pas,ln
+    global pc,pas,ln,outfile
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
@@ -769,8 +770,10 @@ def main():
         pass
     else:
         pass
-    f=open(outfile,"wb")
-    f.close()
+    if len(sys_argv)>=4+ofs:
+        outfile=sys.argv[3+ofs]
+        f=open(outfile,"wb")
+        f.close()
     if len(sys_argv)==2+ofs:
         pc=0
         pas=2
