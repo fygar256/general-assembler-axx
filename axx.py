@@ -183,7 +183,8 @@ def factor1(s,idx):
             if issymbol(w)==False:
                 x=getdicval(labels,w)
                 if pas==2 and x==UNDEF:
-                    print(f"{ln} : {cl} : Undefined label")
+                    pass
+                    #print(f"{ln} : {cl} : Undefined label")
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -394,7 +395,7 @@ def set_symbol(i):
     if len(i)>3:
         v,idx=expression0(i[3],0)
     else:
-        v=-1
+        v=0
     key=upper(i[1])
     symbols[upper(key)]=v
     return True
@@ -520,7 +521,7 @@ def makeobj(s):
     idx=0
     cnt=0
     if pas==2:
-        print("%016x:" % pc,end='')
+        print(f"%08x: {cl}" % pc,end='')
     while True:
         if s[idx]==chr(0):
             break
@@ -755,7 +756,7 @@ def main():
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py patternfile.axx [[sourcefile.s] outfile.bin")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
         return
 
     ofs=0
