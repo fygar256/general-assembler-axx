@@ -286,7 +286,7 @@ For example, suppose there is a processor that includes floating point operands,
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
-Then, the assemble line is `movf If you pass fa,0f3.14, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
+Then, the assemble line is `movf fa,0f3.14`, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
 Prefix binary numbers with '0b'.
 
