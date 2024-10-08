@@ -4,7 +4,14 @@ tags: Terminal Python general assembler
 author: fygar256
 slide: false
 ---
+
 GENERAL ASSEMBLER 'axx.py'
+
+# Test environment
+
+Arch linux terminal
+
+# Main text
 
 axx.py is a general assembler that generalizes assemblers.
 
@@ -12,22 +19,21 @@ The execution platform is not dependent on a specific processing system. It is a
 
 axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
-Also, because the pattern files are separate from the source files, it is possible to generate machine code for a processor with one instruction set from a source file with a different instruction set, provided that coding effort is not taken into consideration.
+Also, because the pattern file is separate from the source file, it is possible to generate machine code for a processor with a different instruction set from a source file with one instruction set, if you don't mind the effort of coding.
 
-
-#### How to use
+#### Usage
 
 Use it like this: `python axx.py patternfile.axx [[sample.s] outfile.bin]`.
 
-axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from standard input.
+axx reads assembler pattern data from the first argument, and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from the standard input.
 
-The result is output as text to standard output, and at the same time a binary file named `axx.out` is output to the current directory.
+The result is output as text to the standard output, and if the third argument is specified, a binary file is output to the current directory.
 
-In axx, assembly language source files and lines input from standard input are named assembly lines.
+In axx, the assembly language source file or the line input from the standard input is called an assembly line.
 
 #### Explanation of pattern data
 
-Pattern data is arranged as follows.
+Pattern data is arranged as follows:
 
 ```
 mnemonic operands error_patterns binary_list
@@ -37,11 +43,11 @@ mnemonic operands error_patterns binary_list
 :
 ```
 
-Mnemonic can be omitted from the second line onwards. If omitted, specify a space. If omitted, the mnemonic from the previous line will be used.
+mnemonic can be omitted from the second line. If omitted, specify a space. If omitted, the mnemonic from the previous line will be used.
 
 operands may not be present. error_patterns can be omitted. binary_list cannot be omitted.
 
-There are three types of pattern data:
+There are three types of pattern data.
 
 ```
 (1) mnemonic binary_list
@@ -51,17 +57,17 @@ There are three types of pattern data:
 
 #### Comments
 
-Writing `/*` in a pattern file makes the part after `/*` on that line a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
+If you write `/*` in the pattern file, the part after `/*` on that line will become a comment. Currently, you cannot close it with `*/`. It is only valid for the part after `/*` on that line.
 
 Assembly line comments are `;`.
 
-#### Case sensitivity, variables
+#### Case Sensitivity, Variables
 
-Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as one-character variables. The values ​​of factors, expressions, and symbols that correspond to that position in mnemonic and operands are assigned to variables from the assembly line and are referenced from error_patterns and binary_list.
+Uppercase mnemonic and operands in the pattern file are treated as character constants. Lowercase mnemonic and operands are treated as one-character variables. The value of the factor, expression, or symbol that corresponds to that position in mnemonic and operands is assigned to the variable from the assemble line, and referenced from error_patterns and binary_list.
 
-Lowercase letters a through g represent expressions, h through n represent constants or other factors, and o through z represent symbols. All unassigned variables have an initial value of 0.
+Lowercase a through g represent expressions, h through n represent factors such as constants, and o through z represent symbols. All unassigned variables have a default value of 0.
 
-The assembly line accepts uppercase and lowercase letters as the same.
+Uppercase and lowercase are accepted by the assembly line as the same.
 
 A special variable is '$$', which represents the current location counter.
 
@@ -70,29 +76,29 @@ A special variable is '$$', which represents the current location counter.
 The operators and precedence are as follows, based on Python
 
 ```
-(expression)      An expression enclosed in parentheses
-#                 An operator that returns the value of a symbol
--,~               Negative, bitwise NOT
-@                 A unary operator that returns the bit position from the right of the most significant bit of the following value
-:=                Assignment operator
-**                Exponentiation
-*,//              Multiplication, integer division
-+,-               Addition, subtraction
-<<,>>             Left shift, right shift
-&                 Bitwise AND
-|                 Bitwise OR
-'                 Sign extension
-<=,<,>,>=,!=,==   Comparison operators
-not(x)            Logical NOT
-&&                Logical AND
-||                Logical OR
+(expression)        An expression enclosed in parentheses
+#                   An operator that returns the value of a symbol
+-,~                 Negative, bitwise NOT
+@                   A unary operator that returns the bit position from the right of the most significant bit of the following value
+:=                  Assignment operator
+**                  Exponentiation
+*,//                Multiplication, integer division
++,-                 Addition, subtraction
+<<,>>               Left shift, right shift
+&                   Bitwise AND
+|                   Bitwise OR
+'                   Sign extension
+<=,<,>,>=,!=,==     Comparison operators
+not(x)              Logical NOT
+&& Logical          AND
+|| Logical          OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows it.
 
-The prefix operator `@` returns the number of bits in the value that follows. We call this the snake-shaped Marmatta operator.
+The prefix operator `@` returns the number of bits in the value that follows. We call this the Hebimarumatta operator.
 
 The binary operator `'`, for example `a'24`, will sign extend (Sign EXtend) the 24th bit of a as the sign bit. We call this the SEX operator.
 
@@ -174,7 +180,7 @@ ADD A,s
 RET s
 ```
 
-In this case, the C in ADD A,C becomes 1, and the C in RET C becomes 3.
+In this case, the C in ADD A,C is 1, and the C in RET C is 3.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
@@ -206,17 +212,17 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 (2) LD A,d
 ```
 
-Pattern files are evaluated from top to bottom, so the one placed first takes precedence. Special patterns are placed first, and general patterns are placed last.
+Pattern files are evaluated from top to bottom, so the one placed earlier takes precedence. Special patterns are placed first, and general patterns are placed after.
 
-#### Double brackets
+#### double brackets
 
-Optional mnemonic and operands can be enclosed in double brackets. This shows the `inc (ix)` command of the z80.
+Optional mnemonics and operands can be enclosed in double brackets. Here is the `inc (ix)` instruction for z80.
 
 ```
 INC (IX[[+d]]) 0xdd,0x34,d
 ```
 
-In this case, the initial value of the lowercase variable is 0, so `inc (ix+0x12)` is output as `0xdd,0x34,0x12` if not omitted, and `inc (ix)` is output as `0xdd,0x34,0x00` if omitted.
+In this case, the initial value of the lowercase variables is 0, so if you specify `inc (ix+0x12)` and do not omit it, `0xdd,0x34,0x12` will be output, and if you specify `inc (ix)` and omit it, `0xdd,0x34,0x00` will be output.
 
 #### label
 
@@ -286,7 +292,7 @@ For example, suppose there is a processor that includes floating point operands,
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
 ```
 
-Then, the assemble line is `movf fa,0f3.14`, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
+Then, the assemble line is `movf If you pass fa,0f3.14, the binary output will be 0x01,0xc3,0xf5,0x48,0x40.
 
 Prefix binary numbers with '0b'.
 
@@ -300,7 +306,7 @@ Prefix floating point doubles (float 64bit) with '0d'.
 
 This is a test, so the binary will not be the actual code.
 
-```test.axx
+``test.axx
 /* ARM64
 .setsym r1 2
 .setsym r2 3
@@ -309,7 +315,7 @@ This is a test, so the binary will not be the actual code.
 ADD "w, x, y z #d" 0x88,d
 
 /* A64FX
-.setsym v0 0 
+.setsym v0 0
 .setsym x0 1 
 ST1 {x.4S},[y] 0x01,x,y,0 
 
@@ -317,6 +323,7 @@ ST1 {x.4S},[y] 0x01,x,y,0
 .setsym $s5 21 
 .setsym $v0 2 
 .setsym $a0 4 
+
 ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e
 
 /* x86_64 
@@ -335,7 +342,7 @@ st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
 ```
 
-Example 
+Example
 
 ```
 $ axx.py test.axx test.s
@@ -348,35 +355,39 @@ $ axx.py test.axx test.s
 
 ### Comments
 
-・Sorry for original notation.
+-Sorry for original notation.
 
-・Error checking is lax.
+-Error checking is lax.
 
-・I know this is a bit ridiculous, but quantum computers and LISP machines are not supported.
+-I know it's a ridiculous request, but quantum computers and LISP machines are not supported. The assembly language of quantum computers is called quantum assembly, and is not assembly language.
+LISP machine programs are not assembly language.
 
-・From homemade processors to supercomputers, you can use it.
+-From homemade processors to supercomputers.
 
-・Runtime variable-length byte instructions are not supported.
+-Runtime variable-length byte instructions are not supported.
+
+・It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where machine language words are not in byte units, but the output must be processed slightly.
+
+・Pattern data is written differently depending on the addressing mode.
 
 ## Future issues
 
-・The order of evaluation of pattern files is difficult, so we will do something about it.
-
-・As it stands now, it can only assemble a single file, so we will make it possible to handle the linker.
-
+・The order of evaluation of pattern files is difficult, so we need to do something about it.
+・Make it possible for the linker to handle it.
 ・Improve the handling of symbols, labels, and variables.
-
-・Add practical functions
-
 ・Perform more error checking.
+・Make it possible to add multiple double brackets for omission → Solved with macro function.
+Currently, only one double bracket can be added to a mnemonic and one to an operand.
 
-・Allow multiple omission double brackets. To do this, enclose the expression in `{{',`}}` so that it will accept multiple operands.
+・The escape character in an expression does not work, so we would like to solve this.
+・The alignment must be specified in advance for x86_64 MMX and AVX instructions, so we would like to solve this. → Solved if there was a macro function.
+・We would like to add a macro function. Adding macros would make it truly GENERAL.
+- It's no good because it's divided into two parts, mnemonic and operands. I'd like to unify it into one, mnemonic + operands = instruction. However, for now it's divided into two for traditional reasons and because it's easier to understand. Doing this might make it truly general.
+- Support binary file formats.
 
-- Escape characters in expressions do not work, and I would like to solve this problem.
 
-- x86_64 MMX and AVX instructions require the alignment to be specified in advance, and I would like to solve this problem.
+## Acknowledgements
 
-・It's no good because it's divided into two parts, mnemonic and operands. I want to unify it into one, mnemonic+operands=instruction. However, for traditional reasons, it's currently divided into two.
-
-### Acknowledgements
 I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, who cooperated with me, IEEE, Qiita, and to some other unforgettable guys. Thank you very much.
+
+  
