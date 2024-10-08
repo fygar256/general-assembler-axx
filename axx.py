@@ -751,31 +751,47 @@ def lineassemble(line):
     pc+=of
     return True
 
+def option(l,o):
+    s=''
+    m=[]
+    i=0
+    while i<len(l):
+        if l[i]==o:
+            if (i+1)<=len(l):
+                s=l[i+1].replace('\n','')
+                i+=1
+            else:
+                s=''
+        else:
+            m.append(l[i])
+        i+=1
+    return m,s
+
 def main():
     global pc,pas,ln,outfile
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s]")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s] [-o outfile.bin]")
         return
 
-    ofs=0
-
     sys_argv=sys.argv
-    if len(sys_argv)>=2+ofs:
-        readpat(sys_argv[1+ofs])
 
-    if len(sys_argv)>=4+ofs:
-        outfile=sys.argv[3+ofs]
-        try:
-            os.remove(outfile)
-        except:
-            pass
-        else:
-            pass
+    if len(sys_argv)>=2:
+        readpat(sys_argv[1])
+
+    (sys_argv,outfile)=option(sys_argv,'-o')
+
+    try:
+        os.remove(outfile)
+    except:
+        pass
+    else:
+        pass
+    if outfile:
         f=open(outfile,"wb")
         f.close()
-    if len(sys_argv)==2+ofs:
+    if len(sys_argv)==2:
         pc=0
         pas=2
         ln=0
@@ -786,8 +802,8 @@ def main():
             except EOFError: # EOF
                 break
             lineassemble(line)
-    elif len(sys_argv)>=3+ofs:
-        af=readfile(sys_argv[2+ofs])
+    elif len(sys_argv)>=3:
+        af=readfile(sys_argv[2])
         pc=0
         pas=1
         ln=0
