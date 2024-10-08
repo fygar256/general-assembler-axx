@@ -23,11 +23,11 @@ Also, because the pattern file is separate from the source file, it is possible 
 
 #### Usage
 
-Use it like this: `python axx.py patternfile.axx [[sample.s] outfile.bin]`.
+Use it like this: `python axx.py patternfile.axx [sample.s] [-o outfile.bin]`.
 
 axx reads assembler pattern data from the first argument, and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from the standard input.
 
-The result is output as text to the standard output, and if the third argument is specified, a binary file is output to the current directory.
+The result is output as text to the standard output, and if the argument with `-o` is specified, a binary file is output to the current directory.
 
 In axx, the assembly language source file or the line input from the standard input is called an assembly line.
 
