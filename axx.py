@@ -752,20 +752,16 @@ def lineassemble(line):
     return True
 
 def option(l,o):
-    s=''
-    m=[]
-    i=0
-    while i<len(l):
-        if l[i]==o:
-            if (i+1)<=len(l):
-                s=l[i+1].replace('\n','')
-                i+=1
+    if o in l:
+        idx=l.index(o)
+        if idx+1<len(l):
+            if idx+2<len(l):
+                return l[0:idx]+l[idx+2:],l[idx+1]
             else:
-                s=''
+                return l[0:idx],l[idx+1]
         else:
-            m.append(l[i])
-        i+=1
-    return m,s
+            return l[0:idx],''
+    return l,''
 
 def main():
     global pc,pas,ln,outfile
