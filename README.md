@@ -7,6 +7,9 @@ slide: false
 
 GENERAL ASSEMBLER 'axx.py'
 
+It is written in python. Its nickname is Paxx.
+
+
 # Test environment
 
 Arch linux terminal
