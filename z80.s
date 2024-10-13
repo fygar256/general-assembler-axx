@@ -226,22 +226,22 @@
     JP (IX)
     JP (IY)
     JP 0x56
-    JP _C,0x56
-    CALL _C,0x56
+    JP C,0x56
+    CALL C,0x56
     CALL 0x56
-    RET _C
+    RET C
     RET
     RETI
     RETN
     RST 0x08
     IN A,(1)
-    IN E,(_C)
+    IN E,(C)
     INI
     INIR
     IND
     INDR
     OUT (0x12),A
-    OUT (_C),E
+    OUT (C),E
     OUTI
     OTIR
     OUTD
