@@ -1,13 +1,13 @@
-/*                         */
-/* z80.axx z80 patternfile */
-/*                         */
+/*
+/* z80.axx z80 patternfile
+/*
 DEC	IY							0xfd,0x2b
 DEC	IX							0xdd,0x2b
 INC	IY							0xfd,0x23
 INC	IX							0xdd,0x23
 
 .setsym BC 0
-.setsym DE 0x10 
+.setsym DE 0x10
 .setsym HL 0x20
 .setsym SP 0x30
 INC	r							0x03|r
@@ -21,7 +21,7 @@ DEC	r							0xb|r
 .setsym	H	4
 .setsym	L	5
 .setsym	A	7
-INC x  0x00|x<<3
+INC x  0x04|x<<3
 DEC x  0x15|x<<3
 .clearsym
 
