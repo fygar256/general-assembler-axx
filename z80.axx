@@ -1,6 +1,6 @@
 /*
 /* z80.axx z80 patternfile
-/* For the reason of syntax, C (carry flag written as '_C')
+/* For the reason of syntax, C (carry flag) written as '_C'.
 /*
 /*
 DEC	IY							0xfd,0x2b
