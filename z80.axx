@@ -1,3 +1,8 @@
+/*
+/* z80.axx z80 patternfile
+/* For the reason of syntax, C (carry flag written as '_C')
+/*
+/*
 DEC	IY							0xfd,0x2b
 DEC	IX							0xdd,0x2b
 INC	IY							0xfd,0x23
@@ -245,7 +250,7 @@ RRD								0xed,0x67
 .setsym	NZ	    0
 .setsym	Z		1
 .setsym	NC	    2
-.setsym	C		3
+.setsym	_C		3
 .setsym	PO	    4
 .setsym	PE  	5
 .setsym	P		6
@@ -259,7 +264,7 @@ JP		s,d						0xc2|s<<3,d&0xff,d>>8
 JR		NZ,e					0x20,e-2
 JR		Z,e						0x28,e-2
 JR		NC,e					0x30,e-2
-JR		C,e				    	0x38,e-2
+JR	    _C,e				    	0x38,e-2
 JR		e						0x18,e-2
 DJNZ	e						0x10,e-2
 
@@ -272,13 +277,13 @@ RETN							0xed,0x45
 RST	d						    0xc7|(d//8)<<3
 
 IN	A,(n)						0xdb,n
-IN	s,(C)						0xed,0x40|s<<3
+IN	s,(_C)						0xed,0x40|s<<3
 INI								0xed,0xa2
 INIR							0xed,0xb2
 IND								0xed,0xaa
 INDR							0xed,0xba
 OUT	(n),A					    0xd3,n
-OUT	(C),s						0xed,0x41|s<<3
+OUT	(_C),s						0xed,0x41|s<<3
 OUTI							0xed,0xa3
 OTIR							0xed,0xb3
 OUTD							0xed,0xab
