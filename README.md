@@ -4,11 +4,9 @@ tags: Terminal Python general assembler
 author: fygar256
 slide: false
 ---
-
 GENERAL ASSEMBLER 'axx.py'
 
-Its nickname is Paxx because it is written in python.
-
+I wrote it in python, so the nickname is Paxx.
 
 # Test environment
 
@@ -20,7 +18,7 @@ axx.py is a general assembler that generalizes assemblers.
 
 The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
 
-axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions of a dedicated assembler. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+I think axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions that a dedicated assembler has. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 Also, because the pattern file is separate from the source file, it is possible to generate machine code for a processor with a different instruction set from a source file with one instruction set, if you don't mind the effort of coding.
 
@@ -30,9 +28,9 @@ Use it like this: `python axx.py patternfile.axx [sample.s] [-o outfile.bin]`.
 
 axx reads assembler pattern data from the first argument, and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from the standard input.
 
-The result is output as text to the standard output, and if the argument with `-o` is specified, a binary file is output to the current directory.
+The result is output as text to the standard output, and if there is an argument specified with the `-o` option, a binary file is output to the current directory.
 
-In axx, the assembly language source file or the line input from the standard input is called an assembly line.
+In axx, the assembly language source file or the line input from the standard input is named an assembly line.
 
 #### Explanation of pattern data
 
@@ -66,11 +64,11 @@ Assembly line comments are `;`.
 
 #### Case Sensitivity, Variables
 
-Uppercase mnemonic and operands in the pattern file are treated as character constants. Lowercase mnemonic and operands are treated as one-character variables. The value of the factor, expression, or symbol that corresponds to that position in mnemonic and operands is assigned to the variable from the assemble line, and referenced from error_patterns and binary_list.
+Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as single-character variables. The value of the factor, expression, or symbol that corresponds to that position in mnemonic and operands is assigned to the variable from the assemble line, and referenced from error_patterns and binary_list.
 
-Lowercase a through g represent expressions, h through n represent factors such as constants, and o through z represent symbols. All unassigned variables have a default value of 0.
+Lowercase letters a through g represent expressions, h through n represent factors such as constants, and o through z represent symbols. All unassigned variables have a default value of 0.
 
-Uppercase and lowercase are accepted by the assembly line as the same.
+Uppercase and lowercase letters are accepted by the assembly line as the same.
 
 A special variable is '$$', which represents the current location counter.
 
@@ -93,15 +91,15 @@ The operators and precedence are as follows, based on Python
 '                   Sign extension
 <=,<,>,>=,!=,==     Comparison operators
 not(x)              Logical NOT
-&& Logical          AND
-|| Logical          OR
+&&                  Logical AND
+||                  Logical OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows it.
 
-The prefix operator `@` returns the number of bits in the value that follows. We call this the Hebimarumatta operator.
+The prefix operator `@` returns the number of bits in the value that follows. We call this the snake-shaped Marmatta operator.
 
 The binary operator `'`, for example `a'24`, will sign extend (Sign EXtend) the 24th bit of a as the sign bit. We call this the SEX operator.
 
@@ -169,21 +167,7 @@ Here is an example of symbol definition z80. If you write
 
 in a pattern file, it will define the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,
-
-```
-.setsym B 0
-.setsym C 1
-ADD A,s
-
-.setsym NZ 0
-.setsym Z 1
-.setsym NC 2
-.setsym C 3
-RET s
-```
-
-In this case, the C in ADD A,C is 1, and the C in RET C is 3.
+If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
@@ -215,17 +199,16 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 (2) LD A,d
 ```
 
-Pattern files are evaluated from top to bottom, so the one placed earlier takes precedence. Special patterns are placed first, and general patterns are placed after.
-
+Pattern files are evaluated from top to bottom, so the first one takes precedence. Put special patterns first, and general patterns last.
 #### double brackets
 
-Optional mnemonics and operands can be enclosed in double brackets. Here is the `inc (ix)` instruction for z80.
+Optional items in mnemonic and operands can be enclosed in double brackets. Here is the `inc (ix)` instruction for z80.
 
 ```
 INC (IX[[+d]]) 0xdd,0x34,d
 ```
 
-In this case, the initial value of the lowercase variables is 0, so if you specify `inc (ix+0x12)` and do not omit it, `0xdd,0x34,0x12` will be output, and if you specify `inc (ix)` and omit it, `0xdd,0x34,0x00` will be output.
+In this case, the initial value of the lowercase variable is 0, so `inc (ix+0x12)` is output as `0xdd,0x34,0x12` if not omitted, and `inc (ix)` is output as `0xdd,0x34,0x00` if omitted.
 
 #### label
 
@@ -237,9 +220,9 @@ label2: .equ 0x10
 label3: nop
 ```
 
-A label is a string of letters, numbers, and symbols, starting with a non-numeric ``.`, alphabet, or symbol, and is two or more characters long.
+A label is a string of letters, numbers, and symbols, starting with a non-numeric character `.`, an alphabet, or some symbols, and is two or more characters long.
 
-To define a label with a label, do the following:
+To define a label with a label, do the following.
 
 ```
 label4: .equ label1
@@ -252,25 +235,26 @@ ORG is set to
 ```
 .org 0x800
 ```
-from the assemble line.
+
+from the assembly line.
 
 #### alignment and padding
 
-Setting
+If you set
 
 ```
 .padding 0x12
 ```
 
-from the pattern file will set the padding bytecode to 0x12. The default is 0x00.
+from the pattern file, the padding bytecode will be 0x12. The default is 0x00.
 
-Setting
+If you set
 
 ```
 .align 16
 ```
 
-from the assemble line will align to 16.
+from the assembly line, it will be aligned at 16.
 
 #### Quotation
 
@@ -318,23 +302,21 @@ This is a test, so the binary will not be the actual code.
 ADD "w, x, y z #d" 0x88,d
 
 /* A64FX
-.setsym v0 0
+.setsym v0 0 
 .setsym x0 1 
 ST1 {x.4S},[y] 0x01,x,y,0 
 
-/* MIPS 
-.setsym $s5 21 
+/* MIPS .setsym $s5 21 
 .setsym $v0 2 
 .setsym $a0 4 
-
-ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e
+ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e 
 
 /* x86_64 
-.setsym rax 0 
-.setsym rbx 3 
-.setsym rcx 1 
-LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e 
-LEAQ "r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i 
+.setsym rax 0
+.setsym rbx 3
+.setsym rcx 1
+LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+LEAQ "r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
 ```
 
 ```test.s
@@ -345,8 +327,7 @@ st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
 ```
 
-Example
-
+Example 
 ```
 $ axx.py test.axx test.s
 0x48,0x8d,0x04,0x4b,0x40,
@@ -362,32 +343,59 @@ $ axx.py test.axx test.s
 
 -Error checking is lax.
 
--I know it's a ridiculous request, but quantum computers and LISP machines are not supported. The assembly language of quantum computers is called quantum assembly, and is not assembly language.
+-I know it's a ridiculous request, but quantum computers and LISP machines are not supported.
+
+The assembly language of quantum computers is called quantum assembly, and is not assembly language.
+
 LISP machine programs are not assembly language.
 
 -From homemade processors to supercomputers.
 
 -Runtime variable-length byte instructions are not supported.
 
-・It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where machine language words are not in byte units, but the output must be processed slightly.
+・It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where machine language words are not in byte units, but the output must be processed a little.
 
 ・Pattern data is written differently depending on the addressing mode.
 
 ## Future issues
 
 ・The order of evaluation of pattern files is difficult, so we need to do something about it.
+
 ・Make it possible for the linker to handle it.
+
 ・Improve the handling of symbols, labels, and variables.
+
 ・Perform more error checking.
-・Make it possible to add multiple double brackets for omission → Solved with macro function.
-Currently, only one double bracket can be added to a mnemonic and one to an operand.
+
+・Make it possible to add multiple omitted double square brackets → Solved with macro function. Currently, only one double square bracket can be added to a mnemonic and one to an operand.
 
 ・The escape character in an expression does not work, so we would like to solve this.
-・The alignment must be specified in advance for x86_64 MMX and AVX instructions, so we would like to solve this. → Solved if there was a macro function.
-・We would like to add a macro function. Adding macros would make it truly GENERAL.
-- It's no good because it's divided into two parts, mnemonic and operands. I'd like to unify it into one, mnemonic + operands = instruction. However, for now it's divided into two for traditional reasons and because it's easier to understand. Doing this might make it truly general.
-- Support binary file formats.
 
+・For instructions that have an x86_64 prefix or that must be positioned exactly at the alignment, such as MMX and AVX, the prefix and alignment must be specified in advance, so we would like to solve this. → Solved if there was a macro function.
+
+・We would like to add a macro function. Adding macros would make it truly GENERAL.
+
+・It doesn't work because it's split into two parts, mnemonic and operands. I'd like to unify it into one, mnemonic+operands=instruction. However, for now it's split into two for traditional reasons and because it's easier to understand. Doing this might make it truly general. It can be used as is.
+
+・Supports binary file formats. Depending on how the binary file is supported, it can also support bit slices of less than 8 bits and processors whose word length is not in bytes.
+
+### Main body
+
+axx.py
+
+https://gist.github.com/fygar256/c7b0c6e9c724dbf8bbd5159c193ca9c2
+
+## Version
+
+https://gist.github.com/fygar256/51fdef5be62913fe1dbfa72f5235550c
+
+### GitHub repository
+
+https://github.com/fygar256/general-assembler-axx
+
+### Request
+
+Please let me know if you find any bugs. I'll do my best to fix them.
 
 ## Acknowledgements
 
