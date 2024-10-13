@@ -167,7 +167,20 @@ Here is an example of symbol definition z80. If you write
 
 in a pattern file, it will define the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one.
+If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,　
+
+```
+$B=0
+$C=1
+ADD A,s
+
+$NZ=0
+$Z=1
+$NC=2
+$C=3
+RET s
+```
+In this case, the C in ADD A,C is 1, and the C in RET C is 3.
 
 ・Example of a symbol that contains a mixture of symbols, numbers, and letters
 
