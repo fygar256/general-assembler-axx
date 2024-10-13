@@ -1,9 +1,6 @@
-/*
-/* z80.axx z80 patternfile
-/* For the reason of syntax, C (carry flag written as '_C')
-/* If you arrange .setsym appropriately, it won't matter if the C in the carry
-/* and the C in the C register are duplicated.
-/*
+/*                         */
+/* z80.axx z80 patternfile */
+/*                         */
 DEC	IY							0xfd,0x2b
 DEC	IX							0xdd,0x2b
 INC	IY							0xfd,0x23
