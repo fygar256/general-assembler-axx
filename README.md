@@ -7,7 +7,7 @@ slide: false
 
 GENERAL ASSEMBLER 'axx.py'
 
-It is written in python. Its nickname is Paxx.
+Its nickname is Paxx because it is written in python.
 
 
 # Test environment
