@@ -11,6 +11,8 @@ ANL     A,\@Rn           n>7;5                   n|0x58
 ANL     Pc,\#d           c!=1&&c!=2;6,d>0xFF;1   (c|0x98),d
 ANLD    Pc,A            c<4||c>7;6              (c&3)|0x9C
 CALL    a               a>0xFFF;2               (((a&0x7FF)>>3)&0xE0)|0x14,a
+CPL     A                                       0x37
+
 CLR     A                                       0x27
         C                                       0x97
         Ff              f>1;7                   (f<<5)|0x85
@@ -84,6 +86,8 @@ STOP    TCNT                                    0x65
 STRT    CNT                                     0x45
         T                                       0x55
 SWAP    A                                       0x47
+SWAP    Rn                                      0x28|n
+HALT                                            0x01
 XCH     A,\@Rn           n>1;5                   n|0x20
         A,Rn            n>7;5                   n|0x28
 XCHD    A,\@Rn           n>1;5                   n|0x30
