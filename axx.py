@@ -51,13 +51,6 @@ def upper(o):
         idx+=1
     return t
 
-def align_(pc):
-    a=pc%align
-    if a==0:
-        return pc
-    pc+=align-a
-    return pc
-
 def outbin(a,x):
     x=int(x)&0xff
     print(" 0x%02x" % x,end='')
@@ -536,13 +529,18 @@ def fwrite(file_path, position, x):
         file.seek(position)
         file.write(struct.pack('B',x))
 
-def pad():
-    global pc
-    npc=align_(pc)
-    for i in range(pc,npc):
+def align_(addr):
+    a=addr%align
+    if a==0:
+        return addr
+    addr+=align-a
+    return addr
+
+def pad(addr):
+    npc=align_(addr)
+    for i in range(addr,npc):
         outbin(i,padding)
-    pc=npc
-    return
+    return npc-addr
 
 def makeobj(s):
     s+=chr(0)
@@ -556,7 +554,7 @@ def makeobj(s):
             break
         if s[idx]==',':
             idx+=1
-            pad()
+            cnt+=pad(pc+cnt)
             continue
         (x,idx)=expression0(s,idx)
         if pas==2:
