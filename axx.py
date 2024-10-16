@@ -565,7 +565,6 @@ def getword(s,idx):
 
 def match(s,t):
     t=t.replace(OB,'').replace(CB,'')
-    print(t)
     s+=chr(0)
     t+=chr(0)
     idx_s=0
@@ -657,7 +656,6 @@ def match0(s,t):
     for i in range(len(sl)+1):
         ll=list(itertools.combinations(sl,i))
         for j in ll:
-            print(j)
             lt=remove_brackets(t,list(j))
             if match(s,lt):
                 return True
