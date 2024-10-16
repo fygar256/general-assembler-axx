@@ -409,6 +409,7 @@ https://github.com/fygar256/general-assembler-axx
 ### Request
 
 Please let me know if you find any bugs. I'll do my best to fix them.
+Please evaluate and extend and fix this.
 
 ## Acknowledgements
 
