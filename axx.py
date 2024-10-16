@@ -5,6 +5,7 @@
 #
 
 import string as str
+import itertools
 import struct
 import sys
 import os
@@ -12,6 +13,8 @@ import re
 UNDEF = (~(0))
 EXP_PAT=0
 EXP_ASM=1
+OB=chr(0x90)     # open double blacket
+CB=chr(0x91)     # close double blacket
 LV_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
@@ -34,6 +37,7 @@ debug=0
 cl=""
 ln=0
 vars=[ LV_UNDEF for i in range(26) ]
+
 
 def upper(o):
     t=""
@@ -560,6 +564,9 @@ def getword(s,idx):
     return t,idx
 
 def match(s,t):
+    t=t.replace(OB,'').replace(CB,'')
+    s+=chr(0)
+    t+=chr(0)
     idx_s=0
     idx_t=0
     while True:
@@ -608,28 +615,36 @@ def match(s,t):
         else:
               return False
 
-def remove_ookakko(t):
-    if '[[' in t and ']]' in t:
-        i = t.index('[[')
-        c = t.index(']]')
-        return t[0:i]+t[c+2:]
-    return t
+def remove_brackets_by_indices(text, indices):
+    result = list(text)
+    open_brackets = []
     
+    for i, char in enumerate(text):
+        if char == OB:
+            open_brackets.append(i)
+        elif char == CB:
+            if open_brackets:
+                start_index = open_brackets.pop(0)
+                if len(open_brackets) + 1 in indices:
+                    for j in range(start_index, i + 1):
+                        result[j] = ''
+    
+    return ''.join(result)
 
 def match0(s,t):
-    s+=chr(0)
-    t+=chr(0)
-
-    tt=remove_ookakko(t)
-    if match(s,tt)==True:
-        return True
-
-    tt=t.replace('[[','').replace(']]','')
-    if match(s,tt)==True:
-        return True
-
+    t=t.replace('[[',OB).replace(']]',CB)
+    cnt=t.count(OB)
+    if cnt==0:
+        return(match(s,t))
+    sl=[ _+1 for _ in range(cnt) ]
+    for i in range(len(sl)+1):
+        ll=list(itertools.combinations(sl,i))
+        for j in ll:
+            lt=remove_brackets_by_indices(t,list(j))
+            if match(s,lt):
+                return True
     return False
-
+        
 def error(s):
     ch=','
     s+=chr(0)
@@ -694,8 +709,6 @@ def lineassemble(line):
     global pc,cl,ln
     ln+=1
     cl=line.replace('\n','')
-    for a in lower:
-        put_vars(a,LV_UNDEF)
     line=upper(line.replace('\t',' ').replace('\n',''))
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -716,6 +729,8 @@ def lineassemble(line):
     of=0
     se=False
     for i in pat:
+        for a in lower:
+            put_vars(a,LV_UNDEF)
         #
         # i はパターンファイルのデータ
         # l はアセンブリライン
