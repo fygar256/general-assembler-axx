@@ -370,19 +370,28 @@ LISP machine programs are not assembly language.
 
 ・Using a pattern file as a meta-language makes error checking easier. It is highly readable. It is not dependent on the order of evaluation. It is also easier to check the binary [Do not output] item.
 
-・It would be good to set undefined symbols to short -1, but as it is now, the double square bracket processing function gets in the way.
+・It would be good to set undefined symbols to short -1.
 
 ## Future issues
 
 ・The order of evaluation of the pattern file is difficult, so we will do something about it.
+
 ・Make it so that the linker can handle it.
+
 ・Improve the handling of symbols, labels, and variables.
+
 ・Perform some more error checking.
+
 ・The escape character in the expression does not work, so we would like to solve this.
+
 ・I want to solve the problem of having to specify the prefix and alignment beforehand for instructions that have x86_64 prefixes or that must be positioned exactly at the alignment, such as MMX and AVX. → A macro function would solve this.
+
 ・I want to add a macro function. Adding a macro would make it truly GENERAL.
+
 ・It's no good because it's split into two, mnemonic and operands. I want to unify it into one, mnemonic+operands=instruction. However, for traditional reasons and because it's easy to understand, it's split into two for now. Doing this might make it truly general. It can be used as is.
+
 ・It's a good idea to add a [Do not output] item to the binary list.
+
 ・Support binary file formats. Depending on the specifications of the binary file, it can also support bit slices of less than 8 bits and processors whose word length is not in bytes.
 
 ## Request
