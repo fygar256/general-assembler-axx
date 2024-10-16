@@ -15,7 +15,7 @@ EXP_PAT=0
 EXP_ASM=1
 OB=chr(0x90)     # open double blacket
 CB=chr(0x91)     # close double blacket
-LV_UNDEF=0
+VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 ealphabet="abcdefg"
@@ -32,11 +32,12 @@ symbols={}
 labels={}
 pat=[]
 expmode=EXP_PAT
+align=32
 pas=1
 debug=0
 cl=""
 ln=0
-vars=[ LV_UNDEF for i in range(26) ]
+vars=[ VAR_UNDEF for i in range(26) ]
 
 
 def upper(o):
@@ -49,6 +50,19 @@ def upper(o):
         t+=a
         idx+=1
     return t
+
+def align_(pc):
+    a=pc%align
+    if a==0:
+        return pc
+    pc+=align-a
+    return pc
+
+def outbin(a,x):
+    x=int(x)&0xff
+    print(" 0x%02x" % x,end='')
+    if outfile!="":
+        fwrite(outfile,a,x)
 
 def get_vars(s):
     c=ord(upper(s))
@@ -209,15 +223,17 @@ def term0(s,idx):
             (t,idx)=term0_0(s,idx+1)
             x*=t
         elif q(s,'//',idx):
-            idx+=2
-            (t,idx)=term0_0(s,idx)
+            (t,idx)=term0_0(s,idx+2)
             if t==0:
                 err("Division by 0 error.")
             else:
                 x//=t
         elif s[idx]=='%':
             (t,idx)=term0_0(s,idx+1)
-            x=x%t
+            if t==0:
+                err("Division by 0 error.")
+            else:
+                x=x%t
         else:
             break
     return (x,idx)
@@ -520,6 +536,14 @@ def fwrite(file_path, position, x):
         file.seek(position)
         file.write(struct.pack('B',x))
 
+def pad():
+    global pc
+    npc=align_(pc)
+    for i in range(pc,npc):
+        outbin(i,padding)
+    pc=npc
+    return
+
 def makeobj(s):
     s+=chr(0)
     idx=0
@@ -530,12 +554,13 @@ def makeobj(s):
     while True:
         if s[idx]==chr(0):
             break
+        if s[idx]==',':
+            idx+=1
+            pad()
+            continue
         (x,idx)=expression0(s,idx)
         if pas==2:
-            x=int(x)&0xff
-            print(" 0x%02x" % x,end='')
-            if outfile!="":
-                fwrite(outfile,pc+cnt,x)
+            outbin(pc+cnt,x)
         cnt+=1
         if s[idx]==',':
             idx+=1
@@ -706,12 +731,16 @@ def label_processing(l):
         return l
 
 def align_processing(l1,l2):
-    global pc
+    global pc,align
+
     if upper(l1)!=".ALIGN":
         return False
-    u,idx=expression1(l2,0)
-    a=pc%int(u)
-    pc+=(u-a)
+
+    if l2!='':
+        u,idx=expression1(l2,0)
+        align=int(u)
+
+    pc=align_(pc)
     return True
 
 def printaddr(pc):
@@ -750,7 +779,7 @@ def lineassemble(line):
     se=False
     for i in pat:
         for a in lower:
-            put_vars(a,LV_UNDEF)
+            put_vars(a,VAR_UNDEF)
         #
         # i はパターンファイルのデータ
         # l はアセンブリライン
