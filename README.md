@@ -64,11 +64,11 @@ Assembly line comments are `;`.
 
 #### Case Sensitivity, Variables
 
-Uppercase letters in mnemonic and operands in the pattern file are treated as character constants. Lowercase letters are treated as single-character variables. The value of the factor, expression, or symbol that corresponds to that position in mnemonic and operands is assigned to the variable from the assemble line, and referenced from error_patterns and binary_list.
+Uppercase mnemonic and operands in the pattern file are treated as character constants. Lowercase mnemonic and operands are treated as one-character variables. The value of the factor, expression, or symbol that corresponds to that position in mnemonic and operands is assigned to the variable from the assemble line, and referenced from error_patterns and binary_list.
 
-Lowercase letters a through g represent expressions, h through n represent factors such as constants, and o through z represent symbols. All unassigned variables have a default value of 0.
+Lowercase a through g represent expressions, h through n represent factors such as constants, and o through z represent symbols. All unassigned variables have a default value of 0.
 
-Uppercase and lowercase letters are accepted by the assembly line as the same.
+Uppercase and lowercase are accepted by the assembly line as the same.
 
 A special variable is '$$', which represents the current location counter.
 
@@ -77,29 +77,29 @@ A special variable is '$$', which represents the current location counter.
 The operators and precedence are as follows, based on Python
 
 ```
-(expression)        An expression enclosed in parentheses
-#                   An operator that returns the value of a symbol
--,~                 Negative, bitwise NOT
-@                   A unary operator that returns the bit position from the right of the most significant bit of the following value
-:=                  Assignment operator
-**                  Exponentiation
-*,//                Multiplication, integer division
-+,-                 Addition, subtraction
-<<,>>               Left shift, right shift
-&                   Bitwise AND
-|                   Bitwise OR
-'                   Sign extension
-<=,<,>,>=,!=,==     Comparison operators
-not(x)              Logical NOT
-&&                  Logical AND
-||                  Logical OR
+(expression) An expression enclosed in parentheses
+# An operator that returns the value of a symbol
+-,~ Negative, bitwise NOT
+@ A unary operator that returns the bit position from the right of the most significant bit of the following value
+:= Assignment operator
+** Exponentiation
+*,// Multiplication, integer division
++,- Addition, subtraction
+<<,>> Left shift, right shift
+& Bitwise AND
+| Bitwise OR
+' Sign extension
+<=,<,>,>=,!=,== Comparison operators
+not(x) Logical NOT
+&& Logical AND
+|| Logical OR
 ```
 
-There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
+There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
 
 The prefix operator `#` takes the value of the symbol that follows it.
 
-The prefix operator `@` returns the number of bits in the value that follows. We call this HebiMarmatta operator.
+The prefix operator `@` returns the number of bits in the value that follows. We call this the snake-shaped Marmatta operator.
 
 The binary operator `'`, for example `a'24`, will sign extend (Sign EXtend) the 24th bit of a as the sign bit. We call this the SEX operator.
 
@@ -149,7 +149,7 @@ To define symbol2 with symbol1, write as follows.
 .setsym symbol2 #symbol1
 ```
 
-Here is an example of symbol definition z80. If you write
+Here is an example of symbol definition z80. In a pattern file,
 
 ```
 .setsym B 0
@@ -165,9 +165,9 @@ Here is an example of symbol definition z80. If you write
 .setsym SP 0x30
 ```
 
-in a pattern file, it will define the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
+Writing this will define the symbols B, C, D, E, H, L, A, BC, DE, HL, and SP as 0, 1, 2, 3, 4, 5, 7, 0x00, 0x10, 0x20, and 0x30, respectively. Symbols are not case sensitive.
 
-If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,　
+If there are multiple definitions of the same symbol in a pattern file, the new one will replace the old one. That is,
 
 ```
 $B=0
@@ -212,16 +212,17 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 (2) LD A,d
 ```
 
-Pattern files are evaluated from top to bottom, so the first one takes precedence. Put special patterns first, and general patterns last.
+Pattern files are evaluated from top to bottom, so the one placed earlier takes precedence. Special patterns are placed first, and general patterns are placed after.
+
 #### double brackets
 
-Optional items in mnemonic and operands can be enclosed in double brackets. Here is the `inc (ix)` instruction for z80.
+Optional mnemonics and operands can be enclosed in double brackets. Here is the `inc (ix)` instruction for z80.
 
 ```
 INC (IX[[+d]]) 0xdd,0x34,d
 ```
 
-In this case, the initial value of the lowercase variable is 0, so `inc (ix+0x12)` is output as `0xdd,0x34,0x12` if not omitted, and `inc (ix)` is output as `0xdd,0x34,0x00` if omitted.
+In this case, the initial value of the lowercase variables is 0, so if you specify `inc (ix+0x12)` and do not omit it, `0xdd,0x34,0x12` will be output, and if you specify `inc (ix)` and omit it, `0xdd,0x34,0x00` will be output.
 
 #### label
 
@@ -233,9 +234,9 @@ label2: .equ 0x10
 label3: nop
 ```
 
-A label is a string of letters, numbers, and symbols, starting with a non-numeric character `.`, an alphabet, or some symbols, and is two or more characters long.
+A label is a string of letters, numbers, and symbols, starting with a non-numeric character `.`, an alphabet, or some other symbol, and is two or more characters long.
 
-To define a label with a label, do the following.
+To define a label with a label, do the following:
 
 ```
 label4: .equ label1
@@ -248,8 +249,7 @@ ORG is set to
 ```
 .org 0x800
 ```
-
-from the assembly line.
+from the assemble line.
 
 #### alignment and padding
 
@@ -267,7 +267,7 @@ If you set
 .align 16
 ```
 
-from the assembly line, it will be aligned at 16.
+from the assemble line, the alignment will be 16.
 
 #### Quotation
 
@@ -286,7 +286,7 @@ ADD A,Rn n>7;5 n|0x68
 .
 #### Floating point, number notation
 
-For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, and the opcode is 01. In that case, the pattern data is
+For example, suppose there is a processor that includes floating point operands, and `MOVF fa,3.14` loads 3.14 into the fa register, and the opcode is 01. In this case, the pattern data is
 
 ```
 MOVF FA,d 0x01,d>>24,d>>16,d>>8,d
@@ -306,7 +306,7 @@ Prefix floating point doubles (float 64bit) with '0d'.
 
 This is a test, so the binary will not be the actual code.
 
-```
+``test.axx
 /* ARM64
 .setsym r1 2
 .setsym r2 3
@@ -318,20 +318,17 @@ ADD "w, x, y z #d" 0x88,d
 .setsym v0 0 
 .setsym x0 1 
 ST1 {x.4S},[y] 0x01,x,y,0 
-
 /* MIPS .setsym $s5 21 
 .setsym $v0 2 
-.setsym $a0 4 
+.setsym $a0 4
 ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e 
-
 /* x86_64 
-.setsym rax 0
-.setsym rbx 3
-.setsym rcx 1
-LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
-LEAQ "r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
+.setsym rax 0 
+.setsym rbx 3 
+.setsym rcx 1 
+LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e 
+LEAQ "r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i 
 ```
-
 ```test.s
 leaq rax , [ rbx , rcx , 2 , 0x40]
 leaq rax , [ rbx + rcx * 2 + 0x40]
@@ -340,7 +337,8 @@ st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
 ```
 
-Example 
+ Example 
+ 
 ```
 $ axx.py test.axx test.s
 0x48,0x8d,0x04,0x4b,0x40,
@@ -356,57 +354,38 @@ $ axx.py test.axx test.s
 
 -Error checking is lax.
 
--I know it's a ridiculous request, but quantum computers and LISP machines are not supported.
-
+-I know it's a ridiculous thing to say, but quantum computers and LISP machines are not supported.
 The assembly language of quantum computers is called quantum assembly, and is not assembly language.
-
 LISP machine programs are not assembly language.
 
--From homemade processors to supercomputers.
+-From homemade processors to supercomputers, please. Meow.
 
--Runtime variable-length byte instructions are not supported.
+-Since an emulator must be installed, run-time variable-length byte instructions are not supported.
 
-・It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where machine language words are not in byte units, but the output must be processed a little.
+・It is possible to assemble for processors with less than 8 bits, such as bit slice processors, or processors whose machine language words are not in units of bytes, but the output must be processed a little.
 
 ・Pattern data is written differently depending on the addressing mode.
 
+・Please evaluate and extend and fix this.
+
+・Using a pattern file as a meta-language makes error checking easier. It is highly readable. It is not dependent on the order of evaluation. It is also easier to check the binary [Do not output] item.
+
+・It would be good to set undefined symbols to short -1, but as it is now, the double square bracket processing function gets in the way.
+
 ## Future issues
 
-・The order of evaluation of pattern files is difficult, so we need to do something about it.
-
-・Make it possible for the linker to handle it.
-
+・The order of evaluation of the pattern file is difficult, so we will do something about it.
+・Make it so that the linker can handle it.
 ・Improve the handling of symbols, labels, and variables.
+・Perform some more error checking.
+・The escape character in the expression does not work, so we would like to solve this.
+・I want to solve the problem of having to specify the prefix and alignment beforehand for instructions that have x86_64 prefixes or that must be positioned exactly at the alignment, such as MMX and AVX. → A macro function would solve this.
+・I want to add a macro function. Adding a macro would make it truly GENERAL.
+・It's no good because it's split into two, mnemonic and operands. I want to unify it into one, mnemonic+operands=instruction. However, for traditional reasons and because it's easy to understand, it's split into two for now. Doing this might make it truly general. It can be used as is.
+・It's a good idea to add a [Do not output] item to the binary list.
+・Support binary file formats. Depending on the specifications of the binary file, it can also support bit slices of less than 8 bits and processors whose word length is not in bytes.
 
-・Perform more error checking.
-
-・Make it possible to add multiple omitted double square brackets → Solved with macro function. Currently, only one double square bracket can be added to a mnemonic and one to an operand.
-
-・The escape character in an expression does not work, so we would like to solve this.
-
-・For instructions that have an x86_64 prefix or that must be positioned exactly at the alignment, such as MMX and AVX, the prefix and alignment must be specified in advance, so we would like to solve this. → Solved if there was a macro function.
-
-・We would like to add a macro function. Adding macros would make it truly GENERAL.
-
-・It doesn't work because it's split into two parts, mnemonic and operands. I'd like to unify it into one, mnemonic+operands=instruction. However, for now it's split into two for traditional reasons and because it's easier to understand. Doing this might make it truly general. It can be used as is.
-
-・Supports binary file formats. Depending on how the binary file is supported, it can also support bit slices of less than 8 bits and processors whose word length is not in bytes.
-
-### Main body
-
-axx.py
-
-https://gist.github.com/fygar256/c7b0c6e9c724dbf8bbd5159c193ca9c2
-
-## Version
-
-https://gist.github.com/fygar256/51fdef5be62913fe1dbfa72f5235550c
-
-### GitHub repository
-
-https://github.com/fygar256/general-assembler-axx
-
-### Request
+## Request
 
 Please let me know if you find any bugs. I'll do my best to fix them.
 Please evaluate and extend and fix this.
