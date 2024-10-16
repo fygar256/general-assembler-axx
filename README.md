@@ -306,7 +306,7 @@ Prefix floating point doubles (float 64bit) with '0d'.
 
 This is a test, so the binary will not be the actual code.
 
-``test.axx
+```test.axx
 /* ARM64
 .setsym r1 2
 .setsym r2 3
@@ -318,10 +318,12 @@ ADD "w, x, y z #d" 0x88,d
 .setsym v0 0 
 .setsym x0 1 
 ST1 {x.4S},[y] 0x01,x,y,0 
+
 /* MIPS .setsym $s5 21 
 .setsym $v0 2 
 .setsym $a0 4
 ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e 
+
 /* x86_64 
 .setsym rax 0 
 .setsym rbx 3 
@@ -329,6 +331,7 @@ ADDI x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e> >16,e>>8,e
 LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e 
 LEAQ "r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i 
 ```
+
 ```test.s
 leaq rax , [ rbx , rcx , 2 , 0x40]
 leaq rax , [ rbx + rcx * 2 + 0x40]
