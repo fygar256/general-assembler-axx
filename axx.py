@@ -459,20 +459,30 @@ def remove_comment_asm(l):
 
 def get_params1(l,idx):
     idx=skipspc(l,idx)
-    if len(l)<=idx:
+
+    if idx>=len(l):
         return ("",idx)
-    if not l[idx]=='\"':
-        idx=skipspc(l,idx)
-        return get_param_to_spc(l,idx)
+
     s=""
-    idx+=1
-    while True:
-        if '\"'==l[idx]:
-            idx+=1
-            break
-        s+=l[idx]
+    if l[idx]=='"':
         idx+=1
-    return (s,idx)
+        while idx<len(l):
+            if '"'==l[idx]:
+                return (s,idx+1)
+                break
+            else:
+                s+=l[idx]
+                idx+=1
+        return (s,idx)
+    else:
+        while idx<len(l):
+            if ' '==l[idx]:
+                return (s,idx+1)
+                break
+            else:
+                s+=l[idx]
+                idx+=1
+        return (s,idx)
 
 def reduce_spaces(text):
     return re.sub(r'\s{2,}', ' ', text)
@@ -482,16 +492,14 @@ def readpat(fn):
     f=open(fn,"rt")
     p=[]
     w=[]
-    prev=''
     while(l:=f.readline()):
         l=remove_comment(l)
         l=l.replace('\t',' ')
+        l=l.replace(chr(13),'')
         l=l.replace('\n','')
         l=reduce_spaces(l)
         r=[]
         idx=0
-        if len(l)>1 and l[0]==' ':
-            l=prev+" "+l
         while True:
             s,idx=get_params1(l,idx)
             r+=[s]
@@ -502,15 +510,13 @@ def readpat(fn):
         l=[_ for _ in l if _]
         idx=0
         if len(l)==1:
-            p=[l[0],'','','']
+            p=[l[0],'','']
         elif len(l)==2:
-            p=[l[0],'','',l[1]]
+            p=[l[0],'',l[1]]
         elif len(l)==3:
-            p=[l[0],l[1],'',l[2]]
-        elif len(l)==4:
-            p=[l[0],l[1],l[2],l[3]]
+            p=[l[0],l[1],l[2]]
         else:
-            p=[]
+            p=["","",""]
         w.append(p)
 
     pat=w
@@ -789,22 +795,21 @@ def lineassemble(line):
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
-        if match0(l,i[0])==True:
-            if lw==1 or lw==2:
-                of=makeobj(i[3])
-                break
-            elif lw==3:
-                if match0(l2,i[1])==True:
-                    of=makeobj(i[3])
+        lin=l+' '+l2
+        lin=reduce_spaces(lin)
+        if i[0]=='':
+            break
+        if match0(lin,i[0])==True:
+            if lw==3:
+                if error(i[1]):
+                    of = 0
                     break
-            elif lw==4:
-                if match0(l2,i[1])==True:
-                    if error(i[2]):
-                        of = 0
-                        break
-                    else:
-                        of=makeobj(i[3])
-                        break
+                else:
+                    of=makeobj(i[2])
+                    break
+            else:
+                of=makeobj(i[2])
+                break
     else:
         se=True
     if se and pas==2:

@@ -1,25 +1,41 @@
+/* test
+.setsym a 7
+.setsym b 1
+.setsym %% 7
+.setsym || 8
+"LD s,x" 0x1,y,s,x
 /* ARM64
 .setsym r1  2
 .setsym r2  3
 .setsym r3  4
 .setsym lsl 6
-ADD "x, y, e" 0x91,x,y,e
-ADD "w, x, y z #d" 0x88,d
+"ADD w, x, y z #d" 0x88,d
+"ADD x, y, e" 0x91,x,y,e
 
 /* A64FX
 .setsym v0  0
 .setsym x0  1
-ST1 {x.4S},[y] 0x01,x,y,0
+"ST1 {x.4S},[y]" 0x01,x,y,0
 
 /* MIPS
 .setsym $s5 21
 .setsym $v0 2
 .setsym $a0 4
-ADDI	x,y,d (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+"ADDI x,y,d" (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 
 /* x86_64
 .setsym rax 0
 .setsym rbx 3
 .setsym rcx 1
-LEAQ r,[s,t,d,e] 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
-LEAQ "r, [ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
+.setsym rep 1
+
+"MMX A,B"  ,0x12,0x13
+"LEAQ r,[s,t,d,e]" 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+"LEAQ r, [ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
+"REP"  0x49
+"CMPS A,B" ,0x12
+"TEST" 0x12,,0x13
+
+/* ookakko test
+"LD (IX[[+d]]),(IX[[+e]])" 0xfd,0x04,d,e 
+"NOP" 0x01

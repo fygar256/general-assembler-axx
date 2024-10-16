@@ -7,8 +7,6 @@
     DEC (IY)
     DEC (IX+0x56)
     DEC (IY+0x56)
-    .org 0x100
-    NOP
     LD SP,HL
     LD SP,IX
     LD SP,IY
