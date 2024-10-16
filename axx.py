@@ -565,6 +565,7 @@ def getword(s,idx):
 
 def match(s,t):
     t=t.replace(OB,'').replace(CB,'')
+    print(t)
     s+=chr(0)
     t+=chr(0)
     idx_s=0
@@ -615,21 +616,37 @@ def match(s,t):
         else:
               return False
 
-def remove_brackets_by_indices(text, indices):
-    result = list(text)
-    open_brackets = []
+def remove_brackets(s, l):
+    open_count = 0
+    result = list(s)
     
-    for i, char in enumerate(text):
+    # 開き大括弧と閉じ大括弧の位置を記録
+    bracket_positions = []
+    
+    for i, char in enumerate(s):
         if char == OB:
-            open_brackets.append(i)
+            open_count += 1
+            bracket_positions.append((open_count, i, 'open'))
         elif char == CB:
-            if open_brackets:
-                start_index = open_brackets.pop(0)
-                if len(open_brackets) + 1 in indices:
-                    for j in range(start_index, i + 1):
-                        result[j] = ''
+            bracket_positions.append((open_count, i, 'close'))
+    
+    # 指定されたインデックスの開き大括弧から閉じ大括弧までを削除
+    for index in sorted(l, reverse=True):
+        start_index = None
+        end_index = None
+        for count, pos, type in bracket_positions:
+            if count == index and type == 'open':
+                start_index = pos
+            elif count == index and type == 'close':
+                end_index = pos
+                break
+        
+        if start_index is not None and end_index is not None:
+            for j in range(start_index, end_index + 1):
+                result[j] = ''
     
     return ''.join(result)
+
 
 def match0(s,t):
     t=t.replace('[[',OB).replace(']]',CB)
@@ -640,7 +657,8 @@ def match0(s,t):
     for i in range(len(sl)+1):
         ll=list(itertools.combinations(sl,i))
         for j in ll:
-            lt=remove_brackets_by_indices(t,list(j))
+            print(j)
+            lt=remove_brackets(t,list(j))
             if match(s,lt):
                 return True
     return False
