@@ -525,7 +525,8 @@ def makeobj(s):
     idx=0
     cnt=0
     if pas==2:
-        print(f"%08x: {cl}" % pc,end='')
+        printaddr(pc)
+        print(f"{cl} " ,end='')
     while True:
         if s[idx]==chr(0):
             break
@@ -713,6 +714,9 @@ def align_processing(l1,l2):
     pc+=(u-a)
     return True
 
+def printaddr(pc):
+    print("%016x:" % pc,end='')
+
 def org_processing(l1,l2):
     global pc
     if upper(l1)!=".ORG":
@@ -777,7 +781,7 @@ def lineassemble(line):
     else:
         se=True
     if se and pas==2:
-        print(f"{ln} : {cl} : Syntax error")
+        print(f"{ln} : {cl} : error")
         return False
     pc+=of
     return True
@@ -823,7 +827,7 @@ def main():
         pas=2
         ln=0
         while True:
-            print("%016x:" % pc,end='')
+            printaddr(pc)
             try:
                 line=input(">> ")
             except EOFError: # EOF
