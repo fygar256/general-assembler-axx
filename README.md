@@ -77,22 +77,22 @@ A special variable is '$$', which represents the current location counter.
 The operators and precedence are as follows, based on Python
 
 ```
-(expression) An expression enclosed in parentheses
-# An operator that returns the value of a symbol
--,~ Negative, bitwise NOT
-@ A unary operator that returns the bit position from the right of the most significant bit of the following value
-:= Assignment operator
-** Exponentiation
-*,// Multiplication, integer division
-+,- Addition, subtraction
-<<,>> Left shift, right shift
-& Bitwise AND
-| Bitwise OR
-' Sign extension
-<=,<,>,>=,!=,== Comparison operators
-not(x) Logical NOT
-&& Logical AND
-|| Logical OR
+(expression)      An expression enclosed in parentheses
+#                 An operator that returns the value of a symbol
+-,~               Negative, bitwise NOT
+@                 A unary operator that returns the bit position from the right of the most significant bit of the following value
+:=                Assignment operator
+**                Exponentiation
+*,//              Multiplication, integer division
++,-               Addition, subtraction
+<<,>>             Left shift, right shift
+&                 Bitwise AND
+|                 Bitwise OR
+'                 Sign extension
+<=,<,>,>=,!=,==   Comparison operators
+not(x)            Logical NOT
+&&                Logical AND
+||                Logical OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of an assignment operator is the assigned value.
