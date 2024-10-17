@@ -224,7 +224,7 @@ Pattern files are evaluated from top to bottom, so the one placed first takes pr
 
 #### Double brackets
 
-Optional mnemonic and operands can be enclosed in double brackets. This shows the `inc (ix)` command of the z80.
+Optional in instruction can be enclosed in double brackets. This shows the `inc (ix)` command of the z80.
 
 ```
 "INC (IX[[+d]])" 0xdd,0x34,d
