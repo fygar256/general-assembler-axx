@@ -105,7 +105,7 @@ There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned 
 
 The prefix operator `#` takes the value of the symbol that follows.
 
-The prefix operator `@` returns the number of bits of the value that follows. We call this the snake-shaped Marmatta operator.
+The prefix operator `@` returns the number of bits of the value that follows. We call this Hebimarumatta operator.
 
 The binary operator `'`, if you enter `a'24`, the 24th bit of a will be made the sign bit and sign extended (Sign EXtend). We call this the SEX operator.
 
