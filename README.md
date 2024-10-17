@@ -82,23 +82,23 @@ The special variable is '$$', which represents the current location counter.
 The operators and precedence are based on Python and are as follows
 
 ```
-(expression) An expression enclosed in parentheses
-# An operator that returns the value of a symbol
--,~ Negative, bitwise NOT
-@ A unary operator that returns the number of bits from the right of the most significant bit of the value that follows
-:= Assignment operator
-** Power
-*,//Multiplication, integer division
-+,- Addition, subtraction
-<<,>> Left shift, right shift
-& Bitwise AND
-| Bitwise OR
-^ Bitwise XOR
-' Sign extension
-<=,<,>,>=,!=,== Comparison operators
-not(x) Logical NOT
-&& Logical AND
-|| Logical OR
+(expression)         An expression enclosed in parentheses
+#                    An operator that returns the value of a symbol
+-,~                  Negative, bitwise NOT
+@                    A unary operator that returns the number of bits from the right of the most significant bit of the value that follows
+:=                   Assignment operator
+**                   Power
+*,//                 Multiplication, integer division
++,-                  Addition, subtraction
+<<,>>                Left shift, right shift
+&                    Bitwise AND
+|                    Bitwise OR
+^                    Bitwise XOR
+'                    Sign extension
+<=,<,>,>=,!=,==      Comparison operators
+not(x)               Logical NOT
+&&                   Logical AND
+||                   Logical OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
@@ -326,7 +326,7 @@ This is a test, so the binary is different from the actual code.
 "LEAQ r,[ s + t * h + i ]" 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
 ```
 
-``test.s 
+```test.s 
 leaq rax , [ rbx , rcx , 2 , 0x40] 
 leaq rax , [ rbx + rcx * 2 + 0x40] 
 addi $v0,$a0,5 
