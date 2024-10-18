@@ -372,6 +372,7 @@ def expression1(s,idx):
     return (t,i)
 
 def getsymval(w):
+    w=w.upper()
     l=list(symbols.items())
     for i in l:
         if i[0]==w:
@@ -404,14 +405,14 @@ def set_symbol(i):
     global symbols
     if len(i)==0:
         return False
-    if len(i)>1 and i[0]!='.setsym':
+    if i[0]!='.setsym':
     	return False
-    if len(i)>3:
-        v,idx=expression0(i[3],0)
+    key=upper(i[1])
+    if len(i)>2:
+        v,idx=expression0(i[2],0)
     else:
         v=0
-    key=upper(i[1])
-    symbols[upper(key)]=v
+    symbols[key]=v
     return True
 
 def paddingp(i):
@@ -421,25 +422,10 @@ def paddingp(i):
     if len(i)>1 and i[0]!='.padding':
     	return False
     if len(i)>3:
-        v,idx=expression0(i[3],0)
+        v,idx=expression0(i[2],0)
     else:
         v=0
     padding=int(v)
-    return True
-
-def wordc(i):
-    global etc 
-    if len(i)==0:
-        return False
-    if not i[0]=='.wordc':
-        return False
-    p=i[3]
-    s=chr(0)
-    idx=0
-    while idx<len(p):
-        s+=p[idx]
-        idx+=1
-    wordc=s
     return True
 
 def remove_comment(l):
@@ -465,25 +451,14 @@ def get_params1(l,idx):
         return ("",idx)
 
     s=""
-    if l[idx]=='"':
-        idx+=1
-        while idx<len(l):
-            if '"'==l[idx]:
-                return (s,idx+1)
-                break
-            else:
-                s+=l[idx]
-                idx+=1
-        return (s,idx)
-    else:
-        while idx<len(l):
-            if ' '==l[idx]:
-                return (s,idx+1)
-                break
-            else:
-                s+=l[idx]
-                idx+=1
-        return (s,idx)
+    while idx<len(l):
+        if '::'==l[idx:idx+2]:
+            idx+=2
+            break
+        else:
+            s+=l[idx]
+            idx+=1
+    return(s.rstrip(' \t'),idx)
 
 def reduce_spaces(text):
     return re.sub(r'\s{2,}', ' ', text)
@@ -791,7 +766,6 @@ def lineassemble(line):
         #
         if set_symbol(i): continue
         if clear_symbol(i): continue
-        if wordc(i): continue
         if paddingp(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
