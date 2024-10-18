@@ -56,7 +56,7 @@ RET :: 0xc3
 
 There are two types of pattern data:
 
-``
+```
 (1) instruction :: binary_list
 (2) instruction :: error_patterns :: binary_list
 ```
