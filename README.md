@@ -18,7 +18,7 @@ axx.py is a general assembler that generalizes assemblers.
 
 The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
 
-I think axx can process the instruction set of any processor if you prepare pattern data, but it does not support the practical functions that a dedicated assembler has. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
+I think axx can process any processor if you prepare pattern data, but it does not support the practical functions that a dedicated assembler has. The current version is a trial implementation. I also intend to implement the practical functions of a dedicated assembler in the future.
 
 Also, because the pattern file is separate from the source file, it is possible to generate machine code for a processor with a different instruction set from a source file with one instruction set, if you don't mind the effort of coding.
 
