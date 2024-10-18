@@ -27,7 +27,8 @@ outfile=""
 pc=0
 padding=0
 alphabet=lower+capital
-wordchars=digit+alphabet+"_"+"%$-~&|"
+lwordchars=digit+alphabet+"_"
+swordchars=digit+alphabet+"_%$-~&|"
 symbols={}
 labels={}
 pat=[]
@@ -145,7 +146,7 @@ def factor1(s,idx):
         x=pc
     elif q(s,'#',idx):
         idx+=1
-        (t,idx)=getword(s,idx)
+        (t,idx)=get_symbol_word(s,idx)
         x=getsymval(t)
 
     elif q(s,'0b',idx):
@@ -189,8 +190,8 @@ def factor1(s,idx):
             x=get_vars(ch)
             idx+=1
     else:
-        if expmode==EXP_ASM and (s[idx] in wordchars or s[idx]=='.'):
-            w,idx=getword(s,idx)
+        if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
+            w,idx=get_label_word(s,idx)
             if issymbol(w)==False:
                 x=getdicval(labels,w)
                 if pas==2 and x==UNDEF:
@@ -428,6 +429,26 @@ def paddingp(i):
     padding=int(v)
     return True
 
+def labelc(i):
+    global lwordchars
+    if len(i)==0:
+        return False
+    if len(i)>1 and i[0]!='.labelc':
+    	return False
+    if len(i)>3:
+        lwordchars=alphabet+digit+i[2]
+    return True
+
+def symbolc(i):
+    global swordchars
+    if len(i)==0:
+        return False
+    if len(i)>1 and i[0]!='.symbolc':
+    	return False
+    if len(i)>3:
+        swordchars=alphabet+digit+i[2]
+    return True
+
 def remove_comment(l):
     idx=0
     while idx<len(l):
@@ -557,13 +578,25 @@ def isword(s,idx):
         return False
     return True
 
-def getword(s,idx):
+def get_symbol_word(s,idx):
     t=""
-    if len(s)>idx and (s[idx]=='.' or not s[idx] in digit and s[idx] in wordchars):
+    if len(s)>idx and (s[idx]=='.' or not s[idx] in digit and s[idx] in swordchars):
         t=s[idx]
         idx+=1
         while len(s)>idx:
-            if not s[idx] in wordchars : 
+            if not s[idx] in swordchars : 
+                break
+            t+=upper(s[idx])
+            idx+=1
+    return t,idx
+
+def get_label_word(s,idx):
+    t=""
+    if len(s)>idx and (s[idx]=='.' or not s[idx] in digit and s[idx] in lwordchars):
+        t=s[idx]
+        idx+=1
+        while len(s)>idx:
+            if not s[idx] in lwordchars : 
                 break
             t+=upper(s[idx])
             idx+=1
@@ -612,7 +645,7 @@ def match(s,t):
               continue
         elif a in salphabet:
               idx_t+=1
-              (w,idx_s)=getword(s,idx_s)
+              (w,idx_s)=get_symbol_word(s,idx_s)
               v=getsymval(w)
               if (v==""):
                   return False
@@ -689,7 +722,7 @@ def error(s):
 def label_processing(l):
     if l=="":
         return ""
-    label,idx=getword(l,0)
+    label,idx=get_label_word(l,0)
     if len(l)>idx and l[idx]==':':
         idx+=1
         if pas==2 and len(label)<2:
@@ -767,6 +800,8 @@ def lineassemble(line):
         if set_symbol(i): continue
         if clear_symbol(i): continue
         if paddingp(i): continue
+        if symbolc(i): continue
+        if labelc(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
