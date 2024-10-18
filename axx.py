@@ -13,8 +13,8 @@ import re
 UNDEF = (~(0))
 EXP_PAT=0
 EXP_ASM=1
-OB=chr(0x90)     # open double blacket
-CB=chr(0x91)     # close double blacket
+OB=chr(0x90)     # open double bracket
+CB=chr(0x91)     # close double bracket
 VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
