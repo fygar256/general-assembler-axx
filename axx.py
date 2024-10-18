@@ -401,6 +401,7 @@ def clear_symbol(i):
     return True
 
 def set_symbol(i):
+    global symbols
     if len(i)==0:
         return False
     if len(i)>1 and i[0]!='.setsym':
