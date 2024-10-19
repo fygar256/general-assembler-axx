@@ -34,6 +34,8 @@ In axx, the assembly language source file or the line input from the standard in
 
 #### Explanation of pattern data
 
+The pattern data is user-defined for each individual processor.
+
 The pattern data in the pattern file is arranged as follows:
 
 ```
