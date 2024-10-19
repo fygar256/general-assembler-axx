@@ -204,6 +204,16 @@ To clear all symbols, use `.clearsym`.
 .clearsym
 ```
 
+You can determine the character set to use for symbols from within the pattern file.
+
+```
+.symbolc::<characters>
+```
+
+You can specify characters other than numbers and uppercase and lowercase letters in <characters>.
+
+The default is letters + numbers + '_%$-~&|'.
+
 #### Example of binary output
 
 ```
@@ -251,6 +261,16 @@ To define a label with a label, do the following:
 ```
 label4: .equ label1
 ```
+
+You can determine the character set to be used in the label from within the pattern file.
+
+```
+.labelc::<characters>
+```
+
+You can specify characters other than numbers and uppercase and lowercase letters in <characters>.
+
+The default is letters + numbers + underscore. Only `.` as the first character is allowed in the label.
 
 #### ORG
 
