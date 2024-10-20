@@ -33,6 +33,7 @@ symbols={}
 labels={}
 pat=[]
 expmode=EXP_PAT
+error_undefined_label=False
 align=32
 pas=1
 debug=0
@@ -133,6 +134,7 @@ def getdicval(dic,k):
     return UNDEF
 
 def factor1(s,idx):
+    global error_undefined_label
     x = 0
 
     idx=skipspc(s,idx)
@@ -195,8 +197,9 @@ def factor1(s,idx):
             if issymbol(w)==False:
                 x=getdicval(labels,w)
                 if pas==2 and x==UNDEF:
-                    pass
-                    #print(f"{ln} : {cl} : Undefined label")
+                    error_undefined_label=True
+                else:
+                    error_undefined_label=False
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -600,7 +603,7 @@ def get_label_word(s,idx):
                 break
             t+=upper(s[idx])
             idx+=1
-    return t,idx
+    return t.upper(),idx
 
 def match(s,t):
     t=t.replace(OB,'').replace(CB,'')
@@ -735,10 +738,10 @@ def label_processing(l):
             idx=skipspc(l,idx)
             s=l.replace(' ','')
             u,idx=expression1(l,idx)
-            labels[label]=u
+            labels[label.upper()]=u
             return ""
         else:
-            labels[label]=pc
+            labels[label.upper()]=pc
             return l[idx1:]
     else:
         return l
@@ -800,7 +803,7 @@ def align_processing(l1,l2):
     return True
 
 def printaddr(pc):
-    print("%016x:" % pc,end='')
+    print("%016x: " % pc,end='')
 
 def org_processing(l1,l2):
     global pc
@@ -811,8 +814,9 @@ def org_processing(l1,l2):
     return True
 
 def lineassemble(line):
-    global pc,cl,ln
+    global pc,cl,ln,error_undefined_label
     ln+=1
+    error_undefined_label=False
     cl=line.replace('\n','')
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
@@ -874,9 +878,14 @@ def lineassemble(line):
                 break
     else:
         se=True
-    if se and pas==2:
-        print(f"{ln} : {cl} : error")
-        return False
+
+    if pas==2:
+        if error_undefined_label:
+            print(f"{ln} : {cl} : undefined label error.")
+            return False
+        elif se:
+            print(f"{ln} : {cl} : error.")
+            return False
     pc+=of
     return True
 
