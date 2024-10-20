@@ -13,8 +13,8 @@ import re
 UNDEF = (~(0))
 EXP_PAT=0
 EXP_ASM=1
-OB=chr(0x90)     # open double bracket
-CB=chr(0x91)     # close double bracket
+OB=chr(0x90)     # open double blacket
+CB=chr(0x91)     # close double blacket
 VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
@@ -743,6 +743,49 @@ def label_processing(l):
     else:
         return l
 
+def asciistr(l2):
+    global pc
+    idx=0
+    if l2=='' or l2[idx]!='"':
+        return False
+    idx+=1
+    while idx<len(l2):
+        if l2[idx]=='"':
+            return True
+        if l2[idx:idx+2]=='\\0':
+            idx+=2
+            ch=chr(0)
+        elif l2[idx:idx+2]=='\\t':
+            idx+=2
+            ch='\t'
+        elif l2[idx:idx+2]=='\\n':
+            idx+=2
+            ch='\n'
+        else:
+            ch=l2[idx]
+            idx+=1
+        outbin(pc,ord(ch))
+        pc+=1
+
+def ascii_processing(l1,l2):
+    if upper(l1)!=".ASCII":
+        return False
+
+    f=asciistr(l2)
+    print("")
+    return(f)
+
+def asciiz_processing(l1,l2):
+    global pc
+    if upper(l1)!=".ASCIIZ":
+        return False
+    f=asciistr(l2)
+    if f:
+        outbin(pc,0x00)
+        pc+=1
+    print("")
+    return True
+
 def align_processing(l1,l2):
     global pc,align
 
@@ -771,7 +814,7 @@ def lineassemble(line):
     global pc,cl,ln
     ln+=1
     cl=line.replace('\n','')
-    line=upper(line.replace('\t',' ').replace('\n',''))
+    line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
     if line=='':
@@ -779,8 +822,17 @@ def lineassemble(line):
     line=label_processing(line)
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
+    l=l.rstrip()
+    l2=l2.rstrip()
     l=l.replace(' ','')
     ll2=l2.replace(' ','')
+    if ascii_processing(l,l2):
+        return True
+    if asciiz_processing(l,l2):
+        return True
+    l=l.upper()
+    l2=l2.upper()
+    ll2=ll2.upper()
     if align_processing(l,ll2):
         return True
     if org_processing(l,ll2):
@@ -872,6 +924,7 @@ def main():
             printaddr(pc)
             try:
                 line=input(">> ")
+                line=line.replace("\\\\","\\")
             except EOFError: # EOF
                 break
             lineassemble(line)
