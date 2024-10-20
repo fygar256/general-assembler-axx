@@ -319,6 +319,14 @@ Prefix floating point float (32bit) with '0f'.
 
 For floating-point doubles (float 64bit), prefix them with '0d'.
 
+#### String
+
+.ascii outputs a string, and .asciiz outputs a string with 0x00 at the end.
+
+```
+.ascii "sample1"
+.asciiz "sample2"
+```
 ### Tests of some instructions on some processors
 
 This is a test, so the binary is different from the actual code.
