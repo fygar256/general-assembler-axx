@@ -10,11 +10,11 @@ import struct
 import sys
 import os
 import re
-UNDEF = (~(0))
 EXP_PAT=0
 EXP_ASM=1
 OB=chr(0x90)     # open double blacket
 CB=chr(0x91)     # close double blacket
+UNDEF=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
@@ -40,6 +40,8 @@ debug=0
 cl=""
 ln=0
 vars=[ VAR_UNDEF for i in range(26) ]
+deb1=""
+deb2=""
 
 
 def upper(o):
@@ -194,12 +196,15 @@ def factor1(s,idx):
     else:
         if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
             w,idx=get_label_word(s,idx)
-            if issymbol(w)==False:
-                x=getdicval(labels,w)
-                if pas==2 and x==UNDEF:
-                    error_undefined_label=True
-                else:
-                    error_undefined_label=False
+            x=getdicval(labels,w)
+            #if pas==2:
+            #    if x==UNDEF:
+            #        error_undefined_label=True
+            #        print(f"**{w},{deb1},{deb2}**")
+            #    else:
+            #        error_undefined_label=False
+            #else:
+            #    pass
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -383,13 +388,6 @@ def getsymval(w):
             return symbols[w]
     return "" 
 
-def issymbol(w):
-    l=list(symbols.items())
-    for i in l:
-        if i[0]==w:
-            return w
-    return False
-    
 def readfile(fn):
     f=open(fn,"rt")
     af=f.readlines()
@@ -612,6 +610,7 @@ def get_label_word(s,idx):
     return t.upper(),idx
 
 def match(s,t):
+    global deb1,deb2
     t=t.replace(OB,'').replace(CB,'')
     idx_s=0
     idx_t=0
@@ -619,6 +618,8 @@ def match(s,t):
     idx_t=skipspc(t,idx_t)
     s+=chr(0)
     t+=chr(0)
+    deb1=s
+    deb2=t
     while True:
         idx_s=skipspc(s,idx_s)
         idx_t=skipspc(t,idx_t)
@@ -700,8 +701,6 @@ def remove_brackets(s, l):
 def match0(s,t):
     t=t.replace('[[',OB).replace(']]',CB)
     cnt=t.count(OB)
-    if cnt==0:
-        return(match(s,t))
     sl=[ _+1 for _ in range(cnt) ]
     for i in range(len(sl)+1):
         ll=list(itertools.combinations(sl,i))
@@ -887,14 +886,14 @@ def lineassemble(line):
     else:
         se=True
 
+    pc+=of
     if pas==2:
-        if error_undefined_label:
+        if error_undefined_label==True:
             print(f"{ln} : {cl} : undefined label error.")
             return False
         elif se:
             print(f"{ln} : {cl} : error.")
             return False
-    pc+=of
     return True
 
 def option(l,o):
