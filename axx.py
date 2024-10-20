@@ -562,8 +562,14 @@ def makeobj(s):
             idx+=1
             cnt+=pad(pc+cnt)
             continue
+
+        semicolon=False
+        if s[idx]==';':
+            semicolon=True
+            idx+=1
         (x,idx)=expression0(s,idx)
-        if pas==2:
+
+        if pas==2 and ((semicolon==True and x!=0) or (semicolon==False)):
             outbin(pc+cnt,x)
         cnt+=1
         if s[idx]==',':
@@ -607,10 +613,12 @@ def get_label_word(s,idx):
 
 def match(s,t):
     t=t.replace(OB,'').replace(CB,'')
-    s+=chr(0)
-    t+=chr(0)
     idx_s=0
     idx_t=0
+    idx_s=skipspc(s,idx_s)
+    idx_t=skipspc(t,idx_t)
+    s+=chr(0)
+    t+=chr(0)
     while True:
         idx_s=skipspc(s,idx_s)
         idx_t=skipspc(t,idx_t)
