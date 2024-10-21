@@ -263,9 +263,9 @@ From within the pattern file, you can determine the character set to use for the
 .labelc::<characters>
 ```
 
-allows you to specify ``<characters>` except numbers and lower case alphabetic characters.
+allows you to specify `<characters>` except numbers and lower case alphabetic characters.
 
-The default is alphabet + numbers + underscore. Only at the beginning of a label, `. `` is allowed.
+The default is alphabet + numbers + underscore. Only at the beginning of a label, `.` is allowed.
 
 #### ORG
 
@@ -306,7 +306,7 @@ Floating point double (float 64bit) should be prefixed with '0d'.
 
 #### String
 
-Use ``.ascii`'' to output strings and ``.asciiz`'' to output the byte code of strings with trailing 0x00.
+Use `.ascii` to output strings and `.asciiz` to output the byte code of strings with trailing 0x00.
 
 ```
 .ascii “sample1”
