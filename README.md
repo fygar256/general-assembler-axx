@@ -8,7 +8,7 @@ Arch linux terminal
 
 # Main text
 
-axx.py is a generalized general assembler.
+axx.py is a generalized assembler.
 
 It is not dependent on a particular platform or processor, and ignores the chr(13) at the end of the DOS file.
 
