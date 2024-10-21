@@ -147,7 +147,7 @@ A symbol is a sequence of letters, numbers, and some symbols.
 
 To define symbol2 with symbol1, write the following.
 
-````
+```
 .setsym ::symbol1 ::1
 .setsym ::symbol2 ::#symbol1
 ```
