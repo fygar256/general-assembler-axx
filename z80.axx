@@ -103,44 +103,44 @@ ADD	A,s				::  	0x80|s
 ADC	A,(HL)			::		0x8e
 ADC	A,(IX[[+d]])	::	    0xdd,0x8e,d
 ADC	A,(IY[[+d]])	::	    0xfd,0x8e,d
-ADC A,d             ::      0xce,d
 ADC A,s             ::      0x88|s
+ADC A,d             ::      0xce,d
 
 SUB	A,(HL)			::   	0x96
 SUB	A,(IX[[+n]])	::	    0xdd,0x96,n
 SUB	A,(IY[[+n]])	::	    0xfd,0x96,n
-SUB    A,d          ::      0xd6,d
 SUB	A,s				::  	0x90|s
+SUB    A,d          ::      0xd6,d
 
 SBC	A,(HL)			::   	0x9e
 SBC	A,(IX[[+n]])	::		0xdd,0x9e,n
 SBC	A,(IY[[+n]])	::		0xfd,0x9e,n
-SBC	A,d				::  	0xde,d
 SBC	A,s				::  	0x98|s
+SBC	A,d				::  	0xde,d
 
 AND	A,(HL)		    ::		0xa6
 AND	A,(IX[[+n]])	::	    0xdd,0xa6,n
 AND	A,(IY[[+n]])	::	    0xfd,0xa6,n
-AND	A,d				::  	0xe6|d
 AND A,s             ::      0x10|s
+AND	A,d				::  	0xe6|d
 
 OR	A,(HL)		    ::		0xb6
 OR	A,(IX[[+n]])    ::		0xdd,0xb6,n
 OR	A,(IY[[+n]])	::	    0xfd,0xb6,n
-OR	A,d				::		0xf6,d
 OR  A,s             ::      0xb0|s
+OR	A,d				::		0xf6,d
 
 XOR	A,(HL)			::	    0xae
 XOR	A,(IX[[+n]])	::	    0xdd,0xae,n
 XOR	A,(IY[[+n]])	::    	0xfd,0xae,n
-XOR	A,d				::  	0xee,d
 XOR    A,s          ::      0x18|s
+XOR	A,d				::  	0xee,d
 
 CP	A,(HL)  		::	    0xbe
 CP	A,(IX[[+n]])	::      0xdd,0xbe,n
 CP	A,(IY[[+n]])    ::	    0xfd,0xbe,n
-CP	A,d			    ::		0xfe,d
 CP  A,s             ::      0xb8|s
+CP	A,d			    ::		0xfe,d
 
 BIT	b,s				::	    0xcb,0x40|x<<3|s
 BIT	b,(HL)			::	    0xcb,0x46|x<<3
