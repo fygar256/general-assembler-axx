@@ -275,7 +275,6 @@ ORG is from the assembly line,
 ```
 .org 0x800
 ```
-and the
 
 #### Alignment
 
