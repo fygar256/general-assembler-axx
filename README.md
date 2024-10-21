@@ -182,7 +182,8 @@ ADD A,s
 .setsym ::NC::2
 .setsym ::C ::3
 RET s
-````
+```
+
 In this case, C in ADD A,C is 1 and C in RET C is 3.
 
 Example of a symbol with mixed symbols, numbers, and alphabets
