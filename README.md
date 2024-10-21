@@ -376,7 +376,7 @@ TEST :: 0x12,,0x13
 /* ookakko test
 LD (IX[[+d]]),(IX[[+e]]):: 0xfd,0x04,d,e 
 NOP :: 0x01
-````test.s
+```
 
 test.s
 
