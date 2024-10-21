@@ -209,7 +209,7 @@ The default is alphabet + numbers + `'_%$-~&|'`.
 
 #### Pattern Order
 
-````
+```
 (1) LD A,(HL)
 (2) LD A,d
 ```
