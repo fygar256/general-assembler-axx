@@ -1,11 +1,4 @@
---- axx
-title: General Assembler General Assembler 'axx
-tags: Terminal Python general assembler
-author: fygar256
-slide: false
----tags: general assembler 'axx.py' tags: general assembler 'axx.py'
-
-GENERAL ASSEMBLER 'axx.py'
+# GENERAL ASSEMBLER 'axx.py'
 
 Nickname is Paxx because it was written in python.
 
