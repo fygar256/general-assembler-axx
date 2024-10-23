@@ -24,6 +24,7 @@ salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
 outfile=""
+labfile=""
 pc=0
 padding=0
 alphabet=lower+capital
@@ -31,6 +32,7 @@ lwordchars=digit+alphabet+"_"
 swordchars=digit+alphabet+"_%$-~&|"
 symbols={}
 labels={}
+global_labels={}
 pat=[]
 expmode=EXP_PAT
 error_undefined_label=False
@@ -59,10 +61,11 @@ def upper(o):
     return t
 
 def outbin(a,x):
-    x=int(x)&0xff
-    print(" 0x%02x" % x,end='')
-    if outfile!="":
-        fwrite(outfile,a,x)
+    if pas==2:
+        x=int(x)&0xff
+        print(" 0x%02x" % x,end='')
+        if outfile!="":
+            fwrite(outfile,a,x)
 
 def get_vars(s):
     c=ord(upper(s))
@@ -475,8 +478,10 @@ def remove_comment(l):
 
 def remove_comment_asm(l):
     if ';' in l:
-        return l[0:l.index(';')]
-    return l
+        s=l[0:l.index(';')]
+    else:
+        s=l
+    return s.rstrip()
 
 def get_params1(l,idx):
     idx=skipspc(l,idx)
@@ -810,12 +815,25 @@ def asciistr(l2):
         outbin(pc,ord(ch))
         pc+=1
 
+def global_processing(l1,l2):
+    if upper(l1)!=".GLOBAL":
+        return False
+
+    s,idx=get_label_word(l2,0)
+    v=getdicval(labels,s)
+    if pas==2 and v==UNDEF:
+        error_label_undefined=True
+        return True
+    global_labels[s]=v
+    return True
+
 def ascii_processing(l1,l2):
     if upper(l1)!=".ASCII":
         return False
 
     f=asciistr(l2)
-    print("")
+    if pas==2:
+        print("")
     return(f)
 
 def asciiz_processing(l1,l2):
@@ -826,7 +844,8 @@ def asciiz_processing(l1,l2):
     if f:
         outbin(pc,0x00)
         pc+=1
-    print("")
+    if pas==2:
+        print("")
     return True
 
 def include_pat(l):
@@ -900,6 +919,8 @@ def lineassemble(line):
     if align_processing(l,ll2):
         return True
     if org_processing(l,ll2):
+        return True
+    if global_processing(l,ll2):
         return True
     if  l=="":
         return False
@@ -979,7 +1000,7 @@ def fileassemble(fn):
         ln=lnstack.pop()
 
 def main():
-    global pc,pas,ln,outfile,current_file,pat
+    global pc,pas,ln,outfile,labfile,current_file,pat
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
@@ -991,6 +1012,7 @@ def main():
     if len(sys_argv)>=2:
         pat=readpat(sys_argv[1])
 
+    (sys_argv,labfile)=option(sys_argv,"-l")
     (sys_argv,outfile)=option(sys_argv,'-o')
 
     try:
@@ -1025,6 +1047,12 @@ def main():
         pas=2
         ln=0
         fileassemble(sys_argv[2])
+
+    if labfile!="":
+        h=list(global_labels.items())
+        with open(labfile,"wt") as label_file:
+            for i in h:
+                label_file.write(f"{i[0]}\t{i[1]}\n")
 
 if __name__=='__main__':
     main()
