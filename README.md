@@ -1,4 +1,5 @@
-# GENERAL ASSEMBLER 'axx.py'
+
+GENERAL ASSEMBLER 'axx.py'
 
 Nickname is Paxx because it was written in python.
 
@@ -8,9 +9,11 @@ Arch linux terminal
 
 # Main text
 
-axx.py is a generalized assembler.
+axx.py is a generalized general assembler.
 
-It is not dependent on a particular platform or processor, and ignores the chr(13) at the end of the DOS file.
+Pattern data has no control syntax except assignment. It can be used for binary generation as well as assembly language.
+
+It can be used on any system that runs python.
 
 axx can handle processors of any architecture if you provide pattern data, but it does not support the practical features of a dedicated assembler. The current version is an experimental implementation. We intend to implement the practical features of a dedicated assembler in the future.
 
@@ -36,8 +39,8 @@ The pattern data in a pattern file is arranged as follows.
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
-:
-:
+:: error_patterns :: binary_list
+:: error_patterns :: binary_list
 ```
 
 instruction is optional. error_patterns is optional. binary_list is optional.
@@ -56,6 +59,7 @@ The two types of pattern data are as follows.
 (2) instruction :: error_patterns :: binary_list
 ```
 
+
 #### Comments
 
 If you write `/*` in a pattern file, the lines after `/*` become comments. Currently, it is not possible to close with `*/`. It is only valid after `/*` of the line.
@@ -70,43 +74,10 @@ From the assembly line, both upper and lower case letters are accepted as the sa
 
 A special variable is '$$', which represents the current location counter.
 
-#### Operator Precedence
 
-The operators and precedence are as follows based on python
+#### escape characters
 
-```
-(expression)            Parenthesized expression
-#                       operator that returns the value of symbol
--,~                     negative, bit NOT
-@                       unary operator that returns the number of bits to the right of the highest bit of the subsequent value
-:=                      assignment operator
-**                      multiply by a power
-*,//                    multiplication, integer division
-+,-                     addition, subtraction
-<<,>>                   Shift left, shift right
-&                       bit AND
-|                       bit OR
-^                       bit XOR
-'                       Sign Extension
-<=,<,>,>=,! =,==        Comparison operator
-not(x)                  Logical NOT
-&&                      Logical AND
-||                      Logical OR
-````
-
-There is a `:=` assignment operator. If `d:=24`, the variable d is assigned 24. The value that the assignment operator has is the value that was assigned.
-
-The prefix operator `#` takes the value of the symbol that follows.
-
-The `@` prefix operator `@` returns how many bits of digits the value that follows consists of. This is named the hebimarumatta operator.
-
-The binary operator `'`, `a'24`, takes the 24th bit of a as the sign bit and sign extends (Sign EXtend) it. This is named the SEX operator.
-
-The binary operator `**` is a power.
-
-#### Escape Character
-
-The escape character `\` can be used in instructions.
+The escape character `\` can be used in instruction.
 
 #### error_patterns
 
@@ -183,7 +154,6 @@ ADD A,s
 .setsym ::C ::3
 RET s
 ```
-
 In this case, C in ADD A,C is 1 and C in RET C is 3.
 
 Example of a symbol with mixed symbols, numbers, and alphabets
@@ -192,7 +162,15 @@ Example of a symbol with mixed symbols, numbers, and alphabets
 .setsym ::$s5:: 21
 ```
 
-All symbols are cleared with ``.clearsym``.
+Symbols are cleared with ``.clearsym``.
+
+```
+.clearsym::ax
+```
+
+The above example undefines the symbol ``ax``.
+
+Clearing the entire symbol is done with no arguments.
 
 ```
 .clearsym
@@ -204,23 +182,22 @@ From within the pattern file, you can determine the character set to use for the
 .symbolc::<characters>
 ```
 
-allows you to specify ``<characters>` for characters other than numbers and alphabetic uppercase and lowercase letters.
+allows you to specify ``<characters>`` for characters other than numbers and alphabetic uppercase and lowercase letters.
 
 The default is alphabet + numbers + `'_%$-~&|'`.
 
 #### Pattern Order
 
-```
+````
 (1) LD A,(HL)
 (2) LD A,d
 ```
 
-Pattern files are evaluated from the top, so the first pattern placed first takes precedence. Place special patterns first and general patterns later.
+Pattern files are evaluated from the top, so the pattern placed first takes precedence. Place special patterns first and general patterns later.
 
+#### double-brackets
 
-#### double-big-brackets
-
-The abbreviations in the instruction are enclosed in double quotes. z80's `inc (ix)` instruction is shown here.
+The following is an example of a z80 `inc (ix)` instruction, where the optional parts of the instruction are enclosed in double quotes.
 
 ```
 INC (IX[[+d]]) :: 0xdd,0x34,d
@@ -236,7 +213,15 @@ From pattern file,
 .padding 0x12
 ```
 
-will result in a padding bytecode of 0x12. The default is 0x00.
+will set the byte code for the padding to 0x12. The default is 0x00.
+
+#### include
+
+You can include files like this.
+
+```
+.include “file.axx”
+```
 
 ## Assembly file description
 
@@ -264,9 +249,11 @@ From within the pattern file, you can determine the character set to use for the
 .labelc::<characters>
 ```
 
-allows you to specify `<characters>` except numbers and lower case alphabetic characters.
+allows you to specify ``<characters>`` for characters other than numbers and lowercase alphabetic letters.
 
-The default is alphabet + numbers + underscore. Only at the beginning of a label, `.` is allowed.
+The default is alphabetic + numeric + underscore. Only at the beginning of a label, `. ` is allowed only at the beginning of a label.
+
+A `:` after a label reference checks for undefined label errors. For assembly languages that use `:`, a space after the label reference is required.
 
 #### ORG
 
@@ -275,6 +262,7 @@ ORG is from the assembly line,
 ```
 .org 0x800
 ```
+and the
 
 #### Alignment
 
@@ -288,7 +276,7 @@ will align at 16 (padding to addresses that are multiples of 16 with the byte co
 
 #### Floating point and number notation
 
-For example, suppose we have a processor with floating point as its operand, and `MOVF fa,3.14` loads 3.14 into the fa register and its opcode is 01. In that case, the pattern data is,
+For example, suppose we have a processor with floating point as an operand, and `MOVF fa,3.14` loads 3.14 into the fa register and its opcode is 01. In that case, the pattern data is,
 
 ```
 MOVF FA,d ::0x01,d>>24,d>>16,d>>8,d
@@ -306,18 +294,63 @@ Floating point double (float 64bit) should be prefixed with '0d'.
 
 #### String
 
-Use `.ascii` to output strings and `.asciiz` to output the byte code of strings with trailing 0x00.
+Output the byte code of a string with ``.ascii`` and ``.asciiz`` with trailing 0x00.
 
 ```
 .ascii “sample1”
 .asciiz “sample2”
 ```
 
-#### Comments
+#### include
+
+You can include files like this.
+
+```
+.include “file.s”
+```
+
+#### comments
 
 Assembly line comments are `;`.
 
-## Example of binary output.
+## Operators
+
+#### Operator Precedence
+
+Operators and precedence are as follows based on python
+
+```
+(expression)     Parenthesized expression
+#                operator that returns the value of symbol
+-,~              negative, bit NOT
+@                unary operator that returns the number of bits to the right of the highest bit of the subsequent value
+:=               assignment operator
+**               multiply by a power
+*,//             multiplication, integer division
++,-              addition, subtraction
+<<,>>            Shift left, shift right
+&                bit AND
+|                bit OR
+^                bit XOR
+'                Sign Extension
+<=,<,>,>=,! =,== Comparison operators
+not(x)           Logical NOT
+&&               Logical AND
+||               Logical OR
+```
+
+There is a `:=` assignment operator. If `d:=24`, the variable d is assigned 24. The value that the assignment operator has is the value that was assigned.
+
+The prefix operator `#` takes the value of the symbol that follows.
+
+The `@` prefix operator returns the highest bit of the following value from the right. This is named the Hebimarumatta operator.
+
+The binary operator `'`, `a'24`, sign extends (Sign EXtend) the 24th bit of a with the sign bit. This is named the SEX operator.
+
+The binary operator `**` is a power.
+
+
+## Example of binary output
 
 ```
 .setsym:: BC:: 0x00
@@ -326,13 +359,11 @@ Assembly line comments are `;`.
 LD s,d:: (s&0xf!=0)||(s>>4)>3;9 :: s|0x01,d&0xff,d>>8
 ```
 
-and `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12` respectively.
+and `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output ``0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12` respectively.
 
-### Test some instructions on some processors.
+### Testing some instructions on some processors.
 
 Since this is a test, the binary is different from the actual code.
-
-test.axx
 
 ```test.axx
 /* test
@@ -378,9 +409,7 @@ LD (IX[[+d]]),(IX[[+e]]):: 0xfd,0x04,d,e
 NOP :: 0x01
 ```
 
-test.s
-
-````test.s
+```test.s
 leaq rax , [ rbx , rcx , 2 , 0x40].
 leaq rax , [ rbx + rcx * 2 + 0x40].
 movsb
@@ -389,7 +418,7 @@ addi $v0,$a0,5
 st1 {v0.4s},[x0].
 add r1, r2, r3 lsl #20
 
-````
+```
 
 Execution example
 
@@ -408,37 +437,29 @@ $ axx.py test.axx test.s
 
 Sorry for original notation.
 
-The error check is not so good. It is difficult to make undefined label error in the specification.
+Sorry for original notation.
 
-I was told that it is absurd, but it is not compatible with quantum computers and LISP machines.
-The assembly language of the quantum computer is called quantum assembly, not assembly language.
-The program of LISP machine is not assembly language.
+I was told absurdly, but it does not support quantum computers and LISP machines.
+　The assembly language of the quantum computer is called quantum assembly, not assembly language.
+　LISP machine programs are not assembly language.
 
 Please try from homemade processors to supercomputers. Nyaha.
 
-It is not compatible with runtime variable length byte instructions because it must be equipped with an emulator.
-
-It is possible to assemble processors with less than 8 bits, e.g. bit-sliced processors, or processors where the machine word is not in bytes, but since the output of axx is in bytes, processing is required. Whether or not processing is required also depends on the specifications of the binary file format that may be implemented in the future.
-
-The pattern data is written differently depending on the addressing mode.
+The LISP machine does not support variable length byte instructions at runtime because it must be equipped with an emulator.
 
 Please evaluate and extend and fix this.
 
-Please evaluate and extend and fix this. High readability. It is not dependent on the order of evaluation. It is difficult to distinguish between character constants and undefined labels in the pattern file method. Meta language is still better.
+Please evaluate and extend and fix this. High readability. It does not depend on the order of evaluation. Easier to write control syntax. Easier to debug processor definition files. Meta language is still better.
 
-## Future issues
+For linux, use gpp for macro functions.
 
-The order of evaluation of pattern files is difficult, so we need to do something about it.
+It is possible to assemble processors with less than 8 bits, e.g. bit-sliced processors, or processors whose machine word is not in bytes, but since the output of axx is in bytes, processing is required. Whether processing is necessary or not also depends on the specification of the object file format that may be implemented in the future.
 
-Linker should be able to handle it.
+### For Linux
 
-More error checking.
+In linux, ELF is the de facto standard for object files, so if ELF is supported, the linker and object file problems will be solved at once, and it will be closer to practical use (though it is special). However, the problem is that ELF is in 8-bit units, so if ELF is used, it cannot support processors whose words are not in bytes. So, use option `--elf` to output ELF. Standard (General) Object F
 
-Escape characters in expressions don't work.
-
-Add a macro function.
-
-Binary file format should be supported.
+Translated with DeepL.com (free version)
 
 ### Thanks
 
