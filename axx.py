@@ -39,6 +39,9 @@ pas=1
 debug=0
 cl=""
 ln=0
+current_file=""
+fnstack=[]
+lnstack=[]
 vars=[ VAR_UNDEF for i in range(26) ]
 deb1=""
 deb2=""
@@ -486,8 +489,10 @@ def reduce_spaces(text):
     return re.sub(r'\s{2,}', ' ', text)
 
 def readpat(fn):
-    global pat
+    if fn=='':
+        return []
     f=open(fn,"rt")
+
     p=[]
     w=[]
     while(l:=f.readline()):
@@ -496,30 +501,34 @@ def readpat(fn):
         l=l.replace(chr(13),'')
         l=l.replace('\n','')
         l=reduce_spaces(l)
-        r=[]
-        idx=0
-        while True:
-            s,idx=get_params1(l,idx)
-            r+=[s]
-            if len(l)<=idx:
-                break
-        l=r
-        prev=l[0]
-        l=[_ for _ in l if _]
-        idx=0
-        if len(l)==1:
-            p=[l[0],'','']
-        elif len(l)==2:
-            p=[l[0],'',l[1]]
-        elif len(l)==3:
-            p=[l[0],l[1],l[2]]
+        ww=include_pat(l)
+        if ww:
+            w=w+ww
+            continue
         else:
-            p=["","",""]
-        w.append(p)
+            r=[]
+            idx=0
+            while True:
+                s,idx=get_params1(l,idx)
+                r+=[s]
+                if len(l)<=idx:
+                    break
+            l=r
+            prev=l[0]
+            l=[_ for _ in l if _]
+            idx=0
+            if len(l)==1:
+                p=[l[0],'','']
+            elif len(l)==2:
+                p=[l[0],'',l[1]]
+            elif len(l)==3:
+                p=[l[0],l[1],l[2]]
+            else:
+                p=["","",""]
+            w.append(p)
 
-    pat=w
     f.close()
-    return
+    return w
 
 def fwrite(file_path, position, x):
     with open(file_path, 'r+b') as file:
@@ -552,7 +561,7 @@ def makeobj(s):
     cnt=0
     if pas==2:
         printaddr(pc)
-        print(f"{cl} " ,end='')
+        print(f"{current_file} {ln} {cl} " ,end='')
     while True:
         if s[idx]==chr(0):
             break
@@ -753,6 +762,21 @@ def label_processing(l):
     else:
         return l
 
+def get_string(l2):
+    idx=0
+    idx=skipspc(l2,idx)
+    if l2=='' or l2[idx]!='"':
+        return ""
+    idx+=1
+    s=""
+    while idx<len(l2):
+        if l2[idx]=='"':
+            return s
+        else:
+            s+=l2[idx]
+            idx+=1
+    return s
+
 def asciistr(l2):
     global pc
     idx=0
@@ -794,6 +818,24 @@ def asciiz_processing(l1,l2):
         outbin(pc,0x00)
         pc+=1
     print("")
+    return True
+
+def include_pat(l):
+    idx=skipspc(l,0)
+    i=l[idx:idx+8]
+    i=i.upper()
+    if i!=".INCLUDE":
+        return []
+    s=get_string(l[8:])
+    w=readpat(s)
+    return w
+
+def include_asm(l1,l2):
+    if upper(l1)!=".INCLUDE":
+        return False
+    s=get_string(l2)
+    if s:
+        fileassemble(s)
     return True
 
 def align_processing(l1,l2):
@@ -841,6 +883,8 @@ def lineassemble(line):
         return True
     if asciiz_processing(l,l2):
         return True
+    if include_asm(l,l2):
+        return True
     l=l.upper()
     l2=l2.upper()
     ll2=ll2.upper()
@@ -860,6 +904,7 @@ def lineassemble(line):
         # i はパターンファイルのデータ
         # l はアセンブリライン
         #
+        if i is None: continue
         if set_symbol(i): continue
         if clear_symbol(i): continue
         if paddingp(i): continue
@@ -889,10 +934,10 @@ def lineassemble(line):
     pc+=of
     if pas==2:
         if error_undefined_label==True:
-            print(f"{ln} : {cl} : undefined label error.")
+            print(f"{current_file} : {ln} : {cl} : undefined label error.")
             return False
         elif se:
-            print(f"{ln} : {cl} : error.")
+            print(f"{current_file} : {ln} : {cl} : error.")
             return False
     return True
 
@@ -908,8 +953,24 @@ def option(l,o):
             return l[0:idx],''
     return l,''
 
+def fileassemble(fn):
+    global current_file,fnstack,lnstack,ln
+    
+    fnstack+=[current_file]
+    lnstack+=[ln]
+    current_file=fn
+    ln=0
+    f=open(fn,"rt")
+    af=f.readlines()
+    for i in af:
+        lineassemble(i)
+    f.close()
+    if fnstack:
+        current_file=fnstack.pop()
+        ln=lnstack.pop()
+
 def main():
-    global pc,pas,ln,outfile
+    global pc,pas,ln,outfile,current_file,pat
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
@@ -919,7 +980,7 @@ def main():
     sys_argv=sys.argv
 
     if len(sys_argv)>=2:
-        readpat(sys_argv[1])
+        pat=readpat(sys_argv[1])
 
     (sys_argv,outfile)=option(sys_argv,'-o')
 
@@ -936,6 +997,7 @@ def main():
         pc=0
         pas=2
         ln=0
+        current_file="(stdin)"
         while True:
             printaddr(pc)
             try:
@@ -944,18 +1006,16 @@ def main():
             except EOFError: # EOF
                 break
             lineassemble(line)
+
     elif len(sys_argv)>=3:
-        af=readfile(sys_argv[2])
         pc=0
         pas=1
         ln=0
-        for i in af:
-            lineassemble(i)
+        fileassemble(sys_argv[2])
         pc=0
         pas=2
         ln=0
-        for i in af:
-            lineassemble(i)
+        fileassemble(sys_argv[2])
 
 if __name__=='__main__':
     main()
