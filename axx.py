@@ -198,17 +198,26 @@ def factor1(s,idx):
             idx+=1
     else:
         if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
-            w,idx=get_label_word(s,idx)
-            x=getdicval(labels,w)
-            #if pas==2:
-            #    if x==UNDEF:
-            #        error_undefined_label=True
-            #        print(f"**{w},{deb1},{deb2}**")
-            #    else:
-            #        error_undefined_label=False
-            #else:
-            #    pass
-    idx=skipspc(s,idx)
+            w,idx_new=get_label_word(s,idx)
+            if idx!=idx_new:
+                idx=idx_new
+                if s[idx]==':':
+                    idx+=1
+                    x=getdicval(labels,w)
+                    if pas==2:
+                        if x==UNDEF:
+                            error_undefined_label=True
+                        else:
+                            error_undefined_label=False
+                    else:
+                        pass
+                else:
+                    pass
+            else:
+                pass
+        else:
+            pass
+        idx=skipspc(s,idx)
     return (x,idx)
 
 def term0_0(s,idx):
