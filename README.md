@@ -188,7 +188,7 @@ The default is alphabet + numbers + `'_%$-~&|'`.
 
 #### Pattern Order
 
-````
+```
 (1) LD A,(HL)
 (2) LD A,d
 ```
@@ -424,13 +424,13 @@ Execution example
 
 ```
 $ axx.py test.axx test.s
-00000000000000000000: leaq rax , [ rbx , rcx , 2 , 0x40] 0x48 0x8d 0x04 0x4b 0x40
+0000000000000000: leaq rax , [ rbx , rcx , 2 , 0x40] 0x48 0x8d 0x04 0x4b 0x40
 0000000000000005: leaq rax , [ rbx + rcx * 2 + 0x40] 0x48 0x8d 0x04 0x4b 0x40
 000000000000000a: movsb 0xa4
 000000000000000c: rep movsb 0xf3 0xa4
-0000000000000000000e: addi $v0,$a0,5 0x20 0x82 0x00 0x05
-000000000000000012: st1 {v0.4s},[x0] 0x01 0x00 0x01 0x00
-00000000000000000016: add r1, r2, r3 lsl #20 0x88 0x14
+000000000000000e: addi $v0,$a0,5 0x20 0x82 0x00 0x05
+0000000000000012: st1 {v0.4s},[x0] 0x01 0x00 0x01 0x00
+0000000000000016: add r1, r2, r3 lsl #20 0x88 0x14
 ```
 
 ## Comment.
