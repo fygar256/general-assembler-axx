@@ -819,12 +819,22 @@ def global_processing(l1,l2):
     if upper(l1)!=".GLOBAL":
         return False
 
-    s,idx=get_label_word(l2,0)
-    v=getdicval(labels,s)
-    if pas==2 and v==UNDEF:
-        error_label_undefined=True
-        return True
-    global_labels[s]=v
+    idx=0
+    l2+=chr(0)
+    while l2[idx]!=chr(0):
+        idx=skipspc(l2,idx)
+        s,idx=get_label_word(l2,idx)
+        if s=="":
+            break
+        if l2[idx]==':':
+            idx+=1
+        v=getdicval(labels,s)
+        if pas==2 and v==UNDEF:
+            error_label_undefined=True
+            break
+        global_labels[s]=v
+        if l2[idx]==',':
+            idx+=1
     return True
 
 def ascii_processing(l1,l2):
