@@ -439,8 +439,6 @@ $ axx.py test.axx test.s
 
 Sorry for original notation.
 
-Sorry for original notation.
-
 I was told absurdly, but it does not support quantum computers and LISP machines.
 　The assembly language of the quantum computer is called quantum assembly, not assembly language.
 　LISP machine programs are not assembly language.
@@ -451,17 +449,24 @@ The LISP machine does not support variable length byte instructions at runtime b
 
 Please evaluate and extend and fix this.
 
-Please evaluate and extend and fix this. High readability. It does not depend on the order of evaluation. Easier to write control syntax. Easier to debug processor definition files. Meta language is still better.
+It does not depend on the order of evaluation. Easier to write control syntax. Easier to debug processor definition files. Meta language is still better.
 
 For linux, use gpp for macro functions.
 
 It is possible to assemble processors with less than 8 bits, e.g. bit-sliced processors, or processors whose machine word is not in bytes, but since the output of axx is in bytes, processing is required. Whether processing is necessary or not also depends on the specification of the object file format that may be implemented in the future.
 
-### For Linux
+In the case of Linux
+In linux, ELF is the de facto standard for object files, so if ELF is supported, the linker and object file problems will be solved at once, and it will be closer to practical use (though special). However, the problem is that ELF is in 8-bit units, so if ELF is used, it cannot support processors whose words are not in bytes. So, use option --elf to output ELF. I want a standard (general) object file format. I want it to be compatible with a bare binary file. This must be determined heuristically. According to the file format, there is a concern that for small systems, etc., headers, section table information, symbol information, etc., will get in the way. objcopy should be used for ELF file creation, label (symbol) get,set, and other operations. It's slow, but I can't help with the prototype version. there seems to be no library to create ELF files in python, so I wonder if someone can make one. in ELF, symbols may be all relative values, since there is no case where symbols are defined by symbols. There are only three strong symbols: global, local and shared. The resulting ELF object file will be in executable format if we run it through ld later.
 
-In linux, ELF is the de facto standard for object files, so if ELF is supported, the linker and object file problems will be solved at once, and it will be closer to practical use (though it is special). However, the problem is that ELF is in 8-bit units, so if ELF is used, it cannot support processors whose words are not in bytes. So, use option `--elf` to output ELF. Standard (General) Object F
+Future issues
 
-Translated with DeepL.com (free version)
+The order of evaluation of pattern files is difficult to work out.
+
+Make it linker-compatible. Support object file output.
+
+More error checking.
+
+Escape characters in expressions do not work.
 
 ### Thanks
 
