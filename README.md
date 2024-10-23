@@ -39,11 +39,12 @@ The pattern data in a pattern file is arranged as follows.
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
-:: error_patterns :: binary_list
-:: error_patterns :: binary_list
+::
+::
 ```
 
 instruction is optional. error_patterns is optional. binary_list is optional.
+
 instruction, error_patterns, and binary_list must be separated by `::`.
 
 for ex. (x86_64)
