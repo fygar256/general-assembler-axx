@@ -472,4 +472,4 @@ LISP machine programs are not assembly language.
 
 ### Thanks
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me problems and hints, the University of Electro-Communications, who cooperated with me, and to some other unforgettable guys. Thank you very much.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, IEEE, Qiita, Associate Professor Susumu Yamazaki, and to some other unforgettable guys. Thank you very much.
