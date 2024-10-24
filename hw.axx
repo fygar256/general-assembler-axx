@@ -1,0 +1,6 @@
+MOV RAX,e   ::  0xb8,e,e>>8,e>>16,e>>24
+MOV RDI,e   ::  0xbf,e,e>>8,e>>16,e>>24
+MOV RSI,e::  0x48,0xbe,e,e>>8,e>>16,e>>24,e>>32,e>>40,e>>48,e>>56
+MOV RDX,e   ::  0xba,e,e>>8,e>>16,e>>24
+SYSCALL     ::  0xf,0x5
+DB e        ::  e
