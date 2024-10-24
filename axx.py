@@ -24,7 +24,8 @@ salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
 outfile=""
-labfile=""
+expfile=""
+impfile=""
 pc=0
 padding=0
 alphabet=lower+capital
@@ -202,18 +203,19 @@ def factor1(s,idx):
     else:
         if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
             w,idx_new=get_label_word(s,idx)
+            w=w.upper()
             if idx!=idx_new:
                 idx=idx_new
                 if s[idx]==':':
                     idx+=1
-                    x=getdicval(labels,w)
-                    if pas==2:
-                        if x==UNDEF:
-                            error_undefined_label=True
-                        else:
-                            error_undefined_label=False
+                else:
+                    pass
+                x=getdicval(labels,w)
+                if pas==2:
+                    if x==UNDEF:
+                        error_undefined_label=True
                     else:
-                        pass
+                        error_undefined_label=False
                 else:
                     pass
             else:
@@ -1009,12 +1011,26 @@ def fileassemble(fn):
         current_file=fnstack.pop()
         ln=lnstack.pop()
 
+def imp_label(l):
+    global labels
+    idx=skipspc(l,0)
+    (label,idx)=get_label_word(l,idx)
+    if label=='':
+        return False
+    idx=skipspc(l,idx)
+    (v,new_idx)=expression(l,idx)
+    if new_idx==idx:
+        return False
+    idx=new_idx
+    labels[label.upper()]=v
+    return True
+
 def main():
-    global pc,pas,ln,outfile,labfile,current_file,pat
+    global pc,pas,ln,outfile,expfile,impfile,current_file,pat
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s] [-o outfile.bin]")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s] [-o outfile.bin] [-l export_labels.tsv] [-i import_labels.tsv]")
         return
 
     sys_argv=sys.argv
@@ -1022,8 +1038,17 @@ def main():
     if len(sys_argv)>=2:
         pat=readpat(sys_argv[1])
 
-    (sys_argv,labfile)=option(sys_argv,"-l")
+    (sys_argv,expfile)=option(sys_argv,"-e")
     (sys_argv,outfile)=option(sys_argv,'-o')
+    (sys_argv,impfile)=option(sys_argv,"-i")
+
+#
+# import labels from file
+#
+    if impfile!="":
+        with open(impfile,"rt") as label_file:
+            while (l:=label_file.readline()):
+                imp_label(l)
 
     try:
         os.remove(outfile)
@@ -1058,9 +1083,9 @@ def main():
         ln=0
         fileassemble(sys_argv[2])
 
-    if labfile!="":
+    if expfile!="":
         h=list(global_labels.items())
-        with open(labfile,"wt") as label_file:
+        with open(expfile,"wt") as label_file:
             for i in h:
                 label_file.write(f"{i[0]}\t{i[1]}\n")
 
