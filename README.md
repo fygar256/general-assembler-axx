@@ -34,13 +34,13 @@ Pattern files are user-defined for individual processors.
 
 The pattern data in a pattern file is arranged as follows.
 
-```` instruction :: error_patterns
+```
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
 : :: error_patterns :: binary_list
 : :: error_patterns :: binary_list
-````
+```
 
 instruction is optional. error_patterns is optional. binary_list is optional.
 instruction, error_patterns, and binary_list must be separated by `::`.
@@ -56,7 +56,7 @@ The two types of pattern data are as follows.
 ```
 (1) instruction :: binary_list
 (2) instruction :: error_patterns :: binary_list
-```` (2) instruction :: error_patterns :: binary_list
+```
 
 #### Comments
 
