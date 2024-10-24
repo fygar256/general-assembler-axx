@@ -38,8 +38,8 @@ The pattern data in a pattern file is arranged as follows.
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
 instruction :: error_patterns :: binary_list 
-: :: error_patterns :: binary_list
-: :: error_patterns :: binary_list
+:
+:
 ```
 
 instruction is optional. error_patterns is optional. binary_list is optional.
@@ -94,7 +94,7 @@ binary_list specifies the codes to be output, separated by ','. For example, 0x0
 
 Take 8048 as an example. If the pattern file contains
 
-````
+```
 ADD A,Rn :: n>7;5 :: n|0x68
 ```
 
@@ -116,7 +116,7 @@ A symbol is a sequence of letters, numbers, and some symbols.
 
 To define symbol2 with symbol1, write the following.
 
-````
+```
 .setsym ::symbol1 ::1
 .setsym ::symbol2 ::#symbol1
 ```
@@ -135,7 +135,7 @@ Here is an example of z80 in the symbol definition. In the pattern file
 .setsym ::DE ::0x10
 .setsym ::HL ::0x20
 .setsym ::SP ::0x30
-````
+```
 
 is written to define the symbols B,C,D,E,H,L,A,BC,DE,HL,SP as 0,1,2,3,4,5,7,0x00,0x10,0x20,0x30 respectively. Symbols are case-insensitive.
 
@@ -151,7 +151,7 @@ ADD A,s
 .setsym ::NC::2
 .setsym ::C ::3
 RET s
-````
+```
 In this case, C in ADD A,C is 1 and C in RET C is 3.
 
 Example of a symbol with mixed symbols, numbers, and alphabets
@@ -205,7 +205,9 @@ In this case, the initial value of the lowercase variable is 0, so if you specif
 
 #### Specifying the padding bytecode
 
-If you specify ```
+If you specify 
+
+```
 .padding 0x12
 ```
 
@@ -369,7 +371,7 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 
 Because this is a test, the binary is different from the actual code.
 
-````test.axx
+```test.axx
 /* test
 .setsym ::a:: 7
 .setsym ::b:: 1
