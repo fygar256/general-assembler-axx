@@ -69,5 +69,4 @@ def writesections(fn):
 
 if __name__=='__main__':
     readsections(sys.argv[1])
-    print(sections)
     writesections(sys.argv[2])
