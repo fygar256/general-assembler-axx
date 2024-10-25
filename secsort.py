@@ -1,9 +1,14 @@
 #!/usr/bin/python
 import sys
-import axx
 pas=0
 current_section=".default"
 sections={ '.default' :['']}
+capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+lower="abcdefghijklmnopqrstuvwxyz"
+digit='0123456789'
+alphabet=lower+capital
+lwordchars=lower+capital+digit+"_"
+
 
 def skipspc(s,idx):
     while len(s)>idx:
@@ -17,11 +22,11 @@ def skipspc(s,idx):
 def get_label_word(s,idx):
     idx=skipspc(s,idx)
     t=""
-    if len(s)>idx and (s[idx]=='.' or s[idx] in axx.lwordchars):
+    if len(s)>idx and (s[idx]=='.' or s[idx] in lwordchars):
         t=s[idx]
         idx+=1
         while len(s)>idx:
-            if not s[idx] in axx.lwordchars : 
+            if not s[idx] in lwordchars : 
                 break
             t+=s[idx]
             idx+=1
@@ -53,7 +58,6 @@ def readsections(infile):
 def writesections(fn):
     with open(fn,"wt") as outfile:
         l=list(sections.items())
-        print(l)
         for i in l:
             (a,b)=i
             outfile.write(".section    ")
