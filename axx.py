@@ -579,7 +579,6 @@ def makeobj(s):
     idx=0
     cnt=0
     if pas==2:
-        printaddr(pc)
         print(f"{current_file} {ln} {cl} " ,end='')
     while True:
         if s[idx]==chr(0):
@@ -603,7 +602,7 @@ def makeobj(s):
             continue
         break
 
-    if pas==2:
+    if pas==2 and cnt!=0:
         print("")
     return cnt
 
@@ -983,10 +982,10 @@ def lineassemble(line):
     pc+=of
     if pas==2:
         if error_undefined_label==True:
-            print(f"{current_file} : {ln} : {cl} : undefined label error.")
+            print(f"{current_file} : {ln} {cl}: undefined label error.")
             return False
         elif se:
-            print(f"{current_file} : {ln} : {cl} : error.")
+            print(f"{current_file} : {ln} {cl}: error.")
             return False
     return True
 
@@ -1082,9 +1081,11 @@ def main():
         pass
     else:
         pass
+
     if outfile:
         f=open(outfile,"wb")
         f.close()
+
     if len(sys_argv)==2:
         pc=0
         pas=2
@@ -1097,6 +1098,9 @@ def main():
                 line=line.replace("\\\\","\\")
             except EOFError: # EOF
                 break
+            line=line.strip()
+            if line=="":
+                continue
             lineassemble(line)
 
     elif len(sys_argv)>=3:
