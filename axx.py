@@ -43,6 +43,7 @@ debug=0
 cl=""
 ln=0
 current_file=""
+current_section=".text"
 fnstack=[]
 lnstack=[]
 vars=[ VAR_UNDEF for i in range(26) ]
@@ -134,13 +135,24 @@ def factor(s,idx):
         (x,idx)=factor1(s,idx)
     return (x,idx)
 
-def getdicval(dic,k):
-    k=k.upper()
-    l=list(dic.keys())
+def get_label_section(k):
+    l=list(labels.keys())
     for i in l:
         if i==k:
-            return dic[k]
+            return labels[k][1]
     return UNDEF
+
+def get_label_value(k):
+    l=list(labels.keys())
+    for i in l:
+        if i==k:
+            return labels[k][0]
+    return UNDEF
+
+def put_label_value(k,v,s):
+    global labels
+    labels[k]=[v,s]
+    return True
 
 def factor1(s,idx):
     global error_undefined_label
@@ -203,14 +215,13 @@ def factor1(s,idx):
     else:
         if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
             w,idx_new=get_label_word(s,idx)
-            w=w.upper()
             if idx!=idx_new:
                 idx=idx_new
                 if s[idx]==':':
                     idx+=1
                 else:
                     pass
-                x=getdicval(labels,w)
+                x=get_label_value(w)
                 if pas==2:
                     if x==UNDEF:
                         error_undefined_label=True
@@ -630,9 +641,9 @@ def get_label_word(s,idx):
         while len(s)>idx:
             if not s[idx] in lwordchars : 
                 break
-            t+=upper(s[idx])
+            t+=s[idx]
             idx+=1
-    return t.upper(),idx
+    return t,idx
 
 def match(s,t):
     global deb1,deb2
@@ -770,10 +781,10 @@ def label_processing(l):
             idx=skipspc(l,idx)
             s=l.replace(' ','')
             u,idx=expression1(l,idx)
-            labels[label.upper()]=u
+            put_label_value(label,u,current_section)
             return ""
         else:
-            labels[label.upper()]=pc
+            put_label_value(label,pc,current_section)
             return l[idx1:]
     else:
         return l
@@ -830,11 +841,12 @@ def global_processing(l1,l2):
             break
         if l2[idx]==':':
             idx+=1
-        v=getdicval(labels,s)
+        v=get_label_value(s)
+        sec=get_label_section(s)
         if pas==2 and v==UNDEF:
             error_label_undefined=True
             break
-        global_labels[s]=v
+        global_labels[s]=[v,sec]
         if l2[idx]==',':
             idx+=1
     return True
@@ -876,6 +888,16 @@ def include_asm(l1,l2):
     s=get_string(l2)
     if s:
         fileassemble(s)
+    return True
+
+def section_processing(l1,l2):
+    global current_section
+
+    if upper(l1)!=".SECTION":
+        return False
+
+    if l2!='':
+        current_section=l2
     return True
 
 def align_processing(l1,l2):
@@ -925,14 +947,13 @@ def lineassemble(line):
         return True
     if include_asm(l,l2):
         return True
-    l=l.upper()
-    l2=l2.upper()
-    ll2=ll2.upper()
     if align_processing(l,ll2):
         return True
     if org_processing(l,ll2):
         return True
     if global_processing(l,ll2):
+        return True
+    if section_processing(l,ll2):
         return True
     if  l=="":
         return False
@@ -1014,6 +1035,8 @@ def fileassemble(fn):
 def imp_label(l):
     global labels
     idx=skipspc(l,0)
+    (section,idx)=get_label_word(l,idx)
+    idx=skipspc(l,0)
     (label,idx)=get_label_word(l,idx)
     if label=='':
         return False
@@ -1022,7 +1045,7 @@ def imp_label(l):
     if new_idx==idx:
         return False
     idx=new_idx
-    labels[label.upper()]=v
+    put_label_value(label,v,section)
     return True
 
 def main():
@@ -1042,9 +1065,6 @@ def main():
     (sys_argv,outfile)=option(sys_argv,'-o')
     (sys_argv,impfile)=option(sys_argv,"-i")
 
-#
-# import labels from file
-#
     if impfile!="":
         with open(impfile,"rt") as label_file:
             while (l:=label_file.readline()):
@@ -1087,7 +1107,7 @@ def main():
         h=list(global_labels.items())
         with open(expfile,"wt") as label_file:
             for i in h:
-                label_file.write(f"{i[0]}\t{i[1]:#x}\n")
+                label_file.write(f"{i[1][1]}\t{i[0]}\t{i[1][0]:#x}\n")
 
 if __name__=='__main__':
     main()
