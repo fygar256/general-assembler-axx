@@ -1030,7 +1030,7 @@ def main():
 
     if len(sys.argv)==1:
         print("axx general assembler programmed and designed by Taisuke Maekawa")
-        print("Usage: python axx.py patternfile.axx [sourcefile.s] [-o outfile.bin] [-l export_labels.tsv] [-i import_labels.tsv]")
+        print("Usage: python axx.py patternfile.axx [sourcefile.s] [-o outfile.bin] [-e export_labels.tsv] [-i import_labels.tsv]")
         return
 
     sys_argv=sys.argv
@@ -1087,7 +1087,7 @@ def main():
         h=list(global_labels.items())
         with open(expfile,"wt") as label_file:
             for i in h:
-                label_file.write(f"{i[0]}\t{i[1]}\n")
+                label_file.write(f"{i[0]}\t{i[1]:#x}\n")
 
 if __name__=='__main__':
     main()
