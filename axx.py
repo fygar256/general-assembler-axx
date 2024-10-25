@@ -1016,18 +1016,38 @@ def option(l,o):
             return l[0:idx],''
     return l,''
 
+def file_input_from_stdin():
+    af=""
+    while True:
+        line=sys.stdin.readline().strip()
+        if line=='':
+            break
+        af+=line+'\n'
+    return af
+
 def fileassemble(fn):
-    global current_file,fnstack,lnstack,ln
+    global current_file,fnstack,lnstack,ln,lines
     
     fnstack+=[current_file]
     lnstack+=[ln]
     current_file=fn
     ln=0
-    f=open(fn,"rt")
-    af=f.readlines()
+    if fn!="stdin":
+        f=open(fn,"rt")
+        af=f.readlines()
+        f.close()
+    else:
+        if pas==2:
+            with open("stdin.tmp","rt") as stdintmp:
+                af=stdintmp.readlines()
+        else:
+            af=file_input_from_stdin()
+            with open("stdin.tmp","wt") as stdintmp:
+                stdintmp.write(af)
+
     for i in af:
         lineassemble(i)
-    f.close()
+
     if fnstack:
         current_file=fnstack.pop()
         ln=lnstack.pop()
@@ -1097,11 +1117,11 @@ def main():
         pc=0
         pas=1
         ln=0
-        fileassemble(sys_argv[2])
+        fileassemble(sys.argv[2])
         pc=0
         pas=2
         ln=0
-        fileassemble(sys_argv[2])
+        fileassemble(sys.argv[2])
 
     if expfile!="":
         h=list(global_labels.items())
