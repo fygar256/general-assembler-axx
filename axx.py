@@ -5,6 +5,7 @@
 #
 
 import string as str
+import subprocess
 import itertools
 import struct
 import sys
@@ -43,7 +44,7 @@ debug=0
 cl=""
 ln=0
 current_file=""
-current_section=""
+current_section=".default"
 fnstack=[]
 lnstack=[]
 vars=[ VAR_UNDEF for i in range(26) ]
@@ -1032,18 +1033,19 @@ def fileassemble(fn):
     lnstack+=[ln]
     current_file=fn
     ln=0
-    if fn!="stdin":
-        f=open(fn,"rt")
-        af=f.readlines()
-        f.close()
-    else:
-        if pas==2:
-            with open("stdin.tmp","rt") as stdintmp:
-                af=stdintmp.readlines()
-        else:
+
+    if fn=="stdin" or fn=="stdin.tmp":
+        if pas!=2:
             af=file_input_from_stdin()
             with open("stdin.tmp","wt") as stdintmp:
                 stdintmp.write(af)
+        else:
+            pass
+        fn="stdin.tmp"
+    result = subprocess.run(["secsort.py", "stdin.tmp","axx.tmp"], capture_output=True, text=True)
+
+    with open(fn,"rt") as f:
+        af=f.readlines()
 
     for i in af:
         lineassemble(i)
