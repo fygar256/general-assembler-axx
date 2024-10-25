@@ -390,6 +390,7 @@ def term10(s,idx):
 
 def expression(s,idx):
     s+=chr(0)
+    idx=skipspc(s,idx)
     (x,idx)=term10(s,idx)
     return (x,idx)
 
@@ -413,12 +414,6 @@ def getsymval(w):
             return symbols[w]
     return "" 
 
-def readfile(fn):
-    f=open(fn,"rt")
-    af=f.readlines()
-    f.close()
-    return af
-    
 def clear_symbol(i):
     global symbols
     if len(i)==0:
@@ -640,7 +635,8 @@ def get_label_word(s,idx):
                 break
             t+=s[idx]
             idx+=1
-        if s[idx]==':':
+
+        if len(s)>idx and s[idx]==':':
             idx+=1
     return t,idx
 
@@ -767,25 +763,20 @@ def error(s):
 def label_processing(l):
     if l=="":
         return ""
+
     label,idx=get_label_word(l,0)
-    if idx!=0:
-        if pas==2 and len(label)<2:
-            print("Label too short")
-            return "" 
+    lidx=idx
+    if label!="" and l[idx-1]==':':
         idx=skipspc(l,idx)
-        idx1=idx
         e,idx=get_param_to_spc(l,idx)
-        if upper(e)=='.EQU':
-            idx=skipspc(l,idx)
-            s=l.replace(' ','')
+        if e.upper()=='.EQU':
             u,idx=expression1(l,idx)
             put_label_value(label,u,current_section)
             return ""
         else:
             put_label_value(label,pc,current_section)
-            return l[idx1:]
-    else:
-        return l
+            return l[lidx:]
+    return l
 
 def get_string(l2):
     idx=0
@@ -936,20 +927,19 @@ def lineassemble(line):
     l=l.rstrip()
     l2=l2.rstrip()
     l=l.replace(' ','')
-    ll2=l2.replace(' ','')
+    if section_processing(l,l2):
+        return True
     if ascii_processing(l,l2):
         return True
     if asciiz_processing(l,l2):
         return True
     if include_asm(l,l2):
         return True
-    if align_processing(l,ll2):
+    if align_processing(l,l2):
         return True
-    if org_processing(l,ll2):
+    if org_processing(l,l2):
         return True
-    if global_processing(l,ll2):
-        return True
-    if section_processing(l,ll2):
+    if global_processing(l,l2):
         return True
     if  l=="":
         return False
@@ -1029,20 +1019,16 @@ def fileassemble(fn):
     current_file=fn
     ln=0
 
-    if fn=="stdin" or fn=="stdin.tmp":
+    if fn=="stdin":
         if pas!=2:
             af=file_input_from_stdin()
-            with open("stdin.tmp","wt") as stdintmp:
+            with open("axx.tmp","wt") as stdintmp:
                 stdintmp.write(af)
         else:
             pass
         fn="axx.tmp"
 
-        result = subprocess.run(["secsort.py", "stdin.tmp","axx.tmp"], capture_output=True, text=True)
-    else:
-        result = subprocess.run(["secsort.py", fn,"axx.tmp"], capture_output=True, text=True)
-
-    with open("axx.tmp","rt") as f:
+    with open(fn,"rt") as f:
         af=f.readlines()
 
     for i in af:
