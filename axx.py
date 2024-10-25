@@ -218,10 +218,6 @@ def factor1(s,idx):
             w,idx_new=get_label_word(s,idx)
             if idx!=idx_new:
                 idx=idx_new
-                if s[idx]==':':
-                    idx+=1
-                else:
-                    pass
                 x=get_label_value(w)
                 if pas==2:
                     if x==UNDEF:
@@ -624,7 +620,7 @@ def isword(s,idx):
 
 def get_symbol_word(s,idx):
     t=""
-    if len(s)>idx and (s[idx]=='.' or not s[idx] in digit and s[idx] in swordchars):
+    if len(s)>idx and (not s[idx] in digit and s[idx] in swordchars):
         t=s[idx]
         idx+=1
         while len(s)>idx:
@@ -640,9 +636,11 @@ def get_label_word(s,idx):
         t=s[idx]
         idx+=1
         while len(s)>idx:
-            if not s[idx] in lwordchars : 
+            if not s[idx] in lwordchars: 
                 break
             t+=s[idx]
+            idx+=1
+        if s[idx]==':':
             idx+=1
     return t,idx
 
@@ -770,8 +768,7 @@ def label_processing(l):
     if l=="":
         return ""
     label,idx=get_label_word(l,0)
-    if len(l)>idx and l[idx]==':':
-        idx+=1
+    if idx!=0:
         if pas==2 and len(label)<2:
             print("Label too short")
             return "" 
@@ -840,8 +837,6 @@ def global_processing(l1,l2):
         s,idx=get_label_word(l2,idx)
         if s=="":
             break
-        if l2[idx]==':':
-            idx+=1
         v=get_label_value(s)
         sec=get_label_section(s)
         if pas==2 and v==UNDEF:
@@ -1041,10 +1036,13 @@ def fileassemble(fn):
                 stdintmp.write(af)
         else:
             pass
-        fn="stdin.tmp"
-    result = subprocess.run(["secsort.py", "stdin.tmp","axx.tmp"], capture_output=True, text=True)
+        fn="axx.tmp"
 
-    with open(fn,"rt") as f:
+        result = subprocess.run(["secsort.py", "stdin.tmp","axx.tmp"], capture_output=True, text=True)
+    else:
+        result = subprocess.run(["secsort.py", fn,"axx.tmp"], capture_output=True, text=True)
+
+    with open("axx.tmp","rt") as f:
         af=f.readlines()
 
     for i in af:
