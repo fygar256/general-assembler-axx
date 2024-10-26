@@ -159,11 +159,19 @@ def get_label_value(k):
 def put_label_value(k,v,s):
     global error_already_defined
     if pas==1 or pas==0:
+
         for i in list(labels.keys()):
             if i==k:
                 error_already_defined=True
                 print(f"{current_file} : {ln} {cl}: label already defined.")
                 return False
+
+    for i in list(symbols.keys()):
+        print(i)
+        if i==k:
+            print(f"{current_file} : {ln} {cl}: \'{k}\' is a pattern file symbol.")
+            return False
+
     error_already_defined=False
     labels[k]=[v,s]
     return True
@@ -925,7 +933,11 @@ def lineassemble(line):
     line=remove_comment_asm(line)
     if line=='':
         return False
+
+    for i in pat:
+        if set_symbol(i): continue
     line=label_processing(line)
+
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
     l=l.rstrip()
