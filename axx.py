@@ -38,8 +38,9 @@ global_labels={}
 pat=[]
 expmode=EXP_PAT
 error_undefined_label=False
+error_already_defined=False
 align=32
-pas=1
+pas=0
 debug=0
 cl=""
 ln=0
@@ -64,7 +65,7 @@ def upper(o):
     return t
 
 def outbin(a,x):
-    if pas==2:
+    if pas==2 or pas==0:
         x=int(x)&0xff
         print(" 0x%02x" % x,end='')
         if outfile!="":
@@ -137,26 +138,37 @@ def factor(s,idx):
     return (x,idx)
 
 def get_label_section(k):
+    global error_label_undefined
     l=list(labels.keys())
     for i in l:
         if i==k:
+            error_label_undefined=False
             return labels[k][1]
+    error_label_undefined=True
     return UNDEF
 
 def get_label_value(k):
-    l=list(labels.keys())
-    for i in l:
+    global error_label_undefined
+    for i in list(labels.keys()):
         if i==k:
+            error_label_undefined=False
             return labels[k][0]
+    error_label_undefined=True
     return UNDEF
 
 def put_label_value(k,v,s):
-    global labels
+    global error_already_defined
+    if pas==1 or pas==0:
+        for i in list(labels.keys()):
+            if i==k:
+                error_already_defined=True
+                print(f"{current_file} : {ln} {cl}: label already defined.")
+                return False
+    error_already_defined=False
     labels[k]=[v,s]
     return True
 
 def factor1(s,idx):
-    global error_undefined_label
     x = 0
 
     idx=skipspc(s,idx)
@@ -219,13 +231,6 @@ def factor1(s,idx):
             if idx!=idx_new:
                 idx=idx_new
                 x=get_label_value(w)
-                if pas==2:
-                    if x==UNDEF:
-                        error_undefined_label=True
-                    else:
-                        error_undefined_label=False
-                else:
-                    pass
             else:
                 pass
         else:
@@ -578,7 +583,7 @@ def makeobj(s):
     s+=chr(0)
     idx=0
     cnt=0
-    if pas==2:
+    if pas==2 or pas==0:
         print(f"{current_file} {ln} {cl} " ,end='')
     while True:
         if s[idx]==chr(0):
@@ -594,7 +599,7 @@ def makeobj(s):
             idx+=1
         (x,idx)=expression0(s,idx)
 
-        if pas==2 and ((semicolon==True and x!=0) or (semicolon==False)):
+        if (pas==2 or pas==0) and ((semicolon==True and x!=0) or (semicolon==False)):
             outbin(pc+cnt,x)
         cnt+=1
         if s[idx]==',':
@@ -602,7 +607,7 @@ def makeobj(s):
             continue
         break
 
-    if pas==2 and cnt!=0:
+    if (pas==2 or pas==0) and cnt!=0:
         print("")
     return cnt
 
@@ -753,7 +758,7 @@ def error(s):
         if s[idx]==';':
             idx+=1
         t,idx=expression0(s,idx)
-        if pas==2 and u:
+        if (pas==2 or pas==0) and u:
             print(f"error code : {t}")
             error_occured=True
 
@@ -816,8 +821,9 @@ def asciistr(l2):
         outbin(pc,ord(ch))
         pc+=1
 
-def global_processing(l1,l2):
-    if upper(l1)!=".GLOBAL":
+def export_processing(l1,l2):
+    global global_labels
+    if upper(l1)!=".EXPORT":
         return False
 
     idx=0
@@ -827,11 +833,10 @@ def global_processing(l1,l2):
         s,idx=get_label_word(l2,idx)
         if s=="":
             break
+        if l2[idx]==':':
+            idx+=1
         v=get_label_value(s)
         sec=get_label_section(s)
-        if pas==2 and v==UNDEF:
-            error_label_undefined=True
-            break
         global_labels[s]=[v,sec]
         if l2[idx]==',':
             idx+=1
@@ -842,7 +847,7 @@ def ascii_processing(l1,l2):
         return False
 
     f=asciistr(l2)
-    if pas==2:
+    if (pas==2 or pas==0):
         print("")
     return(f)
 
@@ -854,7 +859,7 @@ def asciiz_processing(l1,l2):
     if f:
         outbin(pc,0x00)
         pc+=1
-    if pas==2:
+    if (pas==2 or pas==0):
         print("")
     return True
 
@@ -938,7 +943,7 @@ def lineassemble(line):
         return True
     if org_processing(l,l2):
         return True
-    if global_processing(l,l2):
+    if export_processing(l,l2):
         return True
     if  l=="":
         return False
@@ -980,11 +985,12 @@ def lineassemble(line):
         se=True
 
     pc+=of
-    if pas==2:
-        if error_undefined_label==True:
+
+    if (pas==2 or pas==0):
+        if error_undefined_label:
             print(f"{current_file} : {ln} {cl}: undefined label error.")
             return False
-        elif se:
+        if se:
             print(f"{current_file} : {ln} {cl}: error.")
             return False
     return True
@@ -1019,7 +1025,7 @@ def fileassemble(fn):
     ln=0
 
     if fn=="stdin":
-        if pas!=2:
+        if pas!=2 and pas!=0:
             af=file_input_from_stdin()
             with open("axx.tmp","wt") as stdintmp:
                 stdintmp.write(af)
@@ -1027,8 +1033,9 @@ def fileassemble(fn):
             pass
         fn="axx.tmp"
 
-    with open(fn,"rt") as f:
-        af=f.readlines()
+    f=open(fn,"rt")
+    af=f.readlines()
+    f.close()
 
     for i in af:
         lineassemble(i)
@@ -1088,7 +1095,7 @@ def main():
 
     if len(sys_argv)==2:
         pc=0
-        pas=2
+        pas=0
         ln=0
         current_file="(stdin)"
         while True:
