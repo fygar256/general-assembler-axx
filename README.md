@@ -308,12 +308,12 @@ You can include a file like this.
 .include "file.s"
 ```
 
-#### global
+#### export
 
-You can specify a label globally like this. Only the label specified by the .global command will be exported.
+You can specify a label to export like this. Only the label specified by the .export command will be exported.
 
 ```
-.global label
+.export label
 ```
 
 #### section
