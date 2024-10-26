@@ -316,6 +316,42 @@ You can specify a label globally like this. Only the label specified by the .glo
 .global label
 ```
 
+#### section
+
+You can specify the section as follows.
+
+```
+.section .text
+```
+
+#### section sort
+
+For example,
+
+```
+.section .text
+ld a,9
+.section .data
+.asciiz "test1"
+.section .text
+ld b,9
+.section .data
+db 0x12
+```
+
+If you do this, the text will be arranged exactly as it is, so use section sort to sort it.
+
+Use like this: `chmod +x secsort.py` and `./secsort.py infile.s >outfile.s`
+
+```
+.section .text
+ld a,9
+ld b,9
+.section .data
+.asciiz "test1"
+db 0x12
+```
+
 #### comment
 
 Assembly line comments are `;`.
