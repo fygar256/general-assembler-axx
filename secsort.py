@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys
+
 pas=0
 current_section=".default"
 sections={ '.default' :['']}
@@ -32,14 +33,14 @@ def get_label_word(s,idx):
             idx+=1
     return t,idx
 
-def readsections(infile):
+def readsections(fn):
     global sections,current_section
-    with open(infile,"rt") as inf:
+    with open(fn,"rt") as file:
         while True:
-            l=inf.readline().replace(chr(13),'')
+            l=file.readline().replace(chr(13),'')
             if l=='':
                 return True
-            l=l.replace('\n','')
+            l=l.strip()
 
             (sec,idx)=get_label_word(l,0)
             if sec.upper()==".SECTION":
@@ -49,24 +50,31 @@ def readsections(infile):
                 else:
                     current_section=secname
                     continue
+            elif sec.upper()==".INCLUDE":
+                idx=skipspc(l,idx)
+                if l[idx]=='"':
+                    idx+=1
+                fn=""
+                while True:
+                    if len(l)<=idx or l[idx]=='"':
+                        break
+                    fn+=l[idx]
+                    idx+=1
+                readsections(fn)
             else:
                 if current_section in sections:
                     sections[current_section]=sections[current_section]+[l]
                 else:
                     sections[current_section]=[l]
 
-def writesections(fn):
-    with open(fn,"wt") as outfile:
-        l=list(sections.items())
-        for i in l:
-            (a,b)=i
-            outfile.write(".section    ")
-            outfile.write(a)
-            outfile.write('\n')
-            for k in b:
-                outfile.write(k)
-                outfile.write('\n')
+def writesections():
+    l=list(sections.items())
+    for i in l:
+        (a,b)=i
+        print(".section    ",a)
+        for k in b:
+            print(k)
 
 if __name__=='__main__':
     readsections(sys.argv[1])
-    writesections(sys.argv[2])
+    writesections()
