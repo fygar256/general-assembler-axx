@@ -167,7 +167,6 @@ def put_label_value(k,v,s):
                 return False
 
     for i in list(symbols.keys()):
-        print(i)
         if i==k:
             print(f"{current_file} : {ln} {cl}: \'{k}\' is a pattern file symbol.")
             return False
