@@ -19,8 +19,7 @@ UNDEF=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-ealphabet="abcdefg"
-falphabet="hijklmn"
+ealphabet="abcdefghijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
@@ -138,22 +137,23 @@ def factor(s,idx):
     return (x,idx)
 
 def get_label_section(k):
-    global error_label_undefined
+    global error_undefined_label
     l=list(labels.keys())
     for i in l:
         if i==k:
-            error_label_undefined=False
+            error_undefine_label=False
             return labels[k][1]
-    error_label_undefined=True
+    error_undefined_label=True
     return UNDEF
 
 def get_label_value(k):
-    global error_label_undefined
+    global error_undefined_label
     for i in list(labels.keys()):
         if i==k:
-            error_label_undefined=False
+            error_undefined_label=False
+            print("###",labels[k][0])
             return labels[k][0]
-    error_label_undefined=True
+    error_undefined_label=True
     return UNDEF
 
 def put_label_value(k,v,s):
@@ -682,16 +682,12 @@ def match(s,t):
             idx_s+=1
             continue
         elif a.isupper():
-            if a==upper(b):
+            if a==b.upper():
                 idx_s+=1
                 idx_t+=1
                 continue
             else:
                 return False
-        elif a in falphabet:
-              idx_t+=1
-              (v,idx_s)=factor(s,idx_s)
-              put_vars(a,v)
         elif a in ealphabet:
               idx_t+=1
               (v,idx_s)=expression1(s,idx_s)
@@ -756,7 +752,7 @@ def error(s):
     ch=','
     s+=chr(0)
     idx=0
-    error_occured=False
+    error_code=0
     while (ch:=s[idx])!=chr(0):
         if ch==',':
             idx+=1
@@ -766,10 +762,10 @@ def error(s):
             idx+=1
         t,idx=expression0(s,idx)
         if (pas==2 or pas==0) and u:
-            print(f"error code : {t}")
-            error_occured=True
+            print(f"error code {t}: ")
+            error_code=t
 
-    return error_occured
+    return error_code
 
 def label_processing(l):
     if l=="":
@@ -924,8 +920,8 @@ def org_processing(l1,l2):
 
 def lineassemble(line):
     global pc,cl,ln,error_undefined_label
-    ln+=1
     error_undefined_label=False
+    ln+=1
     cl=line.replace('\n','')
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
@@ -983,15 +979,9 @@ def lineassemble(line):
             break
         if match0(lin,i[0])==True:
             if lw==3:
-                if error(i[1]):
-                    of = 0
-                    break
-                else:
-                    of=makeobj(i[2])
-                    break
-            else:
-                of=makeobj(i[2])
-                break
+                error(i[1])
+            of=makeobj(i[2])
+            break
     else:
         se=True
 
