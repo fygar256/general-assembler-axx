@@ -27,7 +27,7 @@ def get_label_word(s,idx):
         t=s[idx]
         idx+=1
         while len(s)>idx:
-            if not s[idx] in lwordchars : 
+            if not s[idx] in lwordchars: 
                 break
             t+=s[idx]
             idx+=1
@@ -50,6 +50,16 @@ def readsections(fn):
                 else:
                     current_section=secname
                     continue
+            elif sec.upper()==".LABELC":
+                idx=skipspc(l,idx)
+                ss=""
+                while True:
+                    if len(l)<=idx or l[idx]=='"':
+                        break
+                    ss+=l[idx]
+                    idx+=1
+                lwordchars=alphabet+digit+ss+"_"
+                continue
             elif sec.upper()==".INCLUDE":
                 idx=skipspc(l,idx)
                 if l[idx]=='"':
