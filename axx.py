@@ -919,7 +919,6 @@ def org_processing(l1,l2):
 
 def lineassemble(line):
     global pc,cl,ln,error_undefined_label
-    error_undefined_label=False
     ln+=1
     cl=line.replace('\n','')
     line=line.replace('\t',' ').replace('\n','')
@@ -976,6 +975,7 @@ def lineassemble(line):
         lin=reduce_spaces(lin)
         if i[0]=='':
             break
+        error_undefined_label=False
         if match0(lin,i[0])==True:
             if lw==3:
                 error(i[1])
