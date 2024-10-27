@@ -34,7 +34,7 @@ lwordchars=digit+alphabet+"_"
 swordchars=digit+alphabet+"_%$-~&|"
 symbols={}
 labels={}
-global_labels={}
+export_labels={}
 pat=[]
 expmode=EXP_PAT
 error_undefined_label=False
@@ -827,9 +827,9 @@ def asciistr(l2):
         outbin(pc,ord(ch))
         pc+=1
 
-def global_processing(l1,l2):
-    global global_labels
-    if upper(l1)!="global":
+def export_processing(l1,l2):
+    global export_labels
+    if upper(l1)!=".export":
         return False
 
     idx=0
@@ -843,7 +843,7 @@ def global_processing(l1,l2):
             idx+=1
         v=get_label_value(s)
         sec=get_label_section(s)
-        global_labels[s]=[v,sec]
+        export_labels[s]=[v,sec]
         if l2[idx]==',':
             idx+=1
     return True
@@ -954,7 +954,7 @@ def lineassemble(line):
         return True
     if labelc_processing(l,l2):
         return True
-    if global_processing(l,l2):
+    if export_processing(l,l2):
         return True
     if  l=="":
         return False
@@ -1126,7 +1126,7 @@ def main():
         fileassemble(sys.argv[2])
 
     if expfile!="":
-        h=list(global_labels.items())
+        h=list(export_labels.items())
         with open(expfile,"wt") as label_file:
             for i in h:
                 label_file.write(f"{i[1][1]}\t{i[0]}\t{i[1][0]:#x}\n")
