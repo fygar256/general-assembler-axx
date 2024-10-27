@@ -1,3 +1,4 @@
+
 GENERAL ASSEMBLER 'axx.py'
 
 Nickname is Paxx because it was written in python.
@@ -10,21 +11,23 @@ Arch linux terminal
 
 axx.py is a generalized general assembler.
 
-Pattern data has no control syntax except assignment. It can be used for binary generation as well as assembly language.
+It is not dependent on a particular platform or processor, and ignores the chr(13) at the end of the line in the DOS file.
 
-It also ignores chr(13) at the end of a line in a DOS file. py works on any system that runs python.
+axx can handle any processor architecture if you provide pattern data, but it does not support the practical features provided by a dedicated assembler. The current version is an experimental implementation. For practical functions, macros should use the preprocessor. For now, the linker/loader should use a program that processes binary and label (symbol) files.
 
-axx can handle processors of any architecture if you provide pattern data, but it does not support the practical features of a dedicated assembler. The current version is an experimental implementation. For practical functions, macros should be used with a preprocessor, and linker/loaders should be used with programs that process binary and label (symbol) files. The label value in the label file is an offset value from the beginning of the binary file. For now, we are exporting and importing labels.
+Since the pattern and source files are separated, it is possible to generate machine language for another processor from the sources of one instruction set, if you do not consider the coding effort.
 
-Also, since the pattern file is separated from the source file, you can generate the machine language of the processor of another certain instruction set from the source file of one instruction set, if you do not consider the coding effort.
+Pattern data has no control syntax other than assignment. It can be used for binary generation, not just assembly language.
 
-#### Usage.
+Assembly language has a one-to-one correspondence with the processor's instructions, which is how axx was realized.
 
-Use `python axx.py patternfile.axx [sample.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
+#### Usage
 
-axx reads the assembler pattern data from the first argument and assembles the second argument source file based on the pattern data. If the second argument is omitted, the source is input from the standard input.
+Use like `python axx.py patternfile.axx [sample.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
 
-The result is output as text on the standard output, or a binary file in the current directory if the `-o` option is specified as an argument. The `-l` option outputs the labels specified in `.global` to a file in TSV format.
+axx reads the assembler pattern data from the first argument and assembles the second argument source file based on the pattern data. If the second argument is omitted, the source is input from the terminal (standard input).
+
+The result is output as text on the standard output, or a binary file in the current directory if the `-o` option is specified. The `-e` option outputs the labels specified by `-global` to a file in TSV format.
 
 In `axx', a line that is input from an assembly language source file or standard input is named an assembly line.
 
@@ -60,15 +63,15 @@ The two types of pattern data are as follows.
 
 #### Comments
 
-If you write `/*` in a pattern file, the lines after `/*` become comments. Currently, it is not possible to close with `*/`. It is only valid after `/*` of the line.
+If you write `/*` in the pattern file, the lines after `/*` will be comments. Currently, it is not possible to close with `*/`. It is only valid after `/*` of the line.
 
 #### case sensitive, variable
 
-The uppercase case of INSTRUCTION in the pattern file is treated as a character constant. Lower case will be treated as a single-character variable. From the assembly line, the value of the factor, expression or symbol that hits that position in instruction is assigned to the variable and referenced from error_patterns and binary_list.
+The uppercase case of INSTRUCTION in the pattern file is treated as a character constant. Lower case will be treated as a single-character variable. From the assembly line, the value of the expression, factor, or symbol that hits that position in the instruction is assigned to the variable and referenced from error_patterns and binary_list.
 
-Lowercase letters a through g represent expressions, h through n represent factors such as constants, and o through z represent symbols. All unassigned variables have an initial value of 0.
+Lowercase letters a through g represent expressions, h through n represent factors, and o through z represent symbols. All unassigned variables have an initial value of 0.
 
-From the assembly line, both upper and lower case letters are accepted as the same.
+From the assembly line, upper and lower case letters are accepted as the same, except for labels and section names.
 
 A special variable is '$$', which represents the current location counter.
 
@@ -116,7 +119,7 @@ A symbol is a sequence of letters, numbers, and some symbols.
 
 To define symbol2 with symbol1, write the following.
 
-```
+````
 .setsym ::symbol1 ::1
 .setsym ::symbol2 ::#symbol1
 ```
@@ -186,12 +189,12 @@ The default is alphabet + numbers + `'_%$-~&|'`.
 
 #### Pattern Order
 
-```
-(1) LD A,(HL)
-(2) LD A,d
-```
+Pattern files are evaluated from the top, so the first one placed first takes precedence. Place special patterns first and general patterns later. As shown below.
 
-Pattern files are evaluated from the top, so the pattern placed first takes precedence. Place special patterns first and general patterns last.
+```
+LD A,(HL)
+LD A,e
+```
 
 #### Double brackets
 
@@ -205,7 +208,7 @@ In this case, the initial value of the lowercase variable is 0, so if you specif
 
 #### Specifying the padding bytecode
 
-If you specify 
+If you specify
 
 ```
 .padding 0x12
@@ -300,93 +303,87 @@ Prefix floating-point double (float 64bit) with '0d'.
 .asciiz "sample2"
 ```
 
-#### include
-
-You can include a file like this.
-
-```
-.include "file.s"
-```
-
 #### export
 
-You can specify a label to export like this. Only the label specified by the .export command will be exported.
+You can export the label as shown below. Only the label specified by the export command will be exported.
 
 ```
-.export label
+export label
 ```
 
 #### section
 
-You can specify the section as follows.
+You can specify the section as shown below.
 
 ```
-.section .text
+section .text
 ```
 
 #### section sort
 
-For example,
+For example, if you specify:
 
 ```
-.section .text
+section .text
 ld a,9
-.section .data
+section .data
 .asciiz "test1"
-.section .text
+section .text
 ld b,9
-.section .data
+section .data
 db 0x12
 ```
 
-If you do this, the text will be arranged exactly as it is, so use section sort to sort it.
+These will be arranged exactly as they are, so use section sort to sort them.
 
-Use like this: `chmod +x secsort.py` and `./secsort.py infile.s >outfile.s`
+https://qiita.com/fygar256/items/fd590cab2078a4e8b866
 
 ```
-.section .text
+section .text
 ld a,9
 ld b,9
-.section .data
+section .data
 .asciiz "test1"
 db 0x12
 ```
 
-#### comment
+#### Comments
 
 Assembly line comments are `;`.
 
-## Operators
+## Expressions, operators
+
+Assembly line expressions and pattern data expressions are almost the same because they call the same functions. Labels can be written in assembly lines. Lowercase variables can be written in pattern data.
 
 #### Operator precedence
 
 The operators and precedence are as follows, based on Python
 
 ```
-(expression)      An expression enclosed in parentheses
-#                 An operator that returns the value of a symbol
--,~               Negative, bitwise NOT
-@                 A unary operator that returns the bit position from the right of the most significant bit of the following value
-:=                Assignment operator
-**                Exponentiation
-*,//              Multiplication, integer division
-+,-               Addition, subtraction
-<<,>>             Left shift, right shift
-&                 Bitwise AND
-|                 Bitwise OR
-^                 Bitwise XOR
-'                 Sign extension
-<=,<,>,>=,!=,==   Comparison operators
-not(x)            Logical NOT
-&&                Logical AND
-||                Logical OR
+(expression)       An expression enclosed in parentheses
+#                  An operator that returns the value of a symbol
+-,~                Negative, bitwise NOT
+@                  A unary operator that returns the bit position from the right of the most significant bit of the following value
+:=                 Assignment operator
+**                 Exponentiation
+*,//               Multiplication, integer division
++,-                Addition, subtraction
+<<,>>              Left shift, right shift
+&                  Bitwise AND
+|                  Bitwise OR
+^                  Bitwise XOR
+'                  Sign extension
+<=,<,>,>=,!=,==    Comparison operators
+not(x)             Logical NOT
+&&                 Logical AND
+||                 Logical OR
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
 
-The prefix operator `#` takes the value of the symbol that follows.
+The prefix operator `#` takes the value of the following symbol.
 
-The prefix operator `@` returns the number of the most significant bit of the value that follows, from the right. We call this the Hebimarumatta operator.
+The prefix operator `@` returns the number of the most significant bit from the right of the value that follows. We call this the Hebimarumatta operator.
 
 The binary operator `'`, for example `a'24`, sign extends (Sign EXtends) the 24th bit of a as the sign bit. We call this the SEX operator.
 
@@ -403,15 +400,16 @@ LD s,d:: (s&0xf!=0)||(s>>4)>3;9 :: s|0x01,d&0xff,d>>8
 
 Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12`, respectively.
 
+
 ### Testing some instructions on some processors
 
-Because this is a test, the binary is different from the actual code.
+This is just a test, so the binary is not the actual code.
 
 ```test.axx
 /* test
 .setsym ::a:: 7
 .setsym ::b:: 1
-.setsym ::%% ::7 
+.setsym ::%% ::7
 .setsym ::||:: 8
 LD s,x :: 0x1,y,s,x
 
@@ -430,6 +428,7 @@ ST1 {x.4S},[y] :: 0x01,x,y,0
 
 /* MIPS
 .setsym ::$s5 ::21
+
 .setsym ::$v0 ::2
 .setsym ::$a0 ::4
 ADDI x,y,d :: (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
@@ -450,19 +449,19 @@ LD (IX[[+d]]),(IX[[+e]]):: 0xfd,0x04,d,e
 NOP :: 0x01
 ```
 
-```test.s 
+```test.s
 leaq rax , [ rbx , rcx , 2 , 0x40]
 leaq rax , [ rbx + rcx * 2 + 0x40]
 movsb
-rep movsb
-addi $v0,$a0,5
+rep movsb addi $v0,$a0,5
 st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
 ```
 
-Example 
+Example
 
-``` $ axx.py test.axx test.s
+```
+$ axx.py test.axx test.s
 0000000000000000: leaq rax , [ rbx , rcx , 2 , 0x4 0] 0x48 0x8d 0x04 0x4b 0x40
 0000000000000005: leaq rax , [ rbx + rcx * 2 + 0x40] 0x48 0x8d 0x04 0x4b 0x40
 000000000000000a: movsb 0xa4
@@ -472,40 +471,49 @@ Example
 0000000000000016: add r1, r2, r3 lsl #20 0x88 0x14
 ```
 
+## error
+
+An error occurs if the label overlaps with a symbol in the pattern file.
+It will be an error if the same label is defined more than once.
+It will be an error if syntax analysis cannot be performed.
+It will be an error if an undefined label is referenced.
+
 ## Comments
 
 ・Sorry for original notation.
 
-・Error checking is poor.
-
 ・I know it's a ridiculous request, but quantum computers and LISP machines are not supported.
-Quantum computer assembly language is called quantum assembly, and is not assembly language.
+The assembly language of quantum computers is called quantum assembly, and is not assembly language.
 LISP machine programs are not assembly language.
 
-・From homemade processors to supercomputers, please feel free to use it. Meow.
+・From homemade processors to supercomputers, please. Meow.
 
 ・Since an emulator must be installed, run-time variable-length byte instructions are not supported.
 
 ・Please evaluate and extend and fix this.
 
-・If you make the pattern file a meta-language, it is easier to check for errors. It is highly readable. It is not dependent on the order of evaluation. It is easy to write control syntax. It is easier to debug processor definition files. After all, a meta-language is better.
+・Pattern files are made into a metalanguage, making them more readable. They are not dependent on the order of evaluation. Control syntax is easier to write. Processor definition files are easier to debug. Metalanguage is better after all.
 
-・Use a preprocessor for the macro function.
+・Please use a preprocessor for macro functions.
 
-・If you specify the linker/loader option `-i`, labels will be imported from the TSV file, and if you specify the option `-e`, global labels will be output to the file in TSV, so use that.
+・When the linker loader option `-i` is specified, the label is imported from the TSV file, and when the option `-e` is specified, the label specified in global is exported to the file in TSV, so we use that. The label value of the label file is the offset value from the beginning of the binary file.
 
-- It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where the machine language words are not in bytes, but since the axx output is in bytes, processing is required.
+・It is possible to assemble processors that are less than 8 bits, such as bit slice processors and processors whose machine language words are not in bytes, but axx outputs in 8-bit units. Such processors depend on the object file format.
+
+・I think it would be a fine system if we prepared a pattern file for axx and added a linker, multi-function macros, and an IDE wrapper, but that's a big deal. The rest is generic, so someone please make it. I would be happy if it was put to practical use.
 
 ## Future issues
 
-- Make it compatible with the linker.
+・Make it compatible with the linker.
 
-- The order of evaluation of the pattern file is difficult, so we will do something about it.
+・I want to put it to practical use. I only have Linux, so I'll do it on Linux. The specific solution for Linux is to make it compatible with ELF object files and link with ld.
 
-- Do more error checking.
+・The order of evaluation of pattern files is difficult.
 
-- Escape characters in expressions do not work, so we would like to solve this.
+・Escape characters in expressions do not work.
 
+
+Translated with DeepL.com (free version)
 ### Thanks
 
 I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, IEEE, Qiita, Associate Professor Susumu Yamazaki, and to some other unforgettable guys. Thank you very much.
