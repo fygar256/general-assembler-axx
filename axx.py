@@ -151,7 +151,6 @@ def get_label_value(k):
     for i in list(labels.keys()):
         if i==k:
             error_undefined_label=False
-            print("###",labels[k][0])
             return labels[k][0]
     error_undefined_label=True
     return UNDEF
