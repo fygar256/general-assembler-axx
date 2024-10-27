@@ -19,7 +19,8 @@ UNDEF=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-ealphabet="abcdefghijklmn"
+ealphabet="abcdefg"
+falphabet="hijklmn"
 salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
@@ -461,16 +462,6 @@ def paddingp(i):
     padding=int(v)
     return True
 
-def labelc(i):
-    global lwordchars
-    if len(i)==0:
-        return False
-    if len(i)>1 and i[0]!='.labelc':
-    	return False
-    if len(i)>3:
-        lwordchars=alphabet+digit+i[2]
-    return True
-
 def symbolc(i):
     global swordchars
     if len(i)==0:
@@ -631,9 +622,9 @@ def get_symbol_word(s,idx):
         while len(s)>idx:
             if not s[idx] in swordchars : 
                 break
-            t+=upper(s[idx])
+            t+=s[idx]
             idx+=1
-    return t,idx
+    return upper(t),idx
 
 def get_label_word(s,idx):
     t=""
@@ -676,10 +667,6 @@ def match(s,t):
                 continue
             else:
                 return False
-        elif a==b:
-            idx_t+=1
-            idx_s+=1
-            continue
         elif a.isupper():
             if a==b.upper():
                 idx_s+=1
@@ -687,6 +674,11 @@ def match(s,t):
                 continue
             else:
                 return False
+        elif a in falphabet:
+              idx_t+=1
+              (v,idx_s)=factor(s,idx_s)
+              put_vars(a,v)
+              continue
         elif a in ealphabet:
               idx_t+=1
               (v,idx_s)=expression1(s,idx_s)
@@ -700,6 +692,10 @@ def match(s,t):
                   return False
               put_vars(a,v)
               continue
+        elif a==b:
+            idx_t+=1
+            idx_s+=1
+            continue
         else:
               return False
 
@@ -765,6 +761,14 @@ def error(s):
             error_code=t
 
     return error_code
+
+def labelc_processing(l,ll):
+    global lwordchars
+    if l.upper()!='.LABELC':
+    	return False
+    if ll:
+        lwordchars=alphabet+digit+ll
+    return True
 
 def label_processing(l):
     if l=="":
@@ -948,6 +952,8 @@ def lineassemble(line):
         return True
     if org_processing(l,l2):
         return True
+    if labelc_processing(l,l2):
+        return True
     if export_processing(l,l2):
         return True
     if  l=="":
@@ -967,7 +973,6 @@ def lineassemble(line):
         if clear_symbol(i): continue
         if paddingp(i): continue
         if symbolc(i): continue
-        if labelc(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
