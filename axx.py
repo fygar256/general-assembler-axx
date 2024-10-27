@@ -829,7 +829,7 @@ def asciistr(l2):
 
 def export_processing(l1,l2):
     global export_labels
-    if upper(l1)!=".export":
+    if upper(l1)!=".EXPORT":
         return False
 
     idx=0
