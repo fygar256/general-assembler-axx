@@ -27,9 +27,9 @@ Use like `python axx.py patternfile.axx [sample.s] [-o outfile.bin] [-e expfile.
 
 axx reads the assembler pattern data from the first argument and assembles the second argument source file based on the pattern data. If the second argument is omitted, the source is input from the terminal (standard input).
 
-The result is output as text on the standard output, or a binary file in the current directory if the `-o` option is specified. The `-e` option outputs the labels specified by `-global` to a file in TSV format.
+The result is output as text on the standard output, or a binary file in the current directory if the `-o` option is specified. The `-e` option outputs the labels specified by `.export` to a file in TSV format.
 
-In `axx', a line that is input from an assembly language source file or standard input is named an assembly line.
+In axx, a line that is input from an assembly language source file or standard input is named an assembly line.
 
 ## Explanation of pattern files
 
