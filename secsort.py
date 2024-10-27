@@ -3,7 +3,7 @@ import sys
 
 pas=0
 current_section=".default"
-sections={ '.default' :['']}
+sections={ '.text' :['']}
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digit='0123456789'

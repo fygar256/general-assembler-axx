@@ -45,7 +45,7 @@ debug=0
 cl=""
 ln=0
 current_file=""
-current_section=".default"
+current_section=".text"
 fnstack=[]
 lnstack=[]
 vars=[ VAR_UNDEF for i in range(26) ]
@@ -827,9 +827,9 @@ def asciistr(l2):
         outbin(pc,ord(ch))
         pc+=1
 
-def export_processing(l1,l2):
+def global_processing(l1,l2):
     global global_labels
-    if upper(l1)!=".EXPORT":
+    if upper(l1)!="global":
         return False
 
     idx=0
@@ -890,7 +890,7 @@ def include_asm(l1,l2):
 def section_processing(l1,l2):
     global current_section
 
-    if upper(l1)!=".SECTION":
+    if upper(l1)!="SECTION":
         return False
 
     if l2!='':
@@ -954,7 +954,7 @@ def lineassemble(line):
         return True
     if labelc_processing(l,l2):
         return True
-    if export_processing(l,l2):
+    if global_processing(l,l2):
         return True
     if  l=="":
         return False
