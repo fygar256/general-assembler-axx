@@ -2,7 +2,7 @@
 import sys
 
 pas=0
-current_section=".default"
+current_section=".text"
 sections={ '.text' :['']}
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
@@ -81,7 +81,7 @@ def writesections():
     l=list(sections.items())
     for i in l:
         (a,b)=i
-        print(".section    ",a)
+        print("section    ",a)
         for k in b:
             print(k)
 
