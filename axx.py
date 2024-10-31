@@ -30,7 +30,7 @@ impfile=""
 pc=0
 padding=0
 alphabet=lower+capital
-lwordchars=digit+alphabet+"_"
+lwordchars=digit+alphabet+"_."
 swordchars=digit+alphabet+"_%$-~&|"
 symbols={}
 labels={}
@@ -63,6 +63,12 @@ def upper(o):
         t+=a
         idx+=1
     return t
+
+def outbin2(a,x):
+    if pas==2 or pas==0:
+        x=int(x)&0xff
+        if outfile!="":
+            fwrite(outfile,a,x)
 
 def outbin(a,x):
     if pas==2 or pas==0:
@@ -123,6 +129,7 @@ def get_param_to_eol(s,idx):
     return t,idx
 
 def factor(s,idx):
+    idx=skipspc(s,idx)
     x=0
     if s[idx]=='-':
         (x,idx)=factor(s,idx+1)
@@ -135,6 +142,7 @@ def factor(s,idx):
         x=nbit(x)
     else:
         (x,idx)=factor1(s,idx)
+    idx=skipspc(s,idx)
     return (x,idx)
 
 def get_label_section(k):
@@ -234,7 +242,7 @@ def factor1(s,idx):
             idx+=1
     else:
         if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
-            w,idx_new=get_label_word(s,idx)
+            (w,idx_new)=get_label_word(s,idx)
             if idx!=idx_new:
                 idx=idx_new
                 x=get_label_value(w)
@@ -242,7 +250,7 @@ def factor1(s,idx):
                 pass
         else:
             pass
-        idx=skipspc(s,idx)
+    idx=skipspc(s,idx)
     return (x,idx)
 
 def term0_0(s,idx):
@@ -552,15 +560,7 @@ def readpat(fn):
     return w
 
 def fwrite(file_path, position, x):
-    with open(file_path, 'r+b') as file:
-        file.seek(0, 2)
-        file_length = file.tell()
-        if position > file_length:
-            file.seek(file_length)
-            for i in range(position-file_length):
-                file.write(struct.pack("B",padding))
-            # file.write(f"{padding:#b}" * (position - file_length))
-        file.seek(position)
+    with open(file_path, 'a+b') as file:
         file.write(struct.pack('B',x))
 
 def align_(addr):
@@ -918,6 +918,10 @@ def org_processing(l1,l2):
     if upper(l1)!=".ORG":
         return False
     u,idx=expression1(l2,0)
+    if l2[idx:idx+2].upper()==',P':
+        if u>pc:
+            for i in range(u-pc):
+                outbin2(i+pc,padding)
     pc=u
     return True
 
