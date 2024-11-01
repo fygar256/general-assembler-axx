@@ -578,6 +578,7 @@ def makeobj(s):
     idx=0
     cnt=0
     if pas==2 or pas==0:
+        print("%016x " % pc,end='')
         print(f"{current_file} {ln} {cl} " ,end='')
     while True:
         if s[idx]==chr(0):

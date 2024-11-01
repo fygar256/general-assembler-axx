@@ -1,13 +1,20 @@
     .ORG 0
+    INC IX
+    INC IY
+    DEC IX
+    DEC IY
     INC (IX)
     INC (IY)
+.export label:,label1:,label2:
+label:
+    ld hl,label:
+    ld hl,label1:
+label1:
+label2:
+    ld hl,label2
     INC (IX+0x56)
     INC (IY+0x56)
-    DEC (IX)
-    DEC (IY)
-    DEC (IX+0x56)
-    DEC (IY+0x56)
-    LD SP,HL
+  ;  .include "z80sub1.s"
     LD SP,IX
     LD SP,IY
     LD (HL),0x56
