@@ -19,9 +19,6 @@ UNDEF=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 VAR_UNDEF=0
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
-ealphabet="abcdefg"
-falphabet="hijklmn"
-salphabet="opqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
 outfile=""
@@ -659,9 +656,9 @@ def match(s,t):
         a=t[idx_t] # aはパターンファイル
         if a==chr(0) and b==chr(0):
             return True
-        if a==chr(0x5c):
+        if a=='\\':
             idx_t+=1
-            if upper(t[idx_t])==upper(b):
+            if t[idx_t]==b:
                 idx_t+=1
                 idx_s+=1
                 continue
@@ -674,24 +671,28 @@ def match(s,t):
                 continue
             else:
                 return False
-        elif a in falphabet:
-              idx_t+=1
-              (v,idx_s)=factor(s,idx_s)
-              put_vars(a,v)
-              continue
-        elif a in ealphabet:
-              idx_t+=1
-              (v,idx_s)=expression1(s,idx_s)
-              put_vars(a,v)
-              continue
-        elif a in salphabet:
-              idx_t+=1
-              (w,idx_s)=get_symbol_word(s,idx_s)
-              v=getsymval(w)
-              if (v==""):
-                  return False
-              put_vars(a,v)
-              continue
+        elif a=='!':
+            idx_t+=1
+            a=t[idx_t]
+            idx_t+=1
+            if a=='!':
+                a=t[idx_t]
+                idx_t+=1
+                (v,idx_s)=factor(s,idx_s)
+                put_vars(a,v)
+                continue
+            else:
+                (v,idx_s)=expression1(s,idx_s)
+                put_vars(a,v)
+                continue
+        elif a in lower:
+            idx_t+=1
+            (w,idx_s)=get_symbol_word(s,idx_s)
+            v=getsymval(w)
+            if (v==""):
+                return False
+            put_vars(a,v)
+            continue
         elif a==b:
             idx_t+=1
             idx_s+=1
