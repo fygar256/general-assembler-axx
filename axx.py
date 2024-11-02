@@ -21,6 +21,7 @@ capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digit='0123456789'
 xdigit="0123456789ABCDEF"
+errors=[ "Value out of range.","Invalid syntax.","Address out of range.","","","Register out of range." ]
 outfile=""
 expfile=""
 impfile=""
@@ -754,12 +755,16 @@ def error(s):
         if ch==',':
             idx+=1
             continue
-        u,idx=expression0(s,idx)
+        u,idxn=expression0(s,idx)
+        idx=idxn
         if s[idx]==';':
             idx+=1
         t,idx=expression0(s,idx)
         if (pas==2 or pas==0) and u:
-            print(f"error code {t}: ")
+            print(f"Line {ln} Error code {t} ",end="")
+            if t>=0 and t<=5:
+                print(f"{errors[t]}",end='')
+            print(": ")
             error_code=t
 
     return error_code
