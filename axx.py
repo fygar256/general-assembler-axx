@@ -438,6 +438,10 @@ def clear_symbol(i):
         return False
     if i[0]!='.clearsym':
     	return False
+    key=upper(i[1])
+    if key in symbols:
+        symbols.pop(key)
+        return True
     symbols={}
     return True
 
