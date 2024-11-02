@@ -1,6 +1,6 @@
-ADD    A,\@R!a  ::       n>1;5         ::       n|0x60
+ADD    A,\@R!n  ::       n>1;5         ::       n|0x60
 ADD    A,#!d    ::       d>0xFF;1      ::       0x03,d
-ADD    A ,R!a   ::       n > 7 ; 5     ::       n | 0x68
+ADD    A ,R!n   ::       n > 7 ; 5     ::       n | 0x68
 ADDC   A,\@R!n  ::     n>1;5           ::          n|0x70:\\
 ADDC   A,R!n    ::       n>7;5         ::          n|0x78
 ADDC   A,\#!d   ::       d>0xFF;1      ::          0x13,d
