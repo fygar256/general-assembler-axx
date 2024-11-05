@@ -208,7 +208,9 @@ In this case, the initial value of the lowercase variable is 0, so if you specif
 
 #### Specifying the padding bytecode
 
-If you specify ```
+If you specify 
+
+```
 .padding 0x12
 ```
 
@@ -360,23 +362,23 @@ Assembly line expressions and pattern data expressions are almost the same becau
 The operators and precedence are as follows, based on Python
 
 ```
-(expression) An expression enclosed in parentheses
-# An operator that returns the value of a symbol
--,~ Negative, bitwise NOT
-@ A unary operator that returns the bit position from the right of the most significant bit of the following value
-:= Assignment operator
-** Exponentiation
-*,// Multiplication, integer division
-+,- Addition, subtraction
-<<,>> Left shift, right shift
-& Bitwise AND
-| Bitwise OR
-^ Bitwise XOR
-' Sign extension
-<=,<,>,>=,!=,== Comparison operators
-not(x) Logical NOT
-&& Logical AND
-|| Logical OR
+(expression)         An expression enclosed in parentheses
+#                    An operator that returns the value of a symbol
+-,~                  Negative, bitwise NOT
+@                    A unary operator that returns the bit position from the right of the most significant bit of the following value
+:=                   Assignment operator
+**                   Exponentiation
+*,//                 Multiplication, integer division
++,-                  Addition, subtraction
+<<,>>                Left shift, right shift
+&                    Bitwise AND
+|                    Bitwise OR
+^                    Bitwise XOR
+'                    Sign extension
+<=,<,>,>=,!=,==      Comparison operators
+not(x)               Logical NOT
+&&                   Logical AND
+||                   Logical OR
 ```
 
 `:=` is available as an assignment operator. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
@@ -388,6 +390,8 @@ The prefix operator `@` returns the number of the most significant bit of the va
 The binary operator `'`, for example `a'24`, sign extends (Sign EXtends) the 24th bit of a as the sign bit. We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
+
+
 ## Example of binary output
 
 ```
