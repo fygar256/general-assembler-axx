@@ -1,6 +1,6 @@
 GENERAL ASSEMBLER 'axx.py'
 
-It was written in python, so its nickname is Paxx.
+It is written in python, so its nickname is Paxx.
 
 # Test environment
 
@@ -10,33 +10,35 @@ Arch linux terminal
 
 axx.py is a general assembler that generalizes assemblers.
 
-The execution platform is not dependent on a specific processing system. It is also set to ignore chr(13) at the end of lines in DOS files. I think it will work on any processing system that runs python.
+axx can theoretically process any processor architecture. To process a specific processor architecture, a pattern file for that architecture is required.
 
-axx can process any processor architecture if you prepare pattern data, but it does not support the practical functions that dedicated assemblers have. The current version is an experimental implementation. For practical functions, please use a preprocessor for macros. For the time being, please use a program that manages binary files and label (symbol) files as a linker/loader.
+The execution platform is also independent of a specific processing system. It is also designed to ignore chr(13) at the end of lines in DOS files. It should work on any processing system that python can run on.
+
+It does not yet support practical functions that a dedicated assembler has. The current version is an experimental implementation. For practical functions, please use a preprocessor for macros. For the time being, please use a program that manages binary files and label (symbol) files as a linker/loader.
 
 Since the pattern file and source file are separated, it is possible to generate machine code for another processor from the source of one instruction set, if you do not mind the effort of coding.
 
-Pattern data does not have control syntax other than assignment. It can be used to generate binaries not limited to assembly language.
+Pattern data does not have any control syntax other than assignment. It can be used to generate binaries, not limited to assembly language.
 
-Axx was made possible because assembly language has a one-to-one correspondence with processor instructions.
+Assembly language has a one-to-one correspondence with processor instructions, which is why axx was realized.
 
-Axx can be used to develop custom assemblers.
+Writing multiple instruction codes in the binary_list of pattern data works as a macro, but it is not very smart. It also allows you to write simple compilers.
 
-#### Usage
+#### How to use
 
-Use it like this: `python axx.py patternfile.axx [sample.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
+Use it like this: `python axx.py patternfile.axx [source.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
 
-Axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, input the source from the terminal (standard input).
+axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, input the source from the terminal (standard input).
 
 The result is output as text to standard output, and if there is an argument specified with the `-o` option, a binary file is output to the current directory. The `-e` option outputs the label specified with `.export` to a file in TSV format.
 
-In axx, the lines input from the assembly language source file or standard input are named assembly lines.
+In axx, a line input from an assembly language source file or standard input is called an assembly line.
 
 ## Explanation of pattern files
 
-Pattern files are user-defined to accommodate individual processors.
+A pattern file is a processor description file. It is also user-defined to correspond to individual processors. It is a kind of meta-language for machine code and assembly language.
 
-Pattern data in a pattern file is arranged as follows:
+Pattern data in a pattern file is arranged as follows.
 
 ```
 instruction :: error_patterns :: binary_list
@@ -99,7 +101,7 @@ Let's take 8048 as an example. If the pattern file contains
 ADD A,R!n :: n>7;5 :: n|0x68
 ```
 
-and you pass `add a,rn` to the assembly line, if n>7 it will return error code 5, and if `add a,r1` is used it will generate binary 0x69
+and you pass `add a,rn` to the assembly line, if n>7 it will return error code 5 (Register out of range), and `add a,r1` will generate a binary of 0x69.
 
 If an element of binary_list is empty, it will be aligned. If it starts with `,` or if it is `0x12,,0x13`, the empty part will be padded up to the exact address.
 
@@ -181,13 +183,13 @@ You can determine the character set to use for symbols from within the pattern f
 .symbolc::<characters>
 ```
 
-You can specify characters other than numbers and uppercase and lowercase letters in `<characters>`.
+By setting this, you can specify characters other than numbers and uppercase and lowercase letters in `<characters>`.
 
 The default is alphabets + numbers + `'_%$-~&|'`.
 
 #### Pattern order
 
-Pattern files are evaluated from top to bottom, so the pattern placed earlier takes precedence. Special patterns are placed first, and general patterns are placed last. Like below.
+Pattern files are evaluated from top to bottom, so the one placed earlier takes precedence. Place special patterns first and general patterns last. Like below.
 
 ```
 LD A,(HL)
@@ -196,37 +198,35 @@ LD A,e
 
 #### Double brackets
 
-Optional items in the instruction can be enclosed in double brackets. Here is the `inc (ix)` instruction for the z80.
+Optional items in the instruction can be enclosed in double brackets. Here is the z80 `inc (ix)` instruction.
 
 ```
 INC (IX[[+!d]]) :: 0xdd,0x34,d
 ```
 
-In this case, the initial value of the lowercase variable is 0, so if you specify `inc (ix+0x12)`, `0xdd,0x34,0x12` will be output, and if you specify `inc (ix)`, `0xdd,0x34,0x00` will be output.
+In this case, the initial value of the lowercase variable is 0, so if you specify `inc (ix+0x12)`, `0xdd,0x34,0x12` will be output if you do not omit it, and if you specify `inc (ix)`, `0xdd,0x34,0x00` will be output if you omit it.
 
-#### Specifying padding bytecode
+#### Specifying the padding bytecode
 
-From the pattern file,
-
-```
+If you specify ```
 .padding 0x12
 ```
 
-The padding bytecode will be 0x12. The default is 0x00.
+from the pattern file, the padding bytecode will be 0x12. The default is 0x00.
 
 #### include
 
-This is how you can include a file.
+This will allow you to include a file.
 
 ```
 .include "file.axx"
 ```
 
-## Explanation of assembly files
+## Assembly file description
 
 #### label
 
-Labels can be defined from the assembly line in the following way.
+From the assembly line, labels can be defined in the following way.
 
 ```
 label1:
@@ -234,9 +234,9 @@ label2: .equ 0x10
 label3: nop
 ```
 
-A label is a string of letters, numbers, and some symbols, starting with a non-numeric `.`, alphabet, or some symbol, and is two or more characters long.
+A label is a string of letters, numbers, and some symbols, starting with a non-numeric ``.`, alphabet, or some symbol, and has two or more characters.
 
-To define a label with a label, do the following:
+To define a label with a label, do the following.
 
 ```
 label4: .equ label1
@@ -252,11 +252,11 @@ You can specify characters other than numbers and uppercase and lowercase alphab
 
 The default is alphabet + numbers + underscore. `.` is only allowed at the beginning of the label.
 
-If you add `:` after the label reference, it will check for undefined label errors. In assembly languages ​​that use `:`, put a space after the label reference.
+If you add `:` after the label reference, it will check for undefined label errors. For assembly languages ​​that use `:`, put a space after the label reference.
 
 #### ORG
 
-ORG is specified as follows:
+ORG is specified from the assembly line as
 
 ```
 .org 0x800
@@ -264,17 +264,17 @@ or
 .org 0x800,p
 ```
 
-From the assembly line. .org changes the location counter value. If `,p` is specified, and the previous location counter value is smaller than the value specified by .org, it will be padded to the value specified by .org.
+.org changes the location counter value. If `,p` is specified, the previous location counter value is padded to the value specified by .org if it is less than the value specified by .org.
 
 #### Alignment
 
-If you specify:
+If the assembly line is specified as
 
 ```
 .align 16
 ```
 
-From the assembly line, it will be aligned to 16 (padded with the bytecode specified by .padding up to an address that is a multiple of 16). If the argument is omitted, it will be aligned to the number specified by the previous .align or the default value.
+, alignment is done at 16 (pad with bytecode specified by .padding up to an address that is a multiple of 16). If the argument is omitted, alignment is done with the number specified by the previous .align or the default value.
 
 #### Floating point, number notation
 
@@ -360,23 +360,23 @@ Assembly line expressions and pattern data expressions are almost the same becau
 The operators and precedence are as follows, based on Python
 
 ```
-(expression)        An expression enclosed in parentheses
-#                   An operator that returns the value of a symbol
--,~                 Negative, bitwise NOT
-@                   A unary operator that returns the bit position from the right of the most significant bit of the following value
-:=                  Assignment operator
-**                  Exponentiation
-*,//                Multiplication, integer division
-+,-                 Addition, subtraction
-<<,>>               Left shift, right shift
-&                   Bitwise AND
-|                   Bitwise OR
-^                   Bitwise XOR
-'                   Sign extension
-<=,<,>,>=,!=,==     Comparison operators
-not(x)              Logical NOT
-&&                  Logical AND
-||                  Logical OR
+(expression) An expression enclosed in parentheses
+# An operator that returns the value of a symbol
+-,~ Negative, bitwise NOT
+@ A unary operator that returns the bit position from the right of the most significant bit of the following value
+:= Assignment operator
+** Exponentiation
+*,// Multiplication, integer division
++,- Addition, subtraction
+<<,>> Left shift, right shift
+& Bitwise AND
+| Bitwise OR
+^ Bitwise XOR
+' Sign extension
+<=,<,>,>=,!=,== Comparison operators
+not(x) Logical NOT
+&& Logical AND
+|| Logical OR
 ```
 
 `:=` is available as an assignment operator. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
@@ -388,7 +388,6 @@ The prefix operator `@` returns the number of the most significant bit of the va
 The binary operator `'`, for example `a'24`, sign extends (Sign EXtends) the 24th bit of a as the sign bit. We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
-
 ## Example of binary output
 
 ```
@@ -402,7 +401,7 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 
 ### Testing some instructions on some processors
 
-Because this is a test, the binary is different from the actual code.
+This is a test, so the binary is different from the actual code.
 
 ```test.axx
 /* test
@@ -431,11 +430,12 @@ ST1 {x.4S},[y] :: 0x01,x,y,0
 .setsym ::$a0 ::4
 ADDI x,y,!d :: (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 
-/* x86_64
+/ * x86_64
 .setsym ::rax:: 0
 .setsym ::rbx:: 3
 .setsym ::rcx ::1
 .setsym ::rep ::0xf3
+
 MMX A,B :: ,0x12,0x13
 LEAQ r,[s,t,!d,!e] :: 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 LEAQ r, [ s + t * !!h + !!i ] :: 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
@@ -447,22 +447,19 @@ LD (IX[[+!d]]),(IX[[+!e]]):: 0xfd,0x04,d,e
 NOP :: 0x01
 ```
 
-The notation for `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, the evaluation function for the formula will interpret the 2 in `leaq rax,[rbx+rcx*2+0x40]` as `!h`, and the part beyond that, 2+0x40, as the formula, and 2+0x40 will be substituted for h, leaving the remaining `+!!i` as a remainder, resulting in a syntax analysis error. `!!h` is a factor, and `!h' is a formula.
+The notation for `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, the evaluation function for the formula will be `leaq rax,[rbx+rcx*2+0x40]`, where the 2 is `!h`, and the part beyond that, 2+0x40, will be interpreted as a formula, 2+0x40 will be substituted for h, and the remaining `+!!i` will be a remainder, resulting in a syntax analysis error. `!!h` is a factor, and `!h` is a formula.
 
 ```test.s 
 leaq rax , [ rbx , rcx , 2 , 0x40]
 leaq rax , [ rbx + rcx * 2 + 0x40]
-movsb
-rep movsb
-addi $v0,$a0,5
-st1 {v0.4s},[x0]
-add r1, r2, r3 lsl #20
+movsb rep movsb addi $v0,$a0,5
+st1 {v0.4s},[x0] add r1, r2, r3 lsl #20
 ```
 
-Example 
+Example
 
 ```
-$ axx.py　test .axx test.s
+$ axx.py test .axx test.s
 0000000000000000: leaq rax , [ rbx , rcx , 2 , 0x40] 0x48 0x8d 0x04 0x4b 0x40
 0000000000000005: leaq rax , [ rbx + rcx * 2 + 0x40] 0x48 0x8d 0x04 0x4b 0x40
 000000000000000a: movsb 0xa4
@@ -474,48 +471,70 @@ $ axx.py　test .axx test.s
 
 ## error
 
-An error occurs if the label overlaps with a symbol in the pattern file.
-An error occurs if the same label is defined more than once.
-An error occurs if syntax analysis is not possible.
-An error occurs if an undefined label is referenced.
-An error occurs if any of the conditions in error_patterns are met.
+・An error occurs if the label overlaps with a symbol in the pattern file.
+・An error occurs if the same label is defined more than once.
+・An error occurs if syntax analysis is not possible.
+・An error occurs if an undefined label is referenced.
+・An error occurs if any of the conditions in error_patterns are met. In that case, a message (Value out of range, Invalid syntax, Address out of range, Register out of range, Port number out of range) will be displayed for error codes 0, 1, 2, 5, and 6, respectively. If there are not enough types of errors, please add an error message to the source.
 
-## Comments
+## Comment
 
--Sorry for original notation.
+・Sorry for original notation.
 
--I know it's a ridiculous request, but quantum computers and LISP machines are not supported.
-The assembly language of quantum computers is called quantum assembly, and is not assembly language.
+・I know it's a ridiculous thing to say, but quantum computers and LISP machines are not supported.
+Quantum computer assembly language is called quantum assembly, and is not assembly language.
 LISP machine programs are not assembly language.
 
--From homemade processors to supercomputers, please. Meow.
+・From homemade processors to supercomputers, please feel free to use them. Meow.
 
--Instructions whose machine code byte length changes during execution, such as those that require an emulator, are not supported.
+・It does not support instructions whose byte length changes during execution, which requires an emulator.
 
--Please evaluate and extend and fix this.
+・Please evaluate and extend and fix this.It is written in Python, so it is easy to extend. Feel free to extend it.
 
--It is difficult to include escape characters in expressions.
+・It is difficult to put escape characters into expressions.
 
--Please use the preprocessor for macro functions. It would be nice if high-function macros were added.
+・Please use the preprocessor for macro functions. It would be nice if high-function macros were added.
 
-・When the linker loader option `-i` is specified, labels are imported from the TSV file, and when the option `-e` is specified, the labels specified with .export are exported to the file in TSV, so use that.
+・When the linker/loader option `-i` is specified, labels are imported from the TSV file, and when the option `-e` is specified, the label specified in .export is exported to the file in TSV, so use that.
 
-・It is possible to assemble processors that are less than 8 bits, such as bit slice processors, or processors whose machine language words are not in bytes, but axx outputs in 8-bit units. Such processors depend on the object file format.
+・I have made it possible to refer to the labels of the assembler file from the pattern file. Using this allows you to create a simple compilation language, but it makes the structure very messy, so it is better not to do so.
 
-・Now that the core is complete, I think it would be a fine system if we prepared a pattern file for axx and added a linker, multi-function macros, and an IDE wrapper, but that's a bit much. The rest is generic, so someone please make it. I'd be happy if it were put to practical use.
-
-・If the pattern file is made into a meta-language, it is highly readable, does not depend on the order of evaluation, is easy to write control syntax, and makes it easier to debug the processor definition file. After all, a meta-language is better.
-
-・If axx is generalized further and a meta-language is used, binary_list is given string literals and string operations + numerical operations, and also has control syntax, an intermediate language can be generated and a converter between assembly languages ​​can be made. A simple compiler can also be written. In that case, the name of binary_list is changed to object_list. I wonder if eval can be used. To do that, drastic rewriting is required. The meta-language becomes a multi-line description language from the pattern data. It is feasible. Someone may make one based on axx. A general disassembler could also be made by making the meta-language almost the same.
-
-## Future issues
+## Items not yet implemented
 
 ・Make it compatible with the linker.
 
-・I want to put it into practical use. I only have Linux, so I'll use Linux. A specific solution for Linux is to make it compatible with ELF object files and link them with ld.
+・I want to put it into practical use. I only have Linux, so I will use Linux. The special solution for Linux is to make it compatible with ELF object files and link them with ld.
 
--The order of evaluation of pattern files is difficult.
+・The order of evaluation of the pattern file is difficult.
 
-### Thanks
+・It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors whose machine code words are not in bytes, but axx outputs in 8-bit units. Such processors depend on the object file format.
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Denshi Sekkei, who gave me the problems and hints, to the University of Electro-Communications, IEEE, Qiita, Associate Professor Susumu Yamazaki, and to some other unforgettable guys. Thank you very much.
+・Now that the core is complete, I think it would be a great system if we prepared a pattern file for axx and added a linker, multi-function macros, and an IDE wrapper, but it would be difficult for an individual to complete such a large project, so please make one. I would be happy if it is put to practical use.
+
+・Generative AI, this article is complicated, but please analyze it properly. There is a misunderstanding of the assumptions and a wrong interpretation of context-dependence.
+
+#### Pattern file (processor description file) Feature not available now.
+
+・If the pattern file is made into a more descriptive metalanguage, it will be more readable, it will not depend on the order of evaluation, it will be easier to write control syntax, and it will be easier to debug the processor description file.
+
+・If we further generalize axx, use a descriptive metalanguage for the pattern file, make it Turing complete, and give binary_(output)list string literals, string operations + numeric operations, and control syntax, we can generate intermediate languages ​​and make converters between assembly languages. At that time, rename binary_list to object_list and pattern file to processor_specification_file. I wonder if eval can be used. The metalanguage will be a multi-line descriptive language from the pattern data. It is possible. Someone is apparently working on making one based on axx.
+
+・Even in the pattern file, if you set a='MOV b,c' and give a character variable (currently lowercase alphabet, but if you expand it to a symbol in the usual sense) an instruction (string) and write it in binary_list, you can write macros smartly. For example, b=rep(a,10) will output a 10 times, or align(n). If loop structures are allowed, debugging will become extremely complicated if an infinite loop occurs when processing inside axx.py, but if evaluation is only applied to pattern files, debugging will be simplified and loop structures and branch structures will be allowed. Self-reference check is required. Expand with expand(a). For example, a='b c d' b='MOV AX,e' c='JMPC d' becomes 'MOV AX,e JMPC d'. c takes one operand d, so when evaluating c in a='b c d', d is taken. expression(a) evaluates the expression, label: defines the label. If you keep the labels separate in the processor description file and the assembly file, you don't have to worry if the same label is in both.
+
+- To do this, drastic rewriting is required.
+
+### Request
+
+If you find a bug, I would appreciate it if you could let me know how to fix it.
+
+### Version
+
+https://gist.github.com/fygar256/51fdef5be62913fe1dbfa72f5235550c
+
+### GitHub repository
+
+https://github.com/fygar256/general-assembler-axx
+
+### Acknowledgements
+
+I would like to thank my mentor, Junichi Hamada, and Tokyo Electronics Design for the problems and hints, the University of Electro-Communications for their cooperation, computer scientists, IEEE, Google, Qiita, and some unforgettable people. Thank you very much.
