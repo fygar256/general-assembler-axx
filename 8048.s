@@ -16,7 +16,7 @@ mov     R1,#2
 mov     @R1,A
 mov     T,A
 ANLD    P5,A
-CALL    0x90
+CALL    0x900
 ADDC    A,R1
 ADDC    A,@R1
 MOV     A,#1

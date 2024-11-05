@@ -227,6 +227,7 @@ def factor1(s,idx):
         x=int.from_bytes(struct.pack('>f',float(fs)),"little")
 
     elif s[idx].isdigit():
+        x=0
         while(s[idx].isdigit()):
             x=10*x+int(s[idx])
             idx+=1
@@ -238,8 +239,7 @@ def factor1(s,idx):
         else:
             x=get_vars(ch)
             idx+=1
-    else:
-        if (s[idx] in lwordchars):
+    elif (s[idx] in lwordchars):
             (w,idx_new)=get_label_word(s,idx)
             if idx!=idx_new:
                 idx=idx_new
@@ -249,8 +249,6 @@ def factor1(s,idx):
                     x=0
             else:
                 pass
-        else:
-            pass
     idx=skipspc(s,idx)
     return (x,idx)
 
@@ -769,7 +767,7 @@ def error(s):
         t,idx=expression0(s,idx)
         if (pas==2 or pas==0) and u:
             print(f"Line {ln} Error code {t} ",end="")
-            if t>=0 and t<=5:
+            if t>=0 and t<len(errors):
                 print(f"{errors[t]}",end='')
             print(": ")
             error_code=t
@@ -952,6 +950,7 @@ def lineassemble(line):
     for i in pat:
         if set_symbol(i): continue
     line=label_processing(line)
+    clear_symbol([".clearsym","",""])
 
     (l,idx)=get_param_to_spc(line,0)
     (l2,idx)=get_param_to_eol(line,idx)
