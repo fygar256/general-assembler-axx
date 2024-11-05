@@ -230,7 +230,7 @@ def factor1(s,idx):
         while(s[idx].isdigit()):
             x=10*x+int(s[idx])
             idx+=1
-    elif expmode==EXP_PAT and s[idx] in lower:
+    elif expmode==EXP_PAT and (s[idx] in lower and s[idx+1] not in lower):
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
             (x,idx)=expression(s,idx+3)
@@ -239,11 +239,14 @@ def factor1(s,idx):
             x=get_vars(ch)
             idx+=1
     else:
-        if expmode==EXP_ASM and (s[idx] in lwordchars or s[idx]=='.'):
+        if (s[idx] in lwordchars):
             (w,idx_new)=get_label_word(s,idx)
             if idx!=idx_new:
                 idx=idx_new
-                x=get_label_value(w)
+                if pas==2 or pas==0:
+                    x=get_label_value(w)
+                else:
+                    x=0
             else:
                 pass
         else:
