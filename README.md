@@ -20,7 +20,7 @@ axx can handle any processor architecture. To handle each processor architecture
 
 The execution platform is also independent of a specific processing system. It is also set to ignore chr(13) at the end of a line in DOS files. It should work on any processing system that runs python.
 
-It does not support practical features such as optimization, advanced macros, and debuggers that are provided by dedicated assemblers. The current version is an experimental implementation. For practical features, please use a preprocessor for macros. For now, please use a program that manages binary files and label (symbol) files as a linker/loader. Since it is not an IDE, you can use gdb as a debugger. Optimization is not supported.
+It does not support practical features such as optimization, advanced macros, and debuggers that are provided by dedicated assemblers. The current version is an experimental implementation. For practical features, please use a preprocessor for macros. For now, please use a program that manages binary files and label (symbol) files as a linker/loader. Since it is not an IDE, you can use external debugger. Optimization is not supported.
 
 Since the pattern file and source file are separated, it is possible to generate machine code for another processor from the source of one instruction set, if you do not mind the effort of coding.
 
