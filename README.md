@@ -12,6 +12,12 @@ It was written in python, so the nickname is Paxx.
 
 Arch linux terminal
 
+# Install
+
+```
+git clone https://github.com/fygar256/general-assembler-axx.git
+```
+
 # Main text
 
 axx.py is a generalized assembler.
@@ -30,7 +36,7 @@ Assembly language has a one-to-one correspondence with processor instructions, s
 
 If you write multiple instruction codes in the binary_list of pattern data, it functions as a macro, but it is not very smart. It allows you to write a simple compiler.
 
-#### How to use
+#### How to use (assembly or execution)
 
 Use it like this: `python axx.py patternfile.axx [source.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
 
