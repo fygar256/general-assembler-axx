@@ -17,6 +17,13 @@ Arch linux terminal
 ```
 git clone https://github.com/fygar256/general-assembler-axx.git
 cd general-assembler-axx
+chmod +x axx.py
+sudo mv axx.py /usr/bin/axx
+```
+# execution (assemble)
+
+```
+axx patternfile.axx [source.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
 ```
 
 # Main text
@@ -37,9 +44,7 @@ Assembly language has a one-to-one correspondence with processor instructions, s
 
 If you write multiple instruction codes in the binary_list of pattern data, it functions as a macro, but it is not very smart. It allows you to write a simple compiler.
 
-#### How to use (assembly or execution)
 
-Use it like this: `python axx.py patternfile.axx [source.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv]`.
 
 axx reads assembler pattern data from the first argument and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, input the source from the terminal (standard input).
 
