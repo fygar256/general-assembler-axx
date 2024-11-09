@@ -902,7 +902,7 @@ def include_asm(l1,l2):
 def section_processing(l1,l2):
     global current_section
 
-    if upper(l1)!="SECTION":
+    if upper(l1)!="SECTION" and upper(l1)!="SEGMENT":
         return False
 
     if l2!='':
