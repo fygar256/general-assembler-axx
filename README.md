@@ -16,6 +16,7 @@ Arch linux terminal
 
 ```
 git clone https://github.com/fygar256/general-assembler-axx.git
+cd general-assembler-axx
 ```
 
 # Main text
