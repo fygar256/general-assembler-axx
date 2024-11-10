@@ -243,10 +243,7 @@ def factor1(s,idx):
             (w,idx_new)=get_label_word(s,idx)
             if idx!=idx_new:
                 idx=idx_new
-                if pas==2 or pas==0:
-                    x=get_label_value(w)
-                else:
-                    x=0
+                x=get_label_value(w)
             else:
                 pass
     idx=skipspc(s,idx)
