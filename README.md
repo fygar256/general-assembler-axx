@@ -545,7 +545,7 @@ https://github.com/fygar256/general-assembler-axx
 
 ### Acknowledgements
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design for the problems and hints, the University of Electro-Communications for their cooperation, computer scientists, IEEE, Turing Research Team, Google, Qiita, and some unforgettable people. Thank you.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design for the problems and hints, the University of Electro-Communications for their cooperation, computer scientists, Google, Qiita, and some unforgettable people. Thank you.
 
 ### Haiku
 
