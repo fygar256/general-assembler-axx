@@ -580,9 +580,6 @@ def makeobj(s):
     s+=chr(0)
     idx=0
     cnt=0
-    if pas==2 or pas==0:
-        print("%016x " % pc,end='')
-        print(f"{current_file} {ln} {cl} " ,end='')
     while True:
         if s[idx]==chr(0):
             break
@@ -605,8 +602,6 @@ def makeobj(s):
             continue
         break
 
-    if (pas==2 or pas==0) and cnt!=0:
-        print("")
     return cnt
 
 def isword(s,idx):
@@ -862,8 +857,6 @@ def ascii_processing(l1,l2):
         return False
 
     f=asciistr(l2)
-    if (pas==2 or pas==0):
-        print("")
     return(f)
 
 def asciiz_processing(l1,l2):
@@ -874,8 +867,6 @@ def asciiz_processing(l1,l2):
     if f:
         outbin(pc,0x00)
         pc+=1
-    if (pas==2 or pas==0):
-        print("")
     return True
 
 def include_pat(l):
@@ -935,9 +926,8 @@ def org_processing(l1,l2):
     return True
 
 def lineassemble(line):
-    global pc,cl,ln,error_undefined_label
+    global pc,ln,error_undefined_label
     ln+=1
-    cl=line.replace('\n','')
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -1014,6 +1004,18 @@ def lineassemble(line):
             return False
     return True
 
+def lineassemble0(line):
+    global cl
+    cl=line.replace('\n','')
+    if pas==2 or pas==0:
+        print("%016x " % pc,end='')
+        print(f"{current_file} {ln} {cl} " ,end='')
+    f=lineassemble(cl)
+    if pas==2 or pas==0:
+        print("")
+    return f
+
+
 def option(l,o):
     if o in l:
         idx=l.index(o)
@@ -1041,7 +1043,7 @@ def fileassemble(fn):
     fnstack+=[current_file]
     lnstack+=[ln]
     current_file=fn
-    ln=0
+    ln=1
 
     if fn=="stdin":
         if pas!=2 and pas!=0:
@@ -1057,7 +1059,7 @@ def fileassemble(fn):
     f.close()
 
     for i in af:
-        lineassemble(i)
+        lineassemble0(i)
 
     if fnstack:
         current_file=fnstack.pop()
@@ -1115,7 +1117,7 @@ def main():
     if len(sys_argv)==2:
         pc=0
         pas=0
-        ln=0
+        ln=1
         current_file="(stdin)"
         while True:
             printaddr(pc)
@@ -1127,16 +1129,16 @@ def main():
             line=line.strip()
             if line=="":
                 continue
-            lineassemble(line)
+            lineassemble0(line)
 
     elif len(sys_argv)>=3:
         pc=0
         pas=1
-        ln=0
+        ln=1
         fileassemble(sys.argv[2])
         pc=0
         pas=2
-        ln=0
+        ln=1
         fileassemble(sys.argv[2])
 
     if expfile!="":

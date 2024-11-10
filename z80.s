@@ -1,4 +1,5 @@
     .ORG 0
+    .asciiz "test"
     INC (IX)
     INC (IY)
     INC (IX+0x56)
@@ -7,6 +8,7 @@
     DEC (IY)
     DEC (IX+0x56)
     DEC (IY+0x56)
+    .ORG 0x100,P
     LD SP,HL
     LD SP,IX
     LD SP,IY
