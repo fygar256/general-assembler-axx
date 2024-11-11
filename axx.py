@@ -30,6 +30,9 @@ padding=0
 alphabet=lower+capital
 lwordchars=digit+alphabet+"_."
 swordchars=digit+alphabet+"_%$-~&|"
+current_section=".text"
+current_file=""
+sections={}
 symbols={}
 labels={}
 export_labels={}
@@ -42,8 +45,6 @@ pas=0
 debug=0
 cl=""
 ln=0
-current_file=""
-current_section=".text"
 fnstack=[]
 lnstack=[]
 vars=[ VAR_UNDEF for i in range(26) ]
@@ -888,13 +889,14 @@ def include_asm(l1,l2):
     return True
 
 def section_processing(l1,l2):
-    global current_section
+    global current_section,sections
 
     if upper(l1)!="SECTION" and upper(l1)!="SEGMENT":
         return False
 
     if l2!='':
         current_section=l2
+        sections[l2]=[pc,0]
     return True
 
 def align_processing(l1,l2):
@@ -912,6 +914,15 @@ def align_processing(l1,l2):
 
 def printaddr(pc):
     print("%016x: " % pc,end='')
+
+def endsection_processing(l1,l2):
+    global sections
+
+    if upper(l1)!="ENDSECTION" and upper(l1)!="ENDSEGMENT":
+        return False
+    start=sections[current_section][0]
+    sections[current_section]=[start,pc-start]
+    return True
 
 def org_processing(l1,l2):
     global pc
@@ -945,6 +956,8 @@ def lineassemble(line):
     l2=l2.rstrip()
     l=l.replace(' ','')
     if section_processing(l,l2):
+        return True
+    if endsection_processing(l,l2):
         return True
     if ascii_processing(l,l2):
         return True
@@ -1143,9 +1156,17 @@ def main():
 
     if expfile!="":
         h=list(export_labels.items())
+        key=list(sections.keys())
         with open(expfile,"wt") as label_file:
+            for i in key:
+                if i=='.text':
+                    flag='AX'
+                else:
+                    flag='WA'
+                start=sections[i][0]
+                label_file.write(f"{i}\t{start:#x}\t{sections[i][1]:#x}\t{flag}\n")
             for i in h:
-                label_file.write(f"{i[1][1]}\t{i[0]}\t{i[1][0]:#x}\n")
+                label_file.write(f"{i[0]}\t{i[1][0]:#x}\n")
 
 if __name__=='__main__':
     main()
