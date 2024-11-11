@@ -852,7 +852,6 @@ def export_processing(l1,l2):
         v=get_label_value(s)
         sec=get_label_section(s)
         export_labels[s]=[v,sec]
-        print(f"Export {s},value={v},section={sec}")
         if l2[idx]==',':
             idx+=1
     return True
