@@ -460,7 +460,7 @@ LD (IX[[+!d]]),(IX[[+!e]]):: 0xfd,0x04,d,e
 NOP :: 0x01
 ```
 
-The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, the evaluation function for the formula will interpret the part after 2 in `leaq rax,[rbx+rcx*2+0x40]` as `!h`, and the part beyond that, 2+0x40, as a formula, and 2+0x40 will be substituted for h, leaving the remaining `+!!i`, resulting in a syntax analysis error. This is because `!!h` represents a factor, and `!h` represents an formula. This is also because escape characters in formulas cannot be processed.
+The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, the evaluation function for the formula will interpret the part after 2 in `leaq rax,[rbx+rcx*2+0x40]` as `!h`, and the part beyond that, 2+0x40, as a formula, and 2+0x40 will be substituted for h, leaving the remaining `+!!i`, resulting in a syntax analysis error. This is because `!!h` represents a factor, and `!h` represents an formula. This is also because escape characters in formulas cannot be processed.
 
 ```test.s 
 leaq rax , [ rbx , rcx , 2 , 0x40]
