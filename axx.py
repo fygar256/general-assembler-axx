@@ -146,22 +146,23 @@ def factor(s,idx):
 
 def get_label_section(k):
     global error_undefined_label
-    l=list(labels.keys())
-    for i in l:
-        if i==k:
-            error_undefine_label=False
-            return labels[k][1]
-    error_undefined_label=True
-    return UNDEF
+    error_undefine_label=False
+    try:
+        v=labels[k][1]
+    except:
+        v=UNDEF
+        error_undefined_label=True
+    return v
 
 def get_label_value(k):
     global error_undefined_label
-    for i in list(labels.keys()):
-        if i==k:
-            error_undefined_label=False
-            return labels[k][0]
-    error_undefined_label=True
-    return UNDEF
+    error_undefine_label=False
+    try:
+        v=labels[k][0]
+    except:
+        v=UNDEF
+        error_undefined_label=True
+    return v
 
 def put_label_value(k,v,s):
     global error_already_defined
@@ -834,6 +835,8 @@ def asciistr(l2):
 
 def export_processing(l1,l2):
     global export_labels
+    if not (pas==2 or pas==0):
+        return False
     if upper(l1)!=".EXPORT":
         return False
 
@@ -849,6 +852,7 @@ def export_processing(l1,l2):
         v=get_label_value(s)
         sec=get_label_section(s)
         export_labels[s]=[v,sec]
+        print(f"Export {s},value={v},section={sec}")
         if l2[idx]==',':
             idx+=1
     return True
@@ -1161,8 +1165,10 @@ def main():
             for i in key:
                 if i=='.text':
                     flag='AX'
-                else:
+                elif i=='.data':
                     flag='WA'
+                else:
+                    flag=''
                 start=sections[i][0]
                 label_file.write(f"{i}\t{start:#x}\t{sections[i][1]:#x}\t{flag}\n")
             for i in h:
