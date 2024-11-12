@@ -405,11 +405,30 @@ def term10(s,idx):
             break
     return (x,idx)
 
+def term11(s,idx):
+    (x,idx)=term10(s,idx)
+    while True:
+        if q(s,'?',idx):
+            (t,idx)=term10(s,idx+1)
+            x=t
+            if q(s,':',idx):
+                (u,idx)=term10(s,idx+1)
+                if (x==0):
+                    x=u
+                else:
+                    pass
+            else:
+                pass
+        else:
+            break
+    return (x,idx)
+
+
 
 def expression(s,idx):
     s+=chr(0)
     idx=skipspc(s,idx)
-    (x,idx)=term10(s,idx)
+    (x,idx)=term11(s,idx)
     return (x,idx)
 
 def expression0(s,idx):
