@@ -22,7 +22,7 @@ This version only includes the core of the assembler, so it does not support pra
 
 Since the pattern file and source file are separated, it is possible to generate machine code for another processor from source of a certain instruction set, if you do not mind the effort of coding. It is also possible to generate machine code for different processors from a common language. If you write multiple instruction codes in the binary_list of pattern data, it functions as a macro, but it is not very smart. This allows you to write a simple compiler.
 
-Pattern data does not have control syntax other than assignment. It can be used to generate binaries, not limited to assembly language.
+Pattern data does not have control syntax other than assignment and ternary operator. It can be used to generate binaries, not limited to assembly language.
 
 Since assembly language has a one-to-one correspondence with processor instructions, axx was realized.
 
@@ -388,6 +388,7 @@ The operators and precedence are as follows, based on Python
 not(x)             Logical NOT
 &&                 Logical AND
 ||                 Logical OR
+x?a:b              ternary operator that returns a if x is true and b if x is false.
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
@@ -399,7 +400,6 @@ The prefix operator `@` returns the position of the most significant bit of the 
 The binary operator `'`, for example `a'24`, sign extends (Sign EXtends) the 24th bit of a as the sign bit. We call this the SEX operator.
 
 The binary operator `**` is exponentiation.
-
 
 ## Example of binary output
 
