@@ -1130,6 +1130,7 @@ def main():
         pat=readpat(sys_argv[1])
 
     (sys_argv,expfile)=option(sys_argv,"-e")
+    (sys_argv,expefile)=option(sys_argv,"-E")
     (sys_argv,outfile)=option(sys_argv,'-o')
     (sys_argv,impfile)=option(sys_argv,"-i")
 
@@ -1176,14 +1177,20 @@ def main():
         ln=1
         fileassemble(sys.argv[2])
 
+    if expefile!="":
+        expfile=expefile
+        elf=1
+    else:
+        elf=0
+
     if expfile!="":
         h=list(export_labels.items())
         key=list(sections.keys())
         with open(expfile,"wt") as label_file:
             for i in key:
-                if i=='.text':
+                if i=='.text' and elf==1:
                     flag='AX'
-                elif i=='.data':
+                elif i=='.data' and elf==1:
                     flag='WA'
                 else:
                     flag=''
