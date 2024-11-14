@@ -1,11 +1,20 @@
 format of import file
 
 section label value
+section label value
+section label value
 
-format of export file
+-------------------------------------------------------------------
+format of export file by the option `-e`
 
-section value size
-
+section1 value size
+section2 value size
+label1 value
+label2 value
+-------------------------------------------------------------------
 format of export file for elf
 
-section value size flag
+section1 value size flag
+section2 value size flag
+label1 value
+label2 value
