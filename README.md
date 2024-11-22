@@ -50,9 +50,13 @@ axx patternfile.axx [source.s] [-o outfile.bin] [-e expfile.tsv] [-i impfile.tsv
 ```
 
 patternfile.axx --- pattern file
+
 source.s --- assembly source
+
 outfile.bin --- raw binary output file
+
 expfile.tsv --- section and label information export file
+
 impfile.tsv --- section and label information import file
 
 ## Explanation of pattern file
@@ -380,24 +384,24 @@ Assembly line expressions and pattern data expressions call the same functions, 
 The operators and precedence are as follows, based on Python
 
 ```
-(expression) An expression enclosed in parentheses
-# An operator that returns the value of a symbol
--,~ Negative, bitwise NOT
-@ A unary operator that returns the bit position from the right of the most significant bit of the following value
-:= Assignment operator
-** Exponentiation
-*,// Multiplication, integer division
-+,- Addition, subtraction
-<<,>> Left shift, right shift
-& Bitwise AND
-| Bitwise OR
-^ Bitwise XOR
-' Sign extension
-<=,<,>,>=,!=,== Comparison operators
-not(x) Logical NOT
-&& Logical AND
-|| Logical OR
-x?a:b Ternary operator
+(expression)      An expression enclosed in parentheses
+#                 An operator that returns the value of a symbol
+-,~               Negative, bitwise NOT
+@                 A unary operator that returns the bit position from the right of the most significant bit of the following value
+:=                Assignment operator
+**                Exponentiation
+*,//              Multiplication, integer division
++,-               Addition, subtraction
+<<,>>             Left shift, right shift
+&                 Bitwise AND
+|                 Bitwise OR
+^                 Bitwise XOR
+'                 Sign extension
+<=,<,>,>=,!=,==   Comparison operators
+not(x)            Logical NOT
+&&                Logical AND
+||                Logical OR
+x?a:b             Ternary operator
 ```
 
 There is an assignment operator `:=`. If you enter `d:=24`, 24 will be assigned to the variable d. The value of the assignment operator is the assigned value.
@@ -427,7 +431,44 @@ Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x
 
 This is just a test, so the binary is different from the actual code.
 
-```test.axx /* test .setsym ::a:: 7 .setsym ::b:: 1 .setsym ::%% ::7 .setsym ::||:: 8 LD s,x :: 0x1,y,s,x /* ARM64 .setsym ::r1 :: 2 .setsym ::r2 :: 3 .setsym ::r3 :: 4 .setsym ::lsl:: 6 ADD w, x, y z #!d :: 0x88,d ADD x, y, !e :: 0x91,x,y,e /* A64FX .setsym ::v0 :: 0 .setsym ::x0 :: 1 ST1 {x.4S},[y] :: 0x01,x,y,0 /* MIPS .setsym ::$s5 ::21 .setsym ::$v0 ::2 .setsym ::$a0 ::4 ADDI x,y,!d :: (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e /* x86_64 .setsym ::rax:: 0 .setsym ::rbx:: 3 .setsym ::rcx ::1 .setsym ::rep ::0xf3 MMX A,B :: ,0x12,0x13 LEAQ r,[s,t,!d,!e] :: 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
+```test.axx
+
+/* test
+
+.setsym ::a:: 7
+.setsym ::b:: 1
+.setsym ::%% ::7
+.setsym ::||:: 8
+LD s,x :: 0x1,y,s,x
+
+/* ARM64
+.setsym ::r1 :: 2
+.setsym ::r2 :: 3
+.setsym ::r3 :: 4
+.setsym ::lsl:: 6
+ADD w, x, y z #!d :: 0x88,d
+ADD x, y, !e :: 0x91,x,y,e
+
+/* A64FX
+.setsym ::v0 :: 0
+.setsym ::x0 :: 1
+
+ST1 {x.4S},[y] :: 0x01,x,y,0
+
+/* MIPS
+.setsym ::$s5 ::21
+.setsym ::$v0 ::2
+.setsym ::$a0 ::4
+ADDI x,y,!d :: (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
+
+/* x86_64
+
+.setsym ::rax:: 0
+.setsym ::rbx:: 3
+.setsym ::rcx ::1
+.setsym ::rep ::0xf3
+MMX A,B :: ,0x12,0x13
+LEAQ r,[s,t,!d,!e] :: 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 LEAQ r, [ s + t * !!h + !!i ] :: 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
 [[z]] MOVSB ​​:: ;z,0xa4
 TEST :: 0x12,,0x13
@@ -439,7 +480,26 @@ NOP :: 0x01
 
 The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, when pattern matching, the evaluation function of the assembly line expression will match `!h` from the 2 onwards in `leaq rax,[rbx+rcx*2+0x40]`, and will interpret the part beyond that, 2+0x40, as an expression, and will assign 2+0x40 to h, resulting in a syntax analysis error for the remaining `+!!i`. `!!h` is a factor, and `!h` is an expression. This is because escape characters in expressions cannot be processed.
 
-```test.s leaq rax , [ rbx , rcx , 2 , 0x40] leaq rax , [ rbx + rcx * 2 + 0x40] movsb rep movsb addi $v0,$a0,5 st1 {v0.4s},[x0] add r1, r2, r3 lsl #20 ```` Execution example ```` $ axx.py test.axx test.s 0000000000000000: leaq rax , [ rbx , rcx , 2 , 0x40] 0x48 0x8d 0x04 0x4b 0x40 0000000000000005: leaq rax , [ rbx + rcx * 2 + 0x40] 0x48 0x8d 0x04 0x4b 0x40 000000000000000a: movsb 0xa4 000000000000000c: rep movsb 0xf3 0xa4 000000000000000e: addi $v0,$a0,5 0x20 0x82 0x00 0x05 0000000000000012: st1 {v0.4s},[x0] 0x01 0x00 0x01 0x00 0000000000000016: add r1, r2, r3 lsl #20 0x88 0x14
+```test.s 
+leaq rax , [ rbx , rcx , 2 , 0x40]
+leaq rax , [ rbx + rcx * 2 + 0x40]
+movsb
+rep movsb
+addi $v0,$a0,5
+st1 {v0.4s},[x0]
+add r1, r2, r3 lsl #20
+```
+
+Execution example 
+```
+$ axx.py test.axx test.s
+0000000000000000: leaq rax , [ rbx , rcx , 2 , 0x40] 0x48 0x8d 0x04 0x4b 0x40
+0000000000000005: leaq rax , [ rbx + rcx * 2 + 0x40] 0x48 0x8d 0x04 0x4b 0x40
+000000000000000a: movsb 0xa4
+000000000000000c: rep movsb 0xf3 0xa4
+000000000000000e: addi $v0,$a0,5 0x20 0x82 0x00 0x05
+0000000000000012: st1 {v0.4s},[x0] 0x01 0x00 0x01 0x00
+0000000000000016: add r1, r2, r3 lsl #20 0x88 0x14
 ```
 
 ## error
