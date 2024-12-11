@@ -4,10 +4,12 @@
 # axx general assembler designed and programmed by Taisuke Maekawa
 #
 
+from decimal import Decimal, getcontext
 import string as str
 import subprocess
 import itertools
 import struct
+import numpy as np
 import sys
 import os
 import re
@@ -183,6 +185,82 @@ def put_label_value(k,v,s):
     labels[k]=[v,s]
     return True
 
+
+def decimal_to_ieee754_128bit_hex(a):
+    # IEEE 754 四倍精度の定義
+    BIAS = 16383
+    SIGNIFICAND_BITS = 112
+    EXPONENT_BITS = 15
+    
+    # Decimalモジュールの精度を設定
+    getcontext().prec = 34  # 四倍精度は約34桁の10進数精度に相当
+    
+    # 入力をDecimal型に変換
+    d = Decimal(a)
+    
+    # 特殊ケースの処理
+    if d.is_nan():
+        # NaNの場合（符号=1、指数=全ビット1、仮数部は非ゼロ）
+        sign = 0
+        exponent = (1 << EXPONENT_BITS) - 1
+        fraction = 1 << (SIGNIFICAND_BITS - 1)  # 仮数部の最上位ビットを1に設定
+    elif d == Decimal('Infinity'):
+        # 正の無限大の場合（符号=0、指数=全ビット1、仮数部=0）
+        sign = 0
+        exponent = (1 << EXPONENT_BITS) - 1
+        fraction = 0
+    elif d == Decimal('-Infinity'):
+        # 負の無限大の場合（符号=1、指数=全ビット1、仮数部=0）
+        sign = 1
+        exponent = (1 << EXPONENT_BITS) - 1
+        fraction = 0
+    elif d == Decimal(0):
+        # ゼロの場合（符号のみ異なり、それ以外は全ビット0）
+        sign = 0 if d >= 0 else 1
+        exponent = 0
+        fraction = 0
+    else:
+        # 通常の数値の場合
+        sign = 0 if d >= 0 else 1
+        d = abs(d)
+        
+        # 指数部と仮数部を計算
+        exponent_value = d.adjusted() + BIAS
+        
+        if exponent_value <= 0:
+            # 非正規化数（指数が最小値未満）
+            exponent = 0
+            fraction = int(d.scaleb(BIAS - SIGNIFICAND_BITS).normalize() * (2**SIGNIFICAND_BITS))
+        else:
+            # 正規化数
+            exponent = exponent_value
+            normalized_value = d / (Decimal(2) ** d.adjusted())
+            fraction = int((normalized_value - 1) * (2**SIGNIFICAND_BITS))
+        
+        # 仮数部がオーバーフローしないように調整
+        fraction &= (1 << SIGNIFICAND_BITS) - 1
+    
+    # ビット列を組み立てる（符号 | 指数 | 仮数部）
+    bits = (sign << 127) | (exponent << SIGNIFICAND_BITS) | fraction
+    
+    # 結果を16進数文字列として返す
+    return f"0x{bits:032X}"
+
+"""
+# 使用例
+numbers = ['3.141592653589793238462643383279502884', 
+           '-3.141592653589793238462643383279502884', 
+           'Infinity', 
+           '-Infinity', 
+           'NaN', 
+           '0']
+
+for num in numbers:
+    result = decimal_to_ieee754_128bit_hex(Decimal(num))
+    print(f"{num} -> {result}")
+
+"""
+
 def factor1(s,idx):
     x = 0
 
@@ -212,27 +290,35 @@ def factor1(s,idx):
             x=16*x+int(s[idx].lower(),16)
             idx+=1
 
-    elif q(s,'0d',idx):
-        idx+=2
+    elif s[idx:idx+4]=='qad(':
+        idx+=4
         fs=''
-        while(s[idx] in "0123456789.e"):
+        while(s[idx] in "0123456789.-e"):
             fs+=s[idx]
             idx+=1
-        x=int.from_bytes(struct.pack('>d',float(fs)),"little")
+        h=decimal_to_ieee754_128bit_hex(fs)
+        x=int(h,16)
+        if s[idx]==')':
+            idx+=1
 
-    elif q(s,'0f',idx):
-        idx+=2
-        fs=''
-        while(s[idx] in "0123456789.e"):
-            fs+=s[idx]
-            idx+=1
-        x=int.from_bytes(struct.pack('>f',float(fs)),"little")
+    elif s[idx:idx+4]=='flt(':
+        (x,idx)=expression(s,idx+3)
+        x=int.from_bytes(struct.pack('>f',x),"little")
+
+    elif s[idx:idx+4]=='dbl(':
+        (x,idx)=expression(s,idx+3)
+        x=int.from_bytes(struct.pack('>d',x),"little")
 
     elif s[idx].isdigit():
-        x=0
-        while(s[idx].isdigit()):
-            x=10*x+int(s[idx])
+        fs=''
+        while(s[idx] in "0123456789-.e"):
+            fs+=s[idx]
             idx+=1
+        x=float(fs)
+        if int(x)==x:
+            x=int(x)
+        else:
+            pass
     elif expmode==EXP_PAT and (s[idx] in lower and s[idx+1] not in lower):
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
@@ -267,6 +353,12 @@ def term0(s,idx):
         if (s[idx]=='*'):
             (t,idx)=term0_0(s,idx+1)
             x*=t
+        elif s[idx]=='/' and s[idx+1]!='/':
+            (t,idx)=term0_0(s,idx+1)
+            if t==0:
+                err("Division by 0 error.")
+            else:
+                x=x/t
         elif q(s,'//',idx):
             (t,idx)=term0_0(s,idx+2)
             if t==0:
@@ -378,8 +470,6 @@ def term7(s,idx):
 def term8(s,idx):
     if s[idx:idx+4]=='not(':
         (x,idx)=expression(s,idx+3)
-        if s[idx]==')':
-            idx+=1
         x=not x
     else:
         (x,idx)=term7(s,idx)
