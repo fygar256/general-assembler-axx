@@ -505,9 +505,13 @@ $ axx.py test.axx test.s
 ## error
 
 ・An error occurs if the label overlaps with a symbol in the pattern file.
+
 ・An error occurs if the same label is defined more than once.
+
 ・An error occurs if syntax analysis is not possible.
+
 ・An error occurs if an undefined label is referenced.
+
 ・An error occurs if any of the conditions in error_patterns are met. In that case, a message (Value out of range, Invalid syntax, Address out of range, Register out of range, Port number out of range) will be displayed for error codes 0, 1, 2, 5, and 6, respectively. If there are not enough types of errors, please add an error message to the source.
 
 ## Comment
