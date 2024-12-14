@@ -43,7 +43,7 @@ def readsections(fn):
             l=l.strip()
 
             (sec,idx)=get_label_word(l,0)
-            if sec.upper()=="SECTION" || sec.upper()=="SEGMENT":
+            if sec.upper()=="SECTION" or sec.upper()=="SEGMENT":
                 (secname,idx)=get_label_word(l,idx)
                 if secname==current_section:
                     continue
