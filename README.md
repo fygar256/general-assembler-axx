@@ -482,8 +482,8 @@ The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`
 ```test.s 
 leaq rax , [ rbx , rcx , 2 , 0x40]
 leaq rax , [ rbx + rcx * 2 + 0x40]
-movsb rep
 movsb
+rep movsb
 addi $v0,$a0,5
 st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
