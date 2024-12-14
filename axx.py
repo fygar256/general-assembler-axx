@@ -261,6 +261,20 @@ for num in numbers:
 
 """
 
+def get_intstr(s,idx):
+    fs=''
+    while(s[idx] in "0123456789"):
+        fs+=s[idx]
+        idx+=1
+    return(fs,idx)
+
+def get_floatstr(s,idx):
+    fs=''
+    while(s[idx] in "0123456789-.e"):
+        fs+=s[idx]
+        idx+=1
+    return(fs,idx)
+
 def factor1(s,idx):
     x = 0
 
@@ -310,15 +324,15 @@ def factor1(s,idx):
         x=int.from_bytes(struct.pack('>d',x),"little")
 
     elif s[idx].isdigit():
-        fs=''
-        while(s[idx] in "0123456789-.e"):
-            fs+=s[idx]
-            idx+=1
-        x=float(fs)
-        if int(x)==x:
-            x=int(x)
+        (fs,idxi)=get_intstr(s,idx)
+        (fs2,idxf)=get_floatstr(s,idx)
+        if idxi==idxf:
+            x=int(fs)
+            idx=idxi
         else:
-            pass
+            x=float(fs2)
+            idx=idxf
+
     elif expmode==EXP_PAT and (s[idx] in lower and s[idx+1] not in lower):
         ch=s[idx]
         if s[idx+1:idx+3]==':=':
