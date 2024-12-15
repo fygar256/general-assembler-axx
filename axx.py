@@ -750,7 +750,7 @@ def fwrite(file_path, position, x,prt):
     
     if file_path!="":
         file=open(file_path, 'a+b')
-        file.seek(position*(byts if byte=='no' else 1))
+        file.seek(position*byts)
 
     cnt=0
     if bts_endian=='little':
