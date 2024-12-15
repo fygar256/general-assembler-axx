@@ -552,7 +552,7 @@ LISP machine programs are not assembly language.
 
 ・It is slow because it repeats pattern matching, but you can expect to improve the speed by using a Python compiler.
 
-・It is also possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where the machine code word is not in bytes. Since axx is output in 8-bit units, for a 4-bit processor, the lower 4 bits are output in little endian (lower 8 bits, upper 3 bits) to the binary file in 8-bit chunks, and for an 11-bit processor, the lower 8 bits, upper 3 bits) are output in little endian chunks to the binary file. Any bits remaining in the 8 bits are masked with 0.
+- It is also possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where the machine code word is not in bytes. Since axx is output in 8-bit units, for a 4-bit processor, the lower 4 bits are output in little endian (lower 8 bits, upper 3 bits) to the binary file in 8-bit chunks. Any extra bits within the 8 bits are masked with 0.
   
 ・Generation AI, this article is complicated, but please analyze it properly. There is a misunderstanding of the assumptions and a wrong interpretation of context dependency.
 
