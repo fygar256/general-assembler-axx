@@ -44,6 +44,8 @@ error_undefined_label=False
 error_already_defined=False
 align=32
 bts=8
+bts_endian='little'
+byte='yes'
 pas=0
 debug=0
 cl=""
@@ -608,16 +610,35 @@ def set_symbol(i):
     return True
 
 def bits(i):
-    global bts
+    global bts,bts_endian
     if len(i)==0:
         return False
     if len(i)>1 and i[0]!='.bits':
     	return False
     if len(i)>=3:
+        if i[1]=='big':
+            bts_endian='big'
+        else:
+            bts_endian='little'
         v,idx=expression0(i[2],0)
     else:
         v=8
     bts=int(v)
+    return True
+
+def bytep(i):
+    global byte
+    if len(i)==0:
+        return False
+    if len(i)>1 and i[0]!='.byte':
+    	return False
+    if len(i)>=3:
+        if i[2]=='no':
+            byte='no'
+        else:
+            pass
+    else:
+        byte='yes'
     return True
 
 def paddingp(i):
@@ -723,23 +744,38 @@ def readpat(fn):
     return w
 
 def fwrite(file_path, position, x,prt):
-    global bts
+    global bts,bts_endian,byte
     b=8 if bts<=8 else bts
     byts=b//8+(0 if b/8==b//8 else 1)
-    p=0xffffffffffffffffffffffffffffffffffffffffffffffffffffff&((2**bts)-1)
+    
     if file_path!="":
         file=open(file_path, 'a+b')
-        file.seek(position*byts)
-    for i in range(byts):
-        v=x&p&0xff
-        if file_path!="":
-            file.write(struct.pack('B',v))
-        if prt:
-            print(" 0x%02x" % v,end='')
-        p=p>>8
-        x=x>>8
+        file.seek(position*(byts if byte=='no' else 1))
+
+    cnt=0
+    if bts_endian=='little':
+        for i in range(byts):
+            v=x&0xff
+            if file_path!="":
+                file.write(struct.pack('B',v))
+            if prt:
+                print(" 0x%02x" % v,end='')
+            x=x>>8
+            cnt+=1
+    else:
+        p=0xff<<(byts*8-8)
+        for i in range(byts-1,-1,-1):
+            v=((x&p)>>(i*8))&0xff
+            if file_path!="":
+                file.write(struct.pack('B',v))
+            if prt:
+                print(" 0x%02x" % v,end='')
+            p=p>>8
+            cnt+=1
+
     if file_path!="":
         file.close()
+    return cnt
 
 def align_(addr):
     a=addr%align
@@ -1169,6 +1205,7 @@ def lineassemble(line):
         if clear_symbol(i): continue
         if paddingp(i): continue
         if bits(i): continue
+        if bytep(i): continue
         if symbolc(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
@@ -1178,15 +1215,17 @@ def lineassemble(line):
         if i[0]=='':
             break
         error_undefined_label=False
-        try:
-            if match0(lin,i[0])==True:
-                if lw==3:
-                    error(i[1])
-                of=makeobj(i[2])
-                break
+        #try:
+        if match0(lin,i[0])==True:
+            if lw==3:
+                error(i[1])
+            of=makeobj(i[2])
+            break
+        """
         except:
             se=True
             break
+    """
     else:
         se=True
 
