@@ -764,6 +764,8 @@ def fwrite(file_path, position, x,prt):
             x=x>>8
             cnt+=1
     else:
+        bp=(2**bts)-1
+        x=x&bp
         p=0xff<<(byts*8-8)
         for i in range(byts-1,-1,-1):
             v=((x&p)>>(i*8))&0xff
