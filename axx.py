@@ -1171,7 +1171,7 @@ def lineassemble(line):
             print(f"{current_file} : {ln} {cl}: undefined label error.")
             return False
         if se:
-            print(f"{current_file} : {ln} {cl}: error.")
+            print(f"{current_file} : {ln} {cl}: Syntax error.")
             return False
     return True
 
