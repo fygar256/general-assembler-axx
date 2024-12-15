@@ -783,4 +783,4 @@ If you find a bug, I would appreciate it if you could let me know how to fix it.
 
 ### Acknowledgements
 
-I would like to express my gratitude to my mentor Junichi Hamada and Tokyo Denshi Sekkei for giving me problems and hints, the University of Electro-Communications for their cooperation, computer scientists, Google, Qiita, and some unforgettable people. Thank you.
+I would like to express my gratitude to my mentor Junichi Hamada and Tokyo Denshi Sekkei for giving me problems and hints, the University of Electro-Communications for their cooperation, computer scientists, Computer engineers, Google, Qiita, and some unforgettable people. Thank you.
