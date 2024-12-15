@@ -43,6 +43,7 @@ expmode=EXP_PAT
 error_undefined_label=False
 error_already_defined=False
 align=32
+bts=8
 pas=0
 debug=0
 cl=""
@@ -67,16 +68,13 @@ def upper(o):
 
 def outbin2(a,x):
     if pas==2 or pas==0:
-        x=int(x)&0xff
-        if outfile!="":
-            fwrite(outfile,a,x)
+        x=int(x)
+        fwrite(outfile,a,x,0)
 
 def outbin(a,x):
     if pas==2 or pas==0:
-        x=int(x)&0xff
-        print(" 0x%02x" % x,end='')
-        if outfile!="":
-            fwrite(outfile,a,x)
+        x=int(x)
+        fwrite(outfile,a,x,1)
 
 def get_vars(s):
     c=ord(upper(s))
@@ -609,13 +607,26 @@ def set_symbol(i):
     symbols[key]=v
     return True
 
+def bits(i):
+    global bts
+    if len(i)==0:
+        return False
+    if len(i)>1 and i[0]!='.bits':
+    	return False
+    if len(i)>=3:
+        v,idx=expression0(i[2],0)
+    else:
+        v=8
+    bts=int(v)
+    return True
+
 def paddingp(i):
     global padding
     if len(i)==0:
         return False
     if len(i)>1 and i[0]!='.padding':
     	return False
-    if len(i)>3:
+    if len(i)>=3:
         v,idx=expression0(i[2],0)
     else:
         v=0
@@ -711,9 +722,24 @@ def readpat(fn):
     f.close()
     return w
 
-def fwrite(file_path, position, x):
-    with open(file_path, 'a+b') as file:
-        file.write(struct.pack('B',x))
+def fwrite(file_path, position, x,prt):
+    global bts
+    b=8 if bts<=8 else bts
+    byts=b//8+(0 if b/8==b//8 else 1)
+    p=0xffffffffffffffffffffffffffffffffffffffffffffffffffffff&((2**bts)-1)
+    if file_path!="":
+        file=open(file_path, 'a+b')
+        file.seek(position*byts)
+    for i in range(byts):
+        v=x&p&0xff
+        if file_path!="":
+            file.write(struct.pack('B',v))
+        if prt:
+            print(" 0x%02x" % v,end='')
+        p=p>>8
+        x=x>>8
+    if file_path!="":
+        file.close()
 
 def align_(addr):
     a=addr%align
@@ -1142,6 +1168,7 @@ def lineassemble(line):
         if set_symbol(i): continue
         if clear_symbol(i): continue
         if paddingp(i): continue
+        if bits(i): continue
         if symbolc(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
@@ -1151,15 +1178,17 @@ def lineassemble(line):
         if i[0]=='':
             break
         error_undefined_label=False
-        try:
-            if match0(lin,i[0])==True:
-                if lw==3:
-                    error(i[1])
-                of=makeobj(i[2])
-                break
+        #try:
+        if match0(lin,i[0])==True:
+            if lw==3:
+                error(i[1])
+            of=makeobj(i[2])
+            break
+        """
         except:
             se=True
             break
+        """
 
     else:
         se=True
