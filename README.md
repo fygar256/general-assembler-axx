@@ -538,6 +538,8 @@ LISP machine programs are not assembly language.
 
 ・I have made it possible to refer to the labels of the assemble file from the pattern file. Using this allows you to write simple compiled languages, but the structure becomes very complicated, so it is better not to use it.
 
+・nan, inf, and -inf processing can only be used in flt(x), dbl(x), and qad(x).
+
 ・It is slow because it repeats pattern matching, but you can expect to improve the speed by using a Python compiler.
 
 ・It is possible to assemble processors with less than 8 bits, such as bit slice processors, or processors where machine language words are not in bytes, but axx outputs in 8-bit units. Such processors depend on the object file format.
