@@ -1178,18 +1178,15 @@ def lineassemble(line):
         if i[0]=='':
             break
         error_undefined_label=False
-        #try:
-        if match0(lin,i[0])==True:
-            if lw==3:
-                error(i[1])
-            of=makeobj(i[2])
-            break
-        """
+        try:
+            if match0(lin,i[0])==True:
+                if lw==3:
+                    error(i[1])
+                of=makeobj(i[2])
+                break
         except:
             se=True
             break
-        """
-
     else:
         se=True
 
