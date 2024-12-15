@@ -196,6 +196,12 @@ def decimal_to_ieee754_128bit_hex(a):
     getcontext().prec = 34  # 四倍精度は約34桁の10進数精度に相当
     
     # 入力をDecimal型に変換
+    if a=='inf':
+        a='Infinity'
+    elif a=='-inf':
+        a='-Infinity'
+    elif a=='nan':
+        a='NaN'
     d = Decimal(a)
     
     # 特殊ケースの処理
@@ -269,10 +275,20 @@ def get_intstr(s,idx):
     return(fs,idx)
 
 def get_floatstr(s,idx):
-    fs=''
-    while(s[idx] in "0123456789-.e"):
-        fs+=s[idx]
-        idx+=1
+    if s[idx:idx+3]=='inf':
+        fs='inf'
+        idx+=3
+    elif s[idx:idx+4]=='-inf':
+        fs='-inf'
+        idx+=4
+    elif s[idx:idx+3]=='nan':
+        fs='nan'
+        idx+=3
+    else:
+        fs=''
+        while(s[idx] in "0123456789-.e"):
+            fs+=s[idx]
+            idx+=1
     return(fs,idx)
 
 def factor1(s,idx):
@@ -306,10 +322,7 @@ def factor1(s,idx):
 
     elif s[idx:idx+4]=='qad(':
         idx+=4
-        fs=''
-        while(s[idx] in "0123456789.-e"):
-            fs+=s[idx]
-            idx+=1
+        (fs,idx)=get_floatstr(s,idx)
         h=decimal_to_ieee754_128bit_hex(fs)
         x=int(h,16)
         if s[idx]==')':
@@ -317,16 +330,30 @@ def factor1(s,idx):
 
     elif s[idx:idx+4]=='flt(':
         (x,idx)=expression(s,idx+3)
-        x=int.from_bytes(struct.pack('>f',x),"little")
+        if (x==float('nan')):
+            x=0x7fc00000
+        elif (x==float('inf')):
+            x=0x7f800000
+        elif (x==float('-inf')):
+            x=0xff800000
+        else:
+            x=int.from_bytes(struct.pack('>f',x),"big")
 
     elif s[idx:idx+4]=='dbl(':
         (x,idx)=expression(s,idx+3)
-        x=int.from_bytes(struct.pack('>d',x),"little")
+        if (x==float('nan')):
+            x=0x7ff8000000000000
+        elif (x==float('inf')):
+            x=0x7ff0000000000000
+        elif (x==float('-inf')):
+            x=0xfff0000000000000
+        else:
+            x=int.from_bytes(struct.pack('>d',x),"big")
 
-    elif s[idx].isdigit():
+    elif s[idx].isdigit() or s[idx:idx+3]=='nan' or s[idx:idx+4]=='-inf' or s[idx:idx+3]=='inf':
         (fs,idxi)=get_intstr(s,idx)
         (fs2,idxf)=get_floatstr(s,idx)
-        if idxi==idxf:
+        if fs==fs2:
             x=int(fs)
             idx=idxi
         else:
