@@ -541,13 +541,12 @@ def term11(s,idx):
     while True:
         if q(s,'?',idx):
             (t,idx)=term10(s,idx+1)
-            x=t
             if q(s,':',idx):
                 (u,idx)=term10(s,idx+1)
                 if (x==0):
                     x=u
                 else:
-                    pass
+                    x=t
             else:
                 pass
         else:
