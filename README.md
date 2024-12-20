@@ -653,7 +653,7 @@ Because this is a test, the binary is different from the actual code.
 .setsym ::b:: 1
 .setsym ::%% ::7
 .setsym ::||:: 8
-LD s,x :: 0x1,y,s,x
+LDF A,!x :: 0x1,x,x>>8,x>>16,x>>24,x>>32,x>>40,x>>48,x>>56,x>>64,x>>72,x>>80,x>>88,x>>96,x>>104,x>>112,x>>120
 
 /* ARM64
 .setsym ::r1 :: 2
@@ -678,16 +678,18 @@ ADDI x,y,!d :: (e:=(0x20000000|(y<<21)|(x<<16)|d&0xffff))>>24,e>>16,e>>8,e
 .setsym ::rax:: 0
 .setsym ::rbx:: 3
 .setsym ::rcx ::1
-.setsym ::rep ::0xf3
-MMX A,B :: ,0x12,0x13
+.setsym ::rep ::1
+
+MMX A,B ::  ,0x12,0x13
 LEAQ r,[s,t,!d,!e] :: 0x48,0x8d,0x04,((@d)-1)<<6|t<<3|s,e
 LEAQ r, [ s + t * !!h + !!i ] :: 0x48,0x8d,0x04,((@h)-1)<<6|t<<3|s,i
-[[z]] MOVSB ​​:: ;z,0xa4
-TEST :: 0x12,,0x13
+[[u]] MOVSB :: ;u?0xf3:0,0xa4
+TEST !a:: a==3?0xc0:4,0x12,0x13
 
 /* ookakko test
-LD (IX[[+!d]]),(IX[[+!e]]):: 0xfd,0x04,d,e
+LD (IX[[+!d]]),(IX[[+!e]]):: 0xfd,0x04,d,e 
 NOP :: 0x01
+
 ```
 
 The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, when pattern matching, the evaluation function of the assembly line expression will match `!h` from the 2 onwards in `leaq rax,[rbx+rcx*2+0x40]`, and will interpret the part beyond that, 2+0x40, as an expression, and will assign 2+0x40 to h, resulting in a syntax analysis error for the remaining `+!!i`. `!!h` is a factor, and `!h` is an expression. This is because escape characters in expressions cannot be processed.
@@ -695,24 +697,24 @@ The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`
 ```test.s
 leaq rax , [ rbx , rcx , 2 , 0x40]
 leaq rax , [ rbx + rcx * 2 + 0x40]
-movsb
-rep movsb
 addi $v0,$a0,5
 st1 {v0.4s},[x0]
 add r1, r2, r3 lsl #20
+rep movsb
+movsb
 ```
 
 Execution example 
 
 ```
 $ axx.py test.axx test.s
-0000000000000000: leaq rax , [ rbx , rcx , 2 , 0x40] 0x48 0x8d 0x04 0x4b 0x40
-0000000000000005: leaq rax , [ rbx + rcx * 2 + 0x40] 0x48 0x8d 0x04 0x4b 0x40
-000000000000000a: movsb 0xa4
-000000000000000c: rep movsb 0xf3 0xa4
-000000000000000e: addi $v0,$a0,5 0x20 0x82 0x00 0x05
-0000000000000012: st1 {v0.4s},[x0] 0x01 0x00 0x01 0x00
-0000000000000016: add r1, r2, r3 lsl #20 0x88 0x14
+0000000000000000 test.s 1 leaq rax , [ rbx , rcx , 2 , 0x40]  0x48 0x8d 0x04 0x4b 0x40
+0000000000000005 test.s 2 leaq rax , [ rbx + rcx * 2 + 0x40]  0x48 0x8d 0x04 0x4b 0x40
+000000000000000a test.s 3 addi $v0,$a0,5  0x20 0x82 0x00 0x05
+000000000000000e test.s 4 st1 {v0.4s},[x0]  0x01 0x00 0x01 0x00
+0000000000000012 test.s 5 add r1, r2, r3 lsl #20  0x88 0x14
+0000000000000014 test.s 6 rep movsb  0xf3 0xa4
+0000000000000016 test.s 7 movsb  0xa4
 ```
 
 ## errors
