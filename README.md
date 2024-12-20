@@ -743,7 +743,7 @@ LISP machine programs are not assembly language.
 
 ・It is difficult to put escape characters in expressions.
 
-・Currently, only constants can be used for quadruple precision floating point numbers. This is due to the specifications of Python 3.
+・Currently, only constants can be used for quadruple precision floating point numbers. This is due to the specifications of Python 3. It would be nice if Python 4 could handle quadruple precision floating point numbers.
 
 ・nan, inf and -inf can only be processed in flt(x), dbl(x) and qad(x). I think nan, inf and -inf are first loaded into registers or memory and then calculated by the processor, so this may be sufficient.
 
