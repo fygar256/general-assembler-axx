@@ -1246,7 +1246,8 @@ def lineassemble(line):
             print(f"{current_file} : {ln} {cl}: Syntax error.")
             return False
         if oerr:
-            print(f"{current_file} : asm {ln} {cl} ; pat {pln} {pl}: Internal error. Illegal syntax in assemble line or pattern line.")
+            print(f"{current_file} : asm {ln} {cl} ; pat {pln} {pl}: Illegal syntax in assemble line or pattern line.")
+            return False
     return True
 
 def lineassemble0(line):
