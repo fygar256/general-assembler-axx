@@ -88,6 +88,8 @@ If you write `/*` in a pattern file, the part after `/*` on that line will becom
 
 Uppercase letters in the instruction of the pattern file are treated as character constants. If they are lowercase, they are treated as one-character variables. The value of the symbol at that position from the assembly line is assigned to the variable. If `! lowercase` is used, the value of the expression at that position is assigned, and if `!! lowercase` is used, the value of the factor at that position is assigned, and referenced from error_patterns and binary_list. All unassigned variables are initialized to 0. When referencing from error_patterns and binary_list, `!` is not necessary. All values ​​are referenced in the same way.
 
+All lowercase variables are initialized to 0 on each line of the pattern file.
+
 From the assembly line, uppercase and lowercase letters are accepted as the same, except for labels and section names.
 
 The special variable is '$$', which represents the current location counter.
