@@ -741,7 +741,6 @@ def readpat(fn):
             w.append(p)
 
     f.close()
-    setpatsymbols(w)
     return w
 
 def fwrite(file_path, position, x,prt):
@@ -1288,7 +1287,6 @@ def setpatsymbols(pat):
     for i in pat:
         if set_symbol(i): continue
     patsymbols.update(symbols)
-    symbols={}
 
 def fileassemble(fn):
     global current_file,fnstack,lnstack,ln,lines
@@ -1346,6 +1344,7 @@ def main():
 
     if len(sys_argv)>=2:
         pat=readpat(sys_argv[1])
+        setpatsymbols(pat)
 
     (sys_argv,expfile)=option(sys_argv,"-e")
     (sys_argv,expefile)=option(sys_argv,"-E")
