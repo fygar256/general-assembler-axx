@@ -36,6 +36,7 @@ current_section=".text"
 current_file=""
 sections={}
 symbols={}
+patsymbols={}
 labels={}
 export_labels={}
 pat=[]
@@ -167,18 +168,18 @@ def get_label_value(k):
     return v
 
 def put_label_value(k,v,s):
-    global error_already_defined
+    global error_already_defined,patsymbols
     if pas==1 or pas==0:
 
         for i in list(labels.keys()):
             if i==k:
                 error_already_defined=True
-                print(f" label already defined.")
+                print(f" error - label already defined.")
                 return False
 
-    for i in list(symbols.keys()):
-        if i==k:
-            print(f"\'{k}\' is a pattern file symbol.")
+    for i in list(patsymbols.keys()):
+        if i==upper(k):
+            print(f" error - \'{k}\' is a pattern file symbol.")
             return False
 
     error_already_defined=False
@@ -740,6 +741,7 @@ def readpat(fn):
             w.append(p)
 
     f.close()
+    setpatsymbols(w)
     return w
 
 def fwrite(file_path, position, x,prt):
@@ -1154,15 +1156,13 @@ def org_processing(l1,l2):
     return True
 
 def lineassemble(line):
-    global pc,error_undefined_label
+    global pat,pc,error_undefined_label,patsymbols
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
     if line=='':
         return False
 
-    for i in pat:
-        if set_symbol(i): continue
     line=label_processing(line)
     clear_symbol([".clearsym","",""])
 
@@ -1239,13 +1239,13 @@ def lineassemble(line):
 
     if (pas==2 or pas==0):
         if error_undefined_label:
-            print(f" - undefined label error.")
+            print(f" error - undefined label error.")
             return False
         if se:
-            print(f" - Syntax error.")
+            print(f" error - Syntax error.")
             return False
         if oerr:
-            print(f" ; pat {pln} {pl} - Illegal syntax in assemble line or pattern line.")
+            print(f" ; pat {pln} {pl} error - Illegal syntax in assemble line or pattern line.")
             return False
     return True
 
@@ -1282,6 +1282,13 @@ def file_input_from_stdin():
             break
         af+=line+'\n'
     return af
+
+def setpatsymbols(pat):
+    global patsymbols,symbols
+    for i in pat:
+        if set_symbol(i): continue
+    patsymbols.update(symbols)
+    symbols={}
 
 def fileassemble(fn):
     global current_file,fnstack,lnstack,ln,lines
