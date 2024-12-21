@@ -727,6 +727,8 @@ $ axx.py test.axx test.s
 
 ・If syntax analysis is not possible, it will result in a "syntax error".
 
+・If the syntax is incorrect, it will say "Illegal syntax in assembler line or pattern line".
+
 ・If an undefined label is referenced, it will result in a "Label undefined" error.
 
 ・If even one of the conditions in error_patterns is met, an error will occur. In that case, the following messages will appear for error codes 0, 1, 2, 5, and 6 (Value out of range, Invalid syntax, Address out of range, Register out of range, Port number out of range). If there are not enough types of errors, add an error message to the source.
@@ -734,8 +736,6 @@ $ axx.py test.axx test.s
 ## comments
 
 ・Sorry for original notation.
-
-・The error check in the pattern file is lax.
 
 ・I know it's a bit ridiculous, but it does not support quantum computers and LISP machines.
 Quantum computer assembly language is called quantum assembly, and is not assembly language.
