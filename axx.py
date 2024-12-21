@@ -173,12 +173,12 @@ def put_label_value(k,v,s):
         for i in list(labels.keys()):
             if i==k:
                 error_already_defined=True
-                print(f"{current_file} : {ln} {cl}: label already defined.")
+                print(f" label already defined.")
                 return False
 
     for i in list(symbols.keys()):
         if i==k:
-            print(f"{current_file} : {ln} {cl}: \'{k}\' is a pattern file symbol.")
+            print(f"\'{k}\' is a pattern file symbol.")
             return False
 
     error_already_defined=False
@@ -1240,13 +1240,13 @@ def lineassemble(line):
 
     if (pas==2 or pas==0):
         if error_undefined_label:
-            print(f"{current_file} : {ln} {cl}: undefined label error.")
+            print(f" - undefined label error.")
             return False
         if se:
-            print(f"{current_file} : {ln} {cl}: Syntax error.")
+            print(f" - Syntax error.")
             return False
         if oerr:
-            print(f"{current_file} : asm {ln} {cl} ; pat {pln} {pl}: Illegal syntax in assemble line or pattern line.")
+            print(f" ; pat {pln} {pl} - Illegal syntax in assemble line or pattern line.")
             return False
     return True
 
