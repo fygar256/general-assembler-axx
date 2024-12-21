@@ -1154,8 +1154,7 @@ def org_processing(l1,l2):
     return True
 
 def lineassemble(line):
-    global pc,ln,error_undefined_label
-    ln+=1
+    global pc,error_undefined_label
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -1251,7 +1250,7 @@ def lineassemble(line):
     return True
 
 def lineassemble0(line):
-    global cl
+    global cl,ln
     cl=line.replace('\n','')
     if pas==2 or pas==0:
         print("%016x " % pc,end='')
@@ -1259,6 +1258,7 @@ def lineassemble0(line):
     f=lineassemble(cl)
     if pas==2 or pas==0:
         print("")
+    ln+=1
     return f
 
 
