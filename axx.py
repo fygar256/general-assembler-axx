@@ -1195,7 +1195,12 @@ def lineassemble(line):
     idx=0
     of=0
     se=False
+    oerr=False
+    pln=0
+    pl=""
     for i in pat:
+        pln+=1
+        pl=i
         for a in lower:
             put_vars(a,VAR_UNDEF)
         #
@@ -1224,10 +1229,12 @@ def lineassemble(line):
                 of=makeobj(i[2])
                 break
         except:
-            se=True
+            oerr=True
             break
     else:
         se=True
+        pln=0
+        pl=""
 
     pc+=of
 
@@ -1238,6 +1245,8 @@ def lineassemble(line):
         if se:
             print(f"{current_file} : {ln} {cl}: Syntax error.")
             return False
+        if oerr:
+            print(f"{current_file} : asm {ln} {cl} ; pat {pln} {pl}: Internal error. Illegal syntax in assemble line or pattern line.")
     return True
 
 def lineassemble0(line):
