@@ -445,6 +445,8 @@ to the pattern file, you can handle 12-bit processors. The default is 8 bits.
 
 You can handle 12-bit, big-endian processors. The default endian is little.
 
+Whether you are using big endian or little endian, if you specify the .bits directive, the value indicated by the address will be in words. For example, the 64-bit processor x86_64 can process in bytes, so there is no need to specify the .bits directive.
+
 #### include
 
 This is how you can include a file.
@@ -694,7 +696,7 @@ NOP :: 0x01
 
 ```
 
-The notation `LEAQ r,[s+t*h+i]` in x86_64 is `LEAQ Please write r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, when pattern matching, the evaluation function of the assembly line expression will match `!h` from the 2 onwards in `leaq rax,[rbx+rcx*2+0x40]`, and will interpret the part beyond that, 2+0x40, as an expression, and will assign 2+0x40 to h, resulting in a syntax analysis error for the remaining `+!!i`. `!!h` is a factor, and `!h` is an expression. This is because escape characters in expressions cannot be processed.
+The notation `LEAQ r,[s+t*h+i]` in x86_64 is to be written as `LEAQ r,[s+t*!!h+!!i]`. If you write `!h` instead of `!!h`, when pattern matching, the evaluation function of the assembly line expression will match `!h` from the 2 onwards in `leaq rax,[rbx+rcx*2+0x40]`, and will interpret the part beyond that, 2+0x40, as an expression, and will assign 2+0x40 to h, resulting in a syntax analysis error for the remaining `+!!i`. `!!h` is a factor, and `!h` is an expression. This is because escape characters in expressions cannot be processed.
 
 ```test.s
 leaq rax , [ rbx , rcx , 2 , 0x40]
@@ -789,6 +791,4 @@ If you find a bug, I would appreciate it if you could let me know how to fix it.
 
 I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me the problems and hints, the University of Electro-Communications, the computer scientists and engineers, Qiita, Google, and some unforgettable people. Thank you very much.
 
-### Acknowledgements
-
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me the problems and hints, the University of Electro-Communications, the computer scientists and engineers, Qiita, and some unforgettable people. Thank you very much.
+### English is not my mother tongue so this document is translated by google translation. there may be some mistakes and sorry that my broken English.
