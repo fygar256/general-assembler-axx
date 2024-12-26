@@ -775,8 +775,8 @@ LISP machine programs are not assembly language.
 
 ・Make it possible to take an expression for x in qad(x).
 
-・Supports VLIW's ability to write multiple instructions on a single line. Writing multiple instructions separately and writing them on a single line perform the same operations, but the performance and generated machine code are different.
-
+- Supports writing multiple instructions on one line in itanium. Writing multiple instructions separately and writing them on one line perform the same function, but the performance and generated machine code are different. (That's all that's left) Combine multiple instructions into one by joining them with !!. Fill empty spaces in the packing with NOP. Specify the NOP bytecode. Use the .itanium directive to specify the number of bits per instruction and the number of packing bytes. Specify a template. itanium is said to be a failure, so I don't think it's necessary to support it.
+- 
 ・Make it possible to specify whether to calculate addresses in bytes or words.
 
 ・Now that the core is complete, I think it would become a fine system if we prepared a pattern file for axx and added a linker, high-performance macros, optimization functions, and an IDE wrapper, but it would be difficult for an individual to complete such a large project, so please make one. I would be happy if it were put to practical use.
