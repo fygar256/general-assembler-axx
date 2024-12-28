@@ -40,6 +40,12 @@ patsymbols={}
 labels={}
 export_labels={}
 pat=[]
+vliwinstbits=41
+vliwnop=0x00
+vliwbits=128
+vliwset=[]
+vliwflag=False
+vliwtempletebits=0x00
 expmode=EXP_PAT
 error_undefined_label=False
 error_already_defined=False
@@ -57,6 +63,20 @@ vars=[ VAR_UNDEF for i in range(26) ]
 deb1=""
 deb2=""
 
+def rlc(cy,x,bits):
+    return (x&(1>>(bits-1))),x>>1|((cy&1)<<(bits-1))
+
+def rrc(cy,x,bits):
+    return x&(1<<(bits-1))>>(bits-1),(x<<1)&(2**bits-1)|(cy&1)
+
+def add_avoiding_dup(l,e):
+    seen=False
+    for item in l:
+        if item==e:
+            seen=True
+    if not seen:
+        l+=[e]
+    return l
 
 def upper(o):
     t=""
@@ -122,10 +142,10 @@ def get_param_to_spc(s,idx):
         idx+=1
     return t,idx
 
-def get_param_to_eol(s,idx):
+def get_param_to_eon(s,idx):
     t=""
     idx=skipspc(s,idx)
-    while len(s)>idx:
+    while len(s)>idx and s[idx:idx+2]!='!!':
         t+=s[idx]
         idx+=1
     return t,idx
@@ -728,18 +748,21 @@ def readpat(fn):
                     break
             l=r
             prev=l[0]
-            l=[_ for _ in l if _]
+            #l=[_ for _ in l if _]
             idx=0
             if len(l)==1:
-                p=[l[0],'','']
+                p=[l[0],'','','','']
             elif len(l)==2:
-                p=[l[0],'',l[1]]
+                p=[l[0],'',l[1],'','']
             elif len(l)==3:
-                p=[l[0],l[1],l[2]]
+                p=[l[0],l[1],l[2],'','']
+            elif len(l)==4:
+                p=[l[0],l[1],l[2],l[3],""]
+            elif len(l)==5:
+                p=[l[0],l[1],l[2],l[3],l[4]]
             else:
-                p=["","",""]
+                p=["","","","","",""]
             w.append(p)
-
     f.close()
     return w
 
@@ -796,7 +819,7 @@ def pad(addr):
 def makeobj(s):
     s+=chr(0)
     idx=0
-    cnt=0
+    objl=[]
     while True:
         if s[idx]==chr(0):
             break
@@ -812,14 +835,13 @@ def makeobj(s):
         (x,idx)=expression0(s,idx)
 
         if (pas==2 or pas==0) and ((semicolon==True and x!=0) or (semicolon==False)):
-            outbin(pc+cnt,x)
-        cnt+=1
+            objl+=[x]
         if s[idx]==',':
             idx+=1
             continue
         break
 
-    return cnt
+    return objl
 
 def isword(s,idx):
     t,idx_s=getword(s,idx)
@@ -961,6 +983,9 @@ def match0(s,t):
     return False
         
 def error(s):
+    ss=s.replace(' ','')
+    if ss=="":
+        return
     ch=','
     s+=chr(0)
     idx=0
@@ -981,7 +1006,7 @@ def error(s):
             print(": ")
             error_code=t
 
-    return error_code
+    return
 
 def labelc_processing(l,ll):
     global lwordchars
@@ -1133,6 +1158,21 @@ def align_processing(l1,l2):
 def printaddr(pc):
     print("%016x: " % pc,end='')
 
+def vliwp(i):
+    global vliwtempletebits,vliwflag,vliwbits,vliwinstbits,vliwnop
+    if i[0]!=".vliw":
+        return False
+    v1,idx=expression0(i[1],0)
+    v2,idx=expression0(i[2],0)
+    v3,idx=expression0(i[3],0)
+    v4,idx=expression0(i[4],0)
+    vliwbits=int(v1)
+    vliwinstbits=int(v2)
+    vliwnop=int(v3)
+    vliwtempletebits=int(v4)
+    vliwflag=True
+    return True
+
 def endsection_processing(l1,l2):
     global sections
 
@@ -1154,48 +1194,63 @@ def org_processing(l1,l2):
     pc=u
     return True
 
-def lineassemble(line):
-    global pat,pc,error_undefined_label,patsymbols
-    line=line.replace('\t',' ').replace('\n','')
-    line=reduce_spaces(line)
-    line=remove_comment_asm(line)
-    if line=='':
+def vliw(i):
+    global vliwset
+    if upper(i[0])!="VLIW":
         return False
+    if not(len(i)>1 and i[1]!=''):
+        return False
+    s=i[1]
+    idxs=[]
+    idx=0
+    while True:
+        v,idx=expression0(s,idx)
+        idxs+=[v]
+        if len(s)>idx and s[idx]==',':
+            idx+=1
+            continue
+        break
+    v2,idx=expression0(i[2],0)
+    v2=int(v2)
+    idxs=list(set(idxs))
+    vliwset=add_avoiding_dup(vliwset,[idxs,v2])
+    return True
+   
+def lineassemble2(line,idx):
+    global pc,pat,error_undefined_label,patsymbols
 
-    line=label_processing(line)
-    clear_symbol([".clearsym","",""])
-
-    (l,idx)=get_param_to_spc(line,0)
-    (l2,idx)=get_param_to_eol(line,idx)
+    (l,idx)=get_param_to_spc(line,idx)
+    (l2,idx)=get_param_to_eon(line,idx)
     l=l.rstrip()
     l2=l2.rstrip()
     l=l.replace(' ','')
     if section_processing(l,l2):
-        return True
+        return [],[],True,idx
     if endsection_processing(l,l2):
-        return True
+        return [],[],True,idx
     if ascii_processing(l,l2):
-        return True
+        return [],[],True,idx
     if asciiz_processing(l,l2):
-        return True
+        return [],[],True,idx
     if include_asm(l,l2):
-        return True
+        return [],[],True,idx
     if align_processing(l,l2):
-        return True
+        return [],[],True,idx
     if org_processing(l,l2):
-        return True
+        return [],[],True,idx
     if labelc_processing(l,l2):
-        return True
+        return [],[],True,idx
     if export_processing(l,l2):
-        return True
+        return [],[],True,idx
     if  l=="":
-        return False
-    idx=0
+        return [],[],False,idx
     of=0
     se=False
     oerr=False
     pln=0
     pl=""
+    idxs=0
+    loopflag=True
     for i in pat:
         pln+=1
         pl=i
@@ -1212,40 +1267,107 @@ def lineassemble(line):
         if bits(i): continue
         if bytep(i): continue
         if symbolc(i): continue
+        if vliw(i): continue
+        if vliwp(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
             continue
         lin=l+' '+l2
         lin=reduce_spaces(lin)
         if i[0]=='':
+            loopflag=False
             break
         error_undefined_label=False
+        
         try:
             if match0(lin,i[0])==True:
-                if lw==3:
-                    error(i[1])
-                of=makeobj(i[2])
+                error(i[1])
+                objl=makeobj(i[2])
+                idxs,_=expression0(i[3],0)
+                loopflag=False
                 break
         except:
             oerr=True
+            loopflag=False
             break
-    else:
+        else:
+            pass
+    if loopflag==True:
         se=True
         pln=0
         pl=""
 
-    pc+=of
-
     if (pas==2 or pas==0):
         if error_undefined_label:
             print(f" error - undefined label error.")
-            return False
+            return [],[],False,idx
         if se:
             print(f" error - Syntax error.")
-            return False
+            return [],[],False,idx
         if oerr:
             print(f" ; pat {pln} {pl} error - Illegal syntax in assemble line or pattern line.")
-            return False
+            return [],[],False,idx
+    return idxs,objl,True,idx
+
+
+def lineassemble(line):
+    global pc,vliwflag
+    line=line.replace('\t',' ').replace('\n','')
+    line=reduce_spaces(line)
+    line=remove_comment_asm(line)
+    if line=='':
+        return False
+    line=label_processing(line)
+    clear_symbol([".clearsym","",""])
+    idx=0
+
+    idxs,objl,flag,idx=lineassemble2(line,idx)
+
+    if flag==False:
+        return False
+
+    if vliwflag==False:
+        of=len(objl)
+        for cnt in range (of):
+            outbin(pc+cnt,objl[cnt])
+        pc+=of
+
+    else:
+        objs=[objl]
+        idxlst=[idxs]
+        while True:
+            idx=skipspc(line,idx)
+            if line[idx:idx+2]!='!!':
+                break
+            idx+=2
+            idxs,objl,flag,idx=lineassemble2(line,idx)
+            objs+=[objl]
+            idxlst+=[idxs]
+
+        idxlst=list(set(idxlst))
+        for k in vliwset:
+            if k[0]==idxlst:
+                im=0
+                for n in range(vliwinstbits):
+                    im=(im<<1)|1
+                pm=0
+                for n in range(vliwbits):
+                    pm=(pm<<1)|1
+                vvv=0
+                for j in objs:
+                    vv=0
+                    for m in j:
+                        vv=vv<<8|m
+                    vvv=(vvv<<vliwinstbits)|(vv&im)
+                g=0
+                vvv=((vvv<<vliwtempletebits)|k[1])&pm
+                for cnt in range (vliwbits//8):
+                    outbin(pc+cnt,vvv&0xff)
+                    vvv>>=8
+                    g+=1
+                pc+=g
+            else:
+                continue
     return True
 
 def lineassemble0(line):
