@@ -258,6 +258,45 @@ This is how you can include a file.
 .include "file.axx"
 ```
 
+### VLIW processor
+#### .vliw directive
+
+```
+.vliw::128::41::00::5
+```
+
+This will allow you to handle a VLIW processor with 128 packing bits, 41 bits per instruction, 0x00 NOP code, and 5 template bits (Itanium example).
+
+For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) plus a template bit at the end.
+
+Specifically,
+
+```
+/* VLIW
+.setsym::R1::1
+.setsym::R2::2
+.setsym::R3::3
+.setsym::R4::4
+.vliw::128::41:00:5
+VLIW::1,2::0x9
+VLIW::1::0x01
+AD a,b,c:: ::0x01,a,b,c::1
+LOD d,[!e]:: :: 0x02,d,e,e>>8::2
+```
+
+Written like this, `VLIW::1,2::0x9` represents a set of VLIW instructions, and represents the code with template 0x9, which is a packing that contains a mixture of instructions with indexes 1 and 2.
+The next, `AD a,b,c:: ::0x01,a,b,c::1`, means that the ADD instruction r1,r2,r3 outputs 0x01,a,b,c without error checking, and the index code is 1, and `LOD d,[!e]:: :: 0x02,d,e,e>>8::2` stores the contents of [!e] in the LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and represents an instruction with an index code of 2. This sample is for testing purposes and differs from the actual bytecode. The NOP code is specified with the .vliw directive, but in the current version, the NOP code is fixed to 00. It is not yet possible to specify instruction groups that span multiple packings or to support big endian.
+
+In VLIW, the omission of error patterns must be explicitly specified as `:: ::`.
+
+Multiple commands are connected with `!!`.
+
+```
+ad r1,r2,r3 !! lod r4,[0x1234]
+```
+
+For example.
+
 ## Explanation of assembly files
 
 #### label
@@ -778,6 +817,8 @@ LISP machine programs are not assembly language.
 - Supports writing multiple instructions on one line in itanium. Writing multiple instructions separately and writing them on one line perform the same function, but the performance and generated machine code are different. (That's all that's left) Combine multiple instructions into one by joining them with !!. Fill empty spaces in the packing with NOP. Specify the NOP bytecode. Use the .itanium directive to specify the number of bits per instruction and the number of packing bytes. Specify a template. itanium is said to be a failure, so I don't think it's necessary to support it.
 - 
 ・Make it possible to specify whether to calculate addresses in bytes or words.
+
+・In VLIW processors, writing multiple instructions separately is equivalent to writing them on one line, but the performance and generated machine code are different. (That's all) Fill the empty spaces in the packing instructions with NOP. Supports big endian.
 
 ・Now that the core is complete, I think it would become a fine system if we prepared a pattern file for axx and added a linker, high-performance macros, optimization functions, and an IDE wrapper, but it would be difficult for an individual to complete such a large project, so please make one. I would be happy if it were put to practical use.
 
