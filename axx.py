@@ -51,7 +51,7 @@ error_undefined_label=False
 error_already_defined=False
 align=32
 bts=8
-bts_endian='little'
+endian='little'
 byte='yes'
 pas=0
 debug=0
@@ -630,35 +630,32 @@ def set_symbol(i):
     return True
 
 def bits(i):
-    global bts,bts_endian
+    global bts
     if len(i)==0:
         return False
     if len(i)>1 and i[0]!='.bits':
     	return False
     if len(i)>=3:
-        if i[1]=='big':
-            bts_endian='big'
-        else:
-            bts_endian='little'
         v,idx=expression0(i[2],0)
     else:
         v=8
     bts=int(v)
     return True
 
-def bytep(i):
-    global byte
+def endianp(i):
+    global endian
     if len(i)==0:
         return False
-    if len(i)>1 and i[0]!='.byte':
+    if len(i)>1 and i[0]!='.endian':
     	return False
     if len(i)>=3:
-        if i[2]=='no':
-            byte='no'
+        if i[2]=='big':
+            endian='big'
         else:
+            endian='little'
             pass
     else:
-        byte='yes'
+        endian='little'
     return True
 
 def paddingp(i):
@@ -767,7 +764,7 @@ def readpat(fn):
     return w
 
 def fwrite(file_path, position, x,prt):
-    global bts,bts_endian,byte
+    global bts,endian,byte
     b=8 if bts<=8 else bts
     byts=b//8+(0 if b/8==b//8 else 1)
     
@@ -776,15 +773,16 @@ def fwrite(file_path, position, x,prt):
         file.seek(position*byts)
 
     cnt=0
-    if bts_endian=='little':
+    if endian=='little':
         p=(2**bts)-1
+        v=x&p
         for i in range(byts):
-            v=x&0xff&p
+            vv=v&0xff
             if file_path!="":
-                file.write(struct.pack('B',v))
+                file.write(struct.pack('B',vv))
             if prt:
-                print(" 0x%02x" % v,end='')
-            x=x>>8
+                print(" 0x%02x" % vv,end='')
+            v=v>>8
             cnt+=1
     else:
         bp=(2**bts)-1
@@ -1123,6 +1121,22 @@ def include_pat(l):
     w=readpat(s)
     return w
 
+def vliwp(i):
+    global vliwtempletebits,vliwflag,vliwbits,vliwinstbits,vliwnop
+    if i[0]!=".vliw":
+        return False
+    v1,idx=expression0(i[1],0)
+    v2,idx=expression0(i[2],0)
+    v3,idx=expression0(i[3],0)
+    v4,idx=expression0(i[4],0)
+    vliwbits=int(v1)
+    vliwinstbits=int(v2)
+    vliwnop=int(v3)
+    vliwtempletebits=int(v4)
+    vliwflag=True
+    return True
+
+
 def include_asm(l1,l2):
     if upper(l1)!=".INCLUDE":
         return False
@@ -1157,21 +1171,6 @@ def align_processing(l1,l2):
 
 def printaddr(pc):
     print("%016x: " % pc,end='')
-
-def vliwp(i):
-    global vliwtempletebits,vliwflag,vliwbits,vliwinstbits,vliwnop
-    if i[0]!=".vliw":
-        return False
-    v1,idx=expression0(i[1],0)
-    v2,idx=expression0(i[2],0)
-    v3,idx=expression0(i[3],0)
-    v4,idx=expression0(i[4],0)
-    vliwbits=int(v1)
-    vliwinstbits=int(v2)
-    vliwnop=int(v3)
-    vliwtempletebits=int(v4)
-    vliwflag=True
-    return True
 
 def endsection_processing(l1,l2):
     global sections
@@ -1265,7 +1264,7 @@ def lineassemble2(line,idx):
         if clear_symbol(i): continue
         if paddingp(i): continue
         if bits(i): continue
-        if bytep(i): continue
+        if endianp(i): continue
         if symbolc(i): continue
         if vliw(i): continue
         if vliwp(i): continue
@@ -1360,11 +1359,22 @@ def lineassemble(line):
                         vv=vv<<8|m
                     vvv=(vvv<<vliwinstbits)|(vv&im)
                 g=0
-                vvv=((vvv<<vliwtempletebits)|k[1])&pm
-                for cnt in range (vliwbits//8):
-                    outbin(pc+cnt,vvv&0xff)
-                    vvv>>=8
-                    g+=1
+
+                if endian!='big':
+                    vvv=((vvv<<vliwtempletebits)|k[1])&pm
+                    for cnt in range (vliwbits//8):
+                        outbin(pc+cnt,vvv&0xff)
+                        vvv>>=8
+                        g+=1
+
+                else: # big endian
+                    vvv=(vvv|(k[1]<<(vliwbits-vliwtempletebits)))&pm
+                    vm=0xff<<(vliwbits-8)
+                    print("%08x"%vvv,"%04x"%vm)
+                    for cnt in range(vliwbits//8):
+                        outbin(pc+cnt,((vvv&vm)>>(vliwbits-(cnt+1)*8))&0xff)
+                        vm>>=8
+                        g+=1
                 pc+=g
             else:
                 continue
