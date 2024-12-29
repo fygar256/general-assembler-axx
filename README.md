@@ -286,14 +286,31 @@ Specifically,
 .setsym::R3::3
 .setsym::R4::4
 .vliw::128::41::00::5
-VLIW::1,2::0x9
+VLIW::1,2::0x8
 VLIW::1::0x01
 AD a,b,c:: ::0x01,a,b,c::1
 LOD d,[!e]:: :: 0x02,d,e,e>>8::2
 ```
 
-Written like this, `VLIW::1,2::0x9` represents a set of VLIW instructions, and represents the code with template 0x9, which is a packing with mixed instructions of index 1 and 2.
-The next instruction, `AD a,b,c:: ::0x01,a,b,c::1`, outputs 0x01,a,b,c from the ADD instruction r1,r2,r3 without error checking, and the index code is 1. `LOD d,[!e]:: :: 0x02,d,e,e>>8::2`` stores the contents of [!e] in the LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and represents an instruction with an index code of 2. This sample is for testing purposes and differs from the actual bytecode. The NOP code is specified with the .vliw directive, but in the current version, the NOP code is fixed to 00. It is not yet possible to specify an instruction group that spans multiple packings.
+Written like this, `VLIW::1,2::0x8` represents a set of VLIW instructions, and represents the code with template 0x8, with a packing that contains a mixture of instructions with indexes 1 and 2.
+The next instruction, `AD a,b,c:: ::0x01,a,b,c::1`, outputs 0x01,a,b,c from the ADD instruction r1,r2,r3 without error checking, and the index code is 1. `LOD d,[!e]:: :: 0x02,d,e,e>>8::2`` stores the contents of [!e] in the LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and represents an instruction with an index code of 2. This sample is for testing purposes only, so it differs from the actual bytecode. The NOP code is specified with the .vliw directive, but in the current version, the NOP code is fixed to 00.
+
+When there are instructions that span multiple packings, the packing bits are specified as follows.
+
+```
+VLIW::1,2::0x8 /* When there is no packing bit
+VLIW::1,2,P::0x9 /* When there is
+```
+
+When written like this, the commands ending with `!!` are interpreted as when there is a packing bit, and the next command group follows.
+
+```
+>> ad r1,r2,r3 !! lod r4,[0x90] !! ;(1)
+>> ad r5,r6,r7 !! lod r8,[0x98] ;(2)
+```
+
+In (1), the template with `,P` is stored during packing, and in (2), the template without `,P` is stored.
+
 
 For bigendian VLIW processors, use the .endian directive as well, as follows:
 
