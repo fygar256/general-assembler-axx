@@ -1370,7 +1370,6 @@ def lineassemble(line):
                 else: # big endian
                     vvv=(vvv|(k[1]<<(vliwbits-vliwtempletebits)))&pm
                     vm=0xff<<(vliwbits-8)
-                    print("%08x"%vvv,"%04x"%vm)
                     for cnt in range(vliwbits//8):
                         outbin(pc+cnt,((vvv&vm)>>(vliwbits-(cnt+1)*8))&0xff)
                         vm>>=8
