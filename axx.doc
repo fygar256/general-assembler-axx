@@ -274,7 +274,7 @@ INC	(IX[[+!d]]) ::				    0xdd,0x34,d
 .vliw::128::41::00::5
 ```
 
-とすると、パッキングビット数128、1命令のビット数41、NOPコード0x00、テンプレートビット数5 Itaniumの例)のVLIWプロセッサを扱うことが出来ます。
+とすると、パッキングのビット数128、1命令のビット数41、NOPコード0x00、テンプレートビット数5 Itaniumの例)のVLIWプロセッサを扱うことが出来ます。
 例えば、Itaniumでは、41ビットの命令3つ、41＊3＝123(bit)の長さの命令群＋末尾にテンプレートビットが付いています。
 
 具体的には、
@@ -609,6 +609,8 @@ $ axx.py test.axx test.s
 ・未定義ラベルを参照するとLabel undefinedエラーになります
 
 ・シンタックスが合ってないと、Illegal syntax in assembler line or pattern lineになります。
+
+・VLIWのテンプレートが記述されてないと、No template set.エラーになります。
 
 ・error_patternsの条件を一つでも満たすとエラーになります。その場合、エラーコード0,1,2,5,6に対し、それぞれ（Value out of range,Invalid syntax,Address out of range,Register out of range,Port number out of range）のメッセージが出ます。エラーの種類が足りなかったら、ソースにエラーメッセージを足してください。
 
