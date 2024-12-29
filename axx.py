@@ -1390,6 +1390,8 @@ def lineassemble(line):
                 packingbit=next_packingbit
             else:
                 continue
+        else:
+            print("error - No template set.")
     return True
 
 def lineassemble0(line):
