@@ -299,7 +299,7 @@ For bigendian VLIW processors, use the .endian directive as well, as follows:
 
 ```
 .endian::big
-.vliw::128::41::00:5
+.vliw::128::41::00::5
 ```
 
 In VLIW, you must explicitly specify `:: ::` to omit the error pattern.
