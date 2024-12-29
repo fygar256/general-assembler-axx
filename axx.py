@@ -46,7 +46,7 @@ vliwnop=0x00
 vliwbits=128
 vliwset=[]
 vliwflag=False
-vliwtempletebits=0x00
+vliwtemplatebits=0x00
 packingbit=0
 expmode=EXP_PAT
 error_undefined_label=False
@@ -65,11 +65,27 @@ vars=[ VAR_UNDEF for i in range(26) ]
 deb1=""
 deb2=""
 
-def rlc(cy,x,bits):
-    return (x&(1>>(bits-1))),x>>1|((cy&1)<<(bits-1))
+def rlc(num, bits, carry=0):
+  """
+  Rotate Left with Carryの実装
 
-def rrc(cy,x,bits):
-    return x&(1<<(bits-1))>>(bits-1),(x<<1)&(2**bits-1)|(cy&1)
+  Args:
+    num: シフトする数値
+    bits: 数値のビット数
+    carry: 初期キャリーフラグ (デフォルト: 0)
+
+  Returns:
+    シフト後の数値, 更新されたキャリーフラグ
+  """
+
+  # 最上位ビットを取得し、それが新しいキャリーになる
+  new_carry = (num >> (bits - 1)) & 1
+  # 左シフト
+  num <<= 1
+  # キャリーを最下位ビットに挿入
+  num |= carry
+  # 新しいキャリーを返す
+  return num, new_carry
 
 def add_avoiding_dup(l,e):
     seen=False
@@ -1124,7 +1140,7 @@ def include_pat(l):
     return w
 
 def vliwp(i):
-    global vliwtempletebits,vliwflag,vliwbits,vliwinstbits,vliwnop
+    global vliwtemplatebits,vliwflag,vliwbits,vliwinstbits,vliwnop
     if i[0]!=".vliw":
         return False
     v1,idx=expression0(i[1],0)
@@ -1134,7 +1150,7 @@ def vliwp(i):
     vliwbits=int(v1)
     vliwinstbits=int(v2)
     vliwnop=int(v3)
-    vliwtempletebits=int(v4)
+    vliwtemplatebits=int(v4)
     vliwflag=True
     return True
 
@@ -1358,29 +1374,38 @@ def lineassemble(line):
         idxlst=list(set(idxlst))
         for k in vliwset:
             if k[0]==idxlst or (packingbit and PACKING in k[0] and k[0].remove(PACKING)==idxlst):
-                im=0
-                for n in range(vliwinstbits):
-                    im=(im<<1)|1
-                pm=0
-                for n in range(vliwbits):
-                    pm=(pm<<1)|1
+                im=2**vliwinstbits-1
+                tm=2**vliwtemplatebits-1
+                pm=2**vliwbits-1
+
                 vvv=0
+                g=0
                 for j in objs:
                     vv=0
+                    i=vliwinstbits
                     for m in j:
-                        vv=vv<<8|m
-                    vvv=(vvv<<vliwinstbits)|(vv&im)
-                g=0
+                        if i>=8:
+                            i-=8
+                            sh=8
+                        else:
+                            sh=i
+                        vv=vv<<sh|m
+                    vvv=vvv<<vliwinstbits|(vv&im)
 
+                oop=vliwbits//8+(0 if vliwbits%8==0 else 1)
                 if endian!='big':
-                    vvv=((vvv<<vliwtempletebits)|k[1])&pm
-                    for cnt in range (vliwbits//8):
+                    kk=k[1]&tm
+                    vvv<<=vliwtemplatebits
+                    for i in range(vliwtemplatebits):
+                        (kk,cy)=rlc(kk,vliwtemplatebits,0)
+                        (vvv,cy)=rlc(vvv,vliwbits,cy)
+                    for cnt in range (oop):
                         outbin(pc+cnt,vvv&0xff)
                         vvv>>=8
                         g+=1
 
                 else: # big endian
-                    vvv=(vvv|(k[1]<<(vliwbits-vliwtempletebits)))&pm
+                    vvv=(vvv|(k[1]<<(vliwbits-vliwtemplatebits)))&pm
                     vm=0xff<<(vliwbits-8)
                     for cnt in range(vliwbits//8):
                         outbin(pc+cnt,((vvv&vm)>>(vliwbits-(cnt+1)*8))&0xff)
@@ -1388,10 +1413,12 @@ def lineassemble(line):
                         g+=1
                 pc+=g
                 packingbit=next_packingbit
+                break
             else:
                 continue
         else:
-            print("error - No template set.")
+            if pas==0 or pas==2:
+                print("error - No template set.")
     return True
 
 def lineassemble0(line):
