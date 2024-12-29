@@ -19,6 +19,7 @@ OB=chr(0x90)     # open double bracket
 CB=chr(0x91)     # close double bracket
 UNDEF=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 VAR_UNDEF=0
+PACKING=-1
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digit='0123456789'
@@ -46,6 +47,7 @@ vliwbits=128
 vliwset=[]
 vliwflag=False
 vliwtempletebits=0x00
+packingbit=0
 expmode=EXP_PAT
 error_undefined_label=False
 error_already_defined=False
@@ -1205,6 +1207,9 @@ def vliw(i):
     while True:
         v,idx=expression0(s,idx)
         idxs+=[v]
+        if len(s)>idx+1 and s[idx:idx+2].upper()==',P':
+            idx+=2
+            idxs+=[PACKING]
         if len(s)>idx and s[idx]==',':
             idx+=1
             continue
@@ -1310,7 +1315,7 @@ def lineassemble2(line,idx):
 
 
 def lineassemble(line):
-    global pc,vliwflag
+    global pc,vliwflag,packingbit
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -1334,18 +1339,25 @@ def lineassemble(line):
     else:
         objs=[objl]
         idxlst=[idxs]
+        next_packingbit=0
         while True:
             idx=skipspc(line,idx)
-            if line[idx:idx+2]!='!!':
+            if line[idx:idx+2]=='!!':
+                idx+=2
+                if len(line)==idx:
+                    next_packingbit=1
+                    idxlst+=[PACKING]
+                    break
+                idxs,objl,flag,idx=lineassemble2(line,idx)
+                objs+=[objl]
+                idxlst+=[idxs]
+                continue
+            else:
                 break
-            idx+=2
-            idxs,objl,flag,idx=lineassemble2(line,idx)
-            objs+=[objl]
-            idxlst+=[idxs]
 
         idxlst=list(set(idxlst))
         for k in vliwset:
-            if k[0]==idxlst:
+            if k[0]==idxlst or (packingbit and PACKING in k[0] and k[0].remove(PACKING)==idxlst):
                 im=0
                 for n in range(vliwinstbits):
                     im=(im<<1)|1
@@ -1375,6 +1387,7 @@ def lineassemble(line):
                         vm>>=8
                         g+=1
                 pc+=g
+                packingbit=next_packingbit
             else:
                 continue
     return True
