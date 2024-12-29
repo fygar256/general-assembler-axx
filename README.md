@@ -274,7 +274,7 @@ This allows you to include a file.
 .vliw::128::41::00::5
 ```
 
-This will allow you to handle a VLIW processor with 128 packing bits, 41 bits per instruction, 0x00 NOP code, and 5 template bits (Itanium example).
+This will allow you to handle a VLIW processor with 128 bits of packing, 41 bits per instruction, 0x00 NOP code, and 5 template bits (Itanium example).
 For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) plus a template bit at the end.
 
 Specifically,
@@ -603,6 +603,8 @@ Execution example
 ・If an undefined label is referenced, a "Label undefined" error will occur.
 
 ・If the syntax is incorrect, an "Illegal syntax in assembler line" or "pattern line" will occur.
+
+・If no template set for instruction of VLIW, "No template set." error will occur.
 
 ・If any of the conditions in error_patterns are met, an error will occur. In that case, the following messages will appear for error codes 0, 1, 2, 5, and 6 (Value out of range, Invalid syntax, Address out of range, Register out of range, Port number out of range). If there are not enough types of errors, add an error message to the source.
 
