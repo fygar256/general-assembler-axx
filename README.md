@@ -271,10 +271,11 @@ This allows you to include a file.
 #### .vliw directive
 
 ```
-.vliw::128::41::5:00
+.vliw::128::41::5::1::00
 ```
 
-This will allow you to handle a VLIW processor with 128 bits of packing, 41 bits per instruction,5 template bits, and 0x00 NOP code (Itanium example).
+This will allow you to handle a VLIW processor with 128 packing bits, 41 bits per instruction, 5 template bits, the template packing bit being the first bit from the lowest, and a NOP code of 0x00 (Itanium example).
+
 For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) plus a template bit at the end.
 
 Specifically,
@@ -292,34 +293,25 @@ AD a,b,c:: ::0x01,a,b,c::1
 LOD d,[!e]:: :: 0x02,d,e,e>>8::2
 ```
 
-Written like this, `VLIW::1,2::0x8` represents a set of VLIW instructions, and represents the code with template 0x8, with a packing that contains a mixture of instructions with indexes 1 and 2.
-The next instruction, `AD a,b,c:: ::0x01,a,b,c::1`, outputs 0x01,a,b,c from the ADD instruction r1,r2,r3 without error checking, and the index code is 1. `LOD d,[!e]:: :: 0x02,d,e,e>>8::2`` stores the contents of [!e] in the LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and represents an instruction with an index code of 2. This sample is for testing purposes only, so it differs from the actual bytecode. The NOP code can be specified with the .vliw directive.
+Written like this, `VLIW::1,2::0x8` represents a set of VLIW instructions, and represents the code with a template of 0x8, with a packing that contains a mixture of instructions with indexes 1 and 2.
+The next instruction, `AD a,b,c:: ::0x01,a,b,c::1`, outputs `0x01,a,b,c` to ADD instruction r1,r2,r3 without error checking, and the index code is 1. `LOD d,[!e]:: :: 0x02,d,e,e>>8::2` stores the contents of [!e] in LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and the index code is 2. This sample is for testing purposes and differs from the actual bytecode.
 
-When there are instructions that span multiple packings, the packing bits are specified as follows.
+Multiple instructions are connected with `!!` as shown below.
 
 ```
-VLIW::1,2::0x8 /* When there is no packing bit
-VLIW::1,2,P::0x9 /* When there is
+ad r1,r2,r3 !! lod r4,[0x1234]
 ```
 
-When written like this, the commands ending with `!!` are interpreted as when there is a packing bit, and the next command group follows.
+When there are instructions that span multiple packings, the bit specified in the packing bit count specification in the template is turned on. The instructions on a line ending with `!!` are interpreted as having a packingbit, and the instructions on the next line follow.
 
 ```
 >> ad r1,r2,r3 !! lod r4,[0x90] !! ;(1)
 >> ad r5,r6,r7 !! lod r8,[0x98] ;(2)
 ```
 
-In (1), the template with `,P` is stored during packing, and in (2), the template without `,P` is stored.
+In (1), a template with the packing bit turned on is stored during packing, and in (2), a template with the packing bit turned off is stored.
 
 In VLIW, you must explicitly specify `:: ::` to omit the error pattern.
-
-Multiple instructions are connected with `!!`.
-
-``
-ad r1,r2,r3 !! lod r4,[0x1234]
-```
-
-Like this.
 
 ## Assembly file explanation
 
