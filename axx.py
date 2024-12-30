@@ -1132,7 +1132,12 @@ def vliwp(i):
     vliwbits=int(v1)
     vliwinstbits=int(v2)
     vliwtemplatebits=int(v3)
-    vliwpackingbit=1<<int(v4)
+
+    if v4!=0:
+        vliwpackingbit=1<<int(v4)
+    else:
+        vliwpackingbit=0
+
     vliwflag=True
     l=[]
     for i in range(vliwinstbits//8 + (0 if vliwinstbits%8==0 else 1)):
