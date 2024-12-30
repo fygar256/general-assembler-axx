@@ -286,7 +286,7 @@ Specifically,
 .setsym::R2::2
 .setsym::R3::3
 .setsym::R4::4
-.vliw::128::41::5::00
+.vliw::128::41::5::1::00
 VLIW::1,2::0x8
 VLIW::1::0x01
 AD a,b,c:: ::0x01,a,b,c::1
