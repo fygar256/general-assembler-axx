@@ -627,32 +627,20 @@ def set_symbol(i):
     return True
 
 def bits(i):
-    global bts
+    global bts,endian
     if len(i)==0:
         return False
     if len(i)>1 and i[0]!='.bits':
     	return False
+    if len(i)>=2 and i[1]=='big':
+        endian='big'
+    else:
+        endian='little'
     if len(i)>=3:
         v,idx=expression0(i[2],0)
     else:
         v=8
     bts=int(v)
-    return True
-
-def endianp(i):
-    global endian
-    if len(i)==0:
-        return False
-    if len(i)>1 and i[0]!='.endian':
-    	return False
-    if len(i)>=3:
-        if i[2]=='big':
-            endian='big'
-        else:
-            endian='little'
-            pass
-    else:
-        endian='little'
     return True
 
 def paddingp(i):
@@ -1274,7 +1262,6 @@ def lineassemble2(line,idx):
         if clear_symbol(i): continue
         if paddingp(i): continue
         if bits(i): continue
-        if endianp(i): continue
         if symbolc(i): continue
         if vliw(i): continue
         if vliwp(i): continue
