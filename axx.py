@@ -19,7 +19,6 @@ OB=chr(0x90)     # open double bracket
 CB=chr(0x91)     # close double bracket
 UNDEF=0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 VAR_UNDEF=0
-PACKING=-1
 capital="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lower="abcdefghijklmnopqrstuvwxyz"
 digit='0123456789'
@@ -41,13 +40,15 @@ patsymbols={}
 labels={}
 export_labels={}
 pat=[]
+
 vliwinstbits=41
-vliwnop=0x00
+vliwnop=[]
 vliwbits=128
 vliwset=[]
 vliwflag=False
 vliwtemplatebits=0x00
-packingbit=0
+vliwpackingbit=1
+
 expmode=EXP_PAT
 error_undefined_label=False
 error_already_defined=False
@@ -744,17 +745,19 @@ def readpat(fn):
             #l=[_ for _ in l if _]
             idx=0
             if len(l)==1:
-                p=[l[0],'','','','']
+                p=[l[0],'','','','','']
             elif len(l)==2:
-                p=[l[0],'',l[1],'','']
+                p=[l[0],'',l[1],'','','']
             elif len(l)==3:
-                p=[l[0],l[1],l[2],'','']
+                p=[l[0],l[1],l[2],'','','']
             elif len(l)==4:
-                p=[l[0],l[1],l[2],l[3],""]
+                p=[l[0],l[1],l[2],l[3],"",'']
             elif len(l)==5:
-                p=[l[0],l[1],l[2],l[3],l[4]]
+                p=[l[0],l[1],l[2],l[3],l[4],'']
+            elif len(l)==6:
+                p=[l[0],l[1],l[2],l[3],l[4],l[5]]
             else:
-                p=["","","","","",""]
+                p=["","","","","","",""]
             w.append(p)
     f.close()
     return w
@@ -1118,21 +1121,23 @@ def include_pat(l):
     return w
 
 def vliwp(i):
-    global vliwtemplatebits,vliwflag,vliwbits,vliwinstbits,vliwnop
+    global vliwtemplatebits,vliwflag,vliwbits,vliwinstbits,vliwnop,vliwpackingbit
     if i[0]!=".vliw":
         return False
     v1,idx=expression0(i[1],0)
     v2,idx=expression0(i[2],0)
     v3,idx=expression0(i[3],0)
     v4,idx=expression0(i[4],0)
+    v5,idx=expression0(i[5],0)
     vliwbits=int(v1)
     vliwinstbits=int(v2)
     vliwtemplatebits=int(v3)
+    vliwpackingbit=1<<int(v4)
     vliwflag=True
     l=[]
     for i in range(vliwinstbits//8 + (0 if vliwinstbits%8==0 else 1)):
-        l+=[v4&0xff]
-        v4>>=8
+        l+=[v5&0xff]
+        v5>>=8
     vliwnop=l
     return True
 
@@ -1205,9 +1210,6 @@ def vliw(i):
     while True:
         v,idx=expression0(s,idx)
         idxs+=[v]
-        if len(s)>idx+1 and s[idx:idx+2].upper()==',P':
-            idx+=2
-            idxs+=[PACKING]
         if len(s)>idx and s[idx]==',':
             idx+=1
             continue
@@ -1319,17 +1321,16 @@ def rc(cy,n,b):
     return cy,n
 
 def vliwprocess(line,idxs,objl,flag,idx):
-    global packingbit,pc
+    global pc
     objs=[objl]
     idxlst=[idxs]
-    next_packingbit=0
+    packingbit=0
     while True:
         idx=skipspc(line,idx)
         if line[idx:idx+2]=='!!':
             idx+=2
             if len(line)==idx:
-                next_packingbit=1
-                idxlst+=[PACKING]
+                packingbit=1
                 break
             idxs,objl,flag,idx=lineassemble2(line,idx)
             objs+=[objl]
@@ -1340,10 +1341,11 @@ def vliwprocess(line,idxs,objl,flag,idx):
 
     idxlst=list(set(idxlst))
     for k in vliwset:
-        if k[0]==idxlst or (packingbit and PACKING in k[0] and k[0].remove(PACKING)==idxlst):
+        if k[0]==idxlst:
             im=2**vliwinstbits-1
             tm=2**vliwtemplatebits-1
             pm=2**vliwbits-1
+            templ=k[1]&tm|(vliwpackingbit if packingbit==1 else 0)
 
             vvv=0
             g=0
@@ -1379,7 +1381,7 @@ def vliwprocess(line,idxs,objl,flag,idx):
                 r=(r<<vliwinstbits)|v
 
             res=r
-            bitpat=k[1]&tm
+            bitpat=templ
             for i in range(vliwtemplatebits):
                 cy,bitpat=rc(0,bitpat,vliwtemplatebits)
                 _,res=rc(cy,res,vliwbits)
@@ -1391,7 +1393,6 @@ def vliwprocess(line,idxs,objl,flag,idx):
                 g+=1
 
             pc+=g
-            packingbit=next_packingbit
             break
         else:
             continue
