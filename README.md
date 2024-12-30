@@ -236,27 +236,26 @@ to the pattern file, the padding bytecode will be 0x12. The default is 0x00.
 
 #### Specifying the number of bits for processors whose words are not in 8-bit units
 
-If you add
+If you specify
 
 ```
 .bits::12
 ```
 
-to the pattern file, you can handle 12-bit processors. The default is 8 bits.
+in the pattern file, you can handle 12-bit processors. The default is 8 bits.
 
-Use this directive to assemble processors that are less than 8 bits, such as bit slice processors, or processors whose machine code words are not in bytes. Since axx is output in 8-bit units, the lower 4 bits are output to the binary file for a 4-bit processor, and (lower 8 bits, upper 3 bits) or (upper 3 bits, lower 8 bits) for an 11-bit processor, depending on the specified endian, for every 8 bits. Any extra bits within 8 bits are masked with 0.
+Use this directive to assemble processors that are less than 8 bits, such as bit slice processors or processors whose machine language words are not in byte units. Since axx outputs in 8-bit units, the lower 4 bits are output to the binary file in 8-bit increments for a 4-bit processor, and (lower 8 bits, upper 3 bits) or (upper 3 bits, lower 8 bits) for an 11-bit processor, depending on the specified byte order. Any extra bits within 8 bits are masked with 0.
 
-If you specify the .bits directive, the address value will be in words. For example, the 64-bit processor x86_64 can process in bytes, so there is no need to specify the .bits directive.
+If you specify the .bits directive, the value indicated by the address will be in words. For example, the 64-bit processor x86_64 can process in bytes, so there is no need to specify the .bits directive.
 
-#### Specifying the endian
-
-Specify the endian as follows.
+Specify the byte order as follows:
 
 ```
-.endian::big
+.bits::big::12
 ```
 
-The default is little.
+big arranges bytes in big endian. little arranges them in little endian.
+The default is little, and it will be used even if not specified.
 
 #### include
 
