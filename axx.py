@@ -65,28 +65,6 @@ vars=[ VAR_UNDEF for i in range(26) ]
 deb1=""
 deb2=""
 
-def rlc(num, bits, carry=0):
-  """
-  Rotate Left with Carryの実装
-
-  Args:
-    num: シフトする数値
-    bits: 数値のビット数
-    carry: 初期キャリーフラグ (デフォルト: 0)
-
-  Returns:
-    シフト後の数値, 更新されたキャリーフラグ
-  """
-
-  # 最上位ビットを取得し、それが新しいキャリーになる
-  new_carry = (num >> (bits - 1)) & 1
-  # 左シフト
-  num <<= 1
-  # キャリーを最下位ビットに挿入
-  num |= carry
-  # 新しいキャリーを返す
-  return num, new_carry
-
 def add_avoiding_dup(l,e):
     seen=False
     for item in l:
@@ -1149,9 +1127,13 @@ def vliwp(i):
     v4,idx=expression0(i[4],0)
     vliwbits=int(v1)
     vliwinstbits=int(v2)
-    vliwnop=int(v3)
-    vliwtemplatebits=int(v4)
+    vliwtemplatebits=int(v3)
     vliwflag=True
+    l=[]
+    for i in range(vliwinstbits//8 + (0 if vliwinstbits%8==0 else 1)):
+        l+=[v4&0xff]
+        v4>>=8
+    vliwnop=l
     return True
 
 
@@ -1329,9 +1311,98 @@ def lineassemble2(line,idx):
             return [],[],False,idx
     return idxs,objl,True,idx
 
+def rc(cy,n,b):
+    cc=cy<<(b-1)
+    cy=n&1
+    n>>=1
+    n|=cc
+    return cy,n
+
+def vliwprocess(line,idxs,objl,flag,idx):
+    global packingbit,pc
+    objs=[objl]
+    idxlst=[idxs]
+    next_packingbit=0
+    while True:
+        idx=skipspc(line,idx)
+        if line[idx:idx+2]=='!!':
+            idx+=2
+            if len(line)==idx:
+                next_packingbit=1
+                idxlst+=[PACKING]
+                break
+            idxs,objl,flag,idx=lineassemble2(line,idx)
+            objs+=[objl]
+            idxlst+=[idxs]
+            continue
+        else:
+            break
+
+    idxlst=list(set(idxlst))
+    for k in vliwset:
+        if k[0]==idxlst or (packingbit and PACKING in k[0] and k[0].remove(PACKING)==idxlst):
+            im=2**vliwinstbits-1
+            tm=2**vliwtemplatebits-1
+            pm=2**vliwbits-1
+
+            vvv=0
+            g=0
+            values=[]
+            nob=vliwbits//8+(0 if vliwbits%8==0 else 1)
+            ibyte=vliwinstbits//8+(0 if vliwinstbits%8==0 else 1)
+            noi=(vliwbits-vliwtemplatebits)//vliwinstbits
+
+
+            # バイナリコードを全部取ってきて足りない部分はNOPを足す
+            for j in objs:
+                i=vliwinstbits
+                for m in j:
+                    values+=[m]
+            for i in range (ibyte*noi-len(values)):
+                 values+=vliwnop
+            # values から、instructionを取り出す
+            v1=[]
+            cnt=0
+            vv=0
+
+            for j in range(noi):
+                for i in range(ibyte):
+                    vv<<=8
+                    if len(values)>cnt:
+                        vv|=values[cnt]&0xff
+                    cnt+=1
+                v1+=[vv&im]
+
+            # 全体のinstructionsのビットパターンを得る
+            r=0
+            for v in v1:
+                r=(r<<vliwinstbits)|v
+
+            res=r
+            bitpat=k[1]&tm
+            for i in range(vliwtemplatebits):
+                cy,bitpat=rc(0,bitpat,vliwtemplatebits)
+                _,res=rc(cy,res,vliwbits)
+
+            vm=0xff<<(vliwbits-8)
+            for cnt in range(vliwbits//8):
+                outbin(pc+cnt,((res&vm)>>(vliwbits-(cnt+1)*8))&0xff)
+                vm>>=8
+                g+=1
+
+            pc+=g
+            packingbit=next_packingbit
+            break
+        else:
+            continue
+    else:
+        if pas==0 or pas==2:
+            print(" error - No template set.")
+            return False
+    return True
 
 def lineassemble(line):
-    global pc,vliwflag,packingbit
+    global pc,vliwflag
     line=line.replace('\t',' ').replace('\n','')
     line=reduce_spaces(line)
     line=remove_comment_asm(line)
@@ -1339,9 +1410,8 @@ def lineassemble(line):
         return False
     line=label_processing(line)
     clear_symbol([".clearsym","",""])
-    idx=0
 
-    idxs,objl,flag,idx=lineassemble2(line,idx)
+    idxs,objl,flag,idx=lineassemble2(line,0)
 
     if flag==False:
         return False
@@ -1353,72 +1423,13 @@ def lineassemble(line):
         pc+=of
 
     else:
-        objs=[objl]
-        idxlst=[idxs]
-        next_packingbit=0
-        while True:
-            idx=skipspc(line,idx)
-            if line[idx:idx+2]=='!!':
-                idx+=2
-                if len(line)==idx:
-                    next_packingbit=1
-                    idxlst+=[PACKING]
-                    break
-                idxs,objl,flag,idx=lineassemble2(line,idx)
-                objs+=[objl]
-                idxlst+=[idxs]
-                continue
-            else:
-                break
-
-        idxlst=list(set(idxlst))
-        for k in vliwset:
-            if k[0]==idxlst or (packingbit and PACKING in k[0] and k[0].remove(PACKING)==idxlst):
-                im=2**vliwinstbits-1
-                tm=2**vliwtemplatebits-1
-                pm=2**vliwbits-1
-
-                vvv=0
-                g=0
-                for j in objs:
-                    vv=0
-                    i=vliwinstbits
-                    for m in j:
-                        if i>=8:
-                            i-=8
-                            sh=8
-                        else:
-                            sh=i
-                        vv=vv<<sh|m
-                    vvv=vvv<<vliwinstbits|(vv&im)
-
-                oop=vliwbits//8+(0 if vliwbits%8==0 else 1)
-                if endian!='big':
-                    kk=k[1]&tm
-                    vvv<<=vliwtemplatebits
-                    for i in range(vliwtemplatebits):
-                        (kk,cy)=rlc(kk,vliwtemplatebits,0)
-                        (vvv,cy)=rlc(vvv,vliwbits,cy)
-                    for cnt in range (oop):
-                        outbin(pc+cnt,vvv&0xff)
-                        vvv>>=8
-                        g+=1
-
-                else: # big endian
-                    vvv=(vvv|(k[1]<<(vliwbits-vliwtemplatebits)))&pm
-                    vm=0xff<<(vliwbits-8)
-                    for cnt in range(vliwbits//8):
-                        outbin(pc+cnt,((vvv&vm)>>(vliwbits-(cnt+1)*8))&0xff)
-                        vm>>=8
-                        g+=1
-                pc+=g
-                packingbit=next_packingbit
-                break
-            else:
-                continue
-        else:
+        vflag=False
+        try:
+            vflag=vliwprocess(line,idxs,objl,flag,idx)
+        except:
             if pas==0 or pas==2:
-                print("error - No template set.")
+                print(" error - Some error(s) in vliw definition.")
+        return vflag
     return True
 
 def lineassemble0(line):
