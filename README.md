@@ -318,7 +318,7 @@ In VLIW, you must explicitly specify `:: ::` to omit the error pattern.
 
 Labels can be defined from the assembly line in the following way.
 
-``
+```
 label1:
 label2: .equ 0x10
 label3: nop
