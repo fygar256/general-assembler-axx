@@ -1122,7 +1122,7 @@ def vliwp(i):
     vliwtemplatebits=int(v3)
 
     if v4!=0:
-        vliwpackingbit=1<<int(v4)
+        vliwpackingbit=1<<(int(v4)-1)
     else:
         vliwpackingbit=0
 
@@ -1305,13 +1305,6 @@ def lineassemble2(line,idx):
             return [],[],False,idx
     return idxs,objl,True,idx
 
-def rc(cy,n,b):
-    cc=cy<<(b-1)
-    cy=n&1
-    n>>=1
-    n|=cc
-    return cy,n
-
 def vliwprocess(line,idxs,objl,flag,idx):
     global pc
     objs=[objl]
@@ -1337,8 +1330,7 @@ def vliwprocess(line,idxs,objl,flag,idx):
             im=2**vliwinstbits-1
             tm=2**vliwtemplatebits-1
             pm=2**vliwbits-1
-            templ=k[1]&tm|(vliwpackingbit if packingbit==1 else 0)
-
+            templ=(k[1]|(vliwpackingbit if packingbit==1 else 0))&tm
             vvv=0
             g=0
             values=[]
@@ -1372,11 +1364,8 @@ def vliwprocess(line,idxs,objl,flag,idx):
             for v in v1:
                 r=(r<<vliwinstbits)|v
 
-            res=r
-            bitpat=templ
-            for i in range(vliwtemplatebits):
-                cy,bitpat=rc(0,bitpat,vliwtemplatebits)
-                _,res=rc(cy,res,vliwbits)
+            # templateを追加する
+            res=r|(templ<<(vliwbits-vliwtemplatebits))
 
             vm=0xff<<(vliwbits-8)
             for cnt in range(vliwbits//8):
