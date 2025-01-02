@@ -47,7 +47,6 @@ vliwbits=128
 vliwset=[]
 vliwflag=False
 vliwtemplatebits=0x00
-vliwpackingbit=1
 
 expmode=EXP_PAT
 error_undefined_label=False
@@ -1109,28 +1108,22 @@ def include_pat(l):
     return w
 
 def vliwp(i):
-    global vliwtemplatebits,vliwflag,vliwbits,vliwinstbits,vliwnop,vliwpackingbit
+    global vliwtemplatebits,vliwflag,vliwbits,vliwinstbits,vliwnop
     if i[0]!=".vliw":
         return False
     v1,idx=expression0(i[1],0)
     v2,idx=expression0(i[2],0)
     v3,idx=expression0(i[3],0)
     v4,idx=expression0(i[4],0)
-    v5,idx=expression0(i[5],0)
     vliwbits=int(v1)
     vliwinstbits=int(v2)
     vliwtemplatebits=int(v3)
 
-    if v4!=0:
-        vliwpackingbit=1<<(int(v4)-1)
-    else:
-        vliwpackingbit=0
-
     vliwflag=True
     l=[]
     for i in range(vliwinstbits//8 + (0 if vliwinstbits%8==0 else 1)):
-        l+=[v5&0xff]
-        v5>>=8
+        l+=[v4&0xff]
+        v4>>=8
     vliwnop=l
     return True
 
@@ -1209,7 +1202,6 @@ def vliw(i):
         break
     v2,idx=expression0(i[2],0)
     v2=int(v2)
-    idxs=list(set(idxs))
     vliwset=add_avoiding_dup(vliwset,[idxs,v2])
     return True
    
@@ -1309,14 +1301,10 @@ def vliwprocess(line,idxs,objl,flag,idx):
     global pc
     objs=[objl]
     idxlst=[idxs]
-    packingbit=0
     while True:
         idx=skipspc(line,idx)
         if line[idx:idx+2]=='!!':
             idx+=2
-            if len(line)==idx:
-                packingbit=1
-                break
             idxs,objl,flag,idx=lineassemble2(line,idx)
             objs+=[objl]
             idxlst+=[idxs]
@@ -1324,13 +1312,12 @@ def vliwprocess(line,idxs,objl,flag,idx):
         else:
             break
 
-    idxlst=list(set(idxlst))
     for k in vliwset:
         if k[0]==idxlst:
             im=2**vliwinstbits-1
             tm=2**vliwtemplatebits-1
             pm=2**vliwbits-1
-            templ=(k[1]|(vliwpackingbit if packingbit==1 else 0))&tm
+            templ=k[1]&tm
             vvv=0
             g=0
             values=[]
