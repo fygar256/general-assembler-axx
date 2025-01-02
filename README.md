@@ -267,15 +267,14 @@ This allows you to include a file.
 
 ### VLIW processor
 
-#### .vliw directive
-
 ```
+.vliw directive
 .vliw::128::41::5::1::00
 ```
 
-This will allow you to handle a VLIW processor with 128 packing bits, 41 bits per instruction, 5 template bits, the template packing bit being the first bit from the lowest, and a NOP code of 0x00 (Itanium example).
+This will allow you to handle a VLIW processor with 128 bundle bits, 41 instruction bits, 5 template bits, the template packing bit being the lowest bit, and a NOP code of 0x00 (Itanium example).
 
-For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) plus a template bit at the end.
+For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) + 5 template bits at the beginning. If it is not EPIC, specify 0 for the template bit and packing bit positions.
 
 Specifically,
 
@@ -292,27 +291,27 @@ AD a,b,c:: ::0x01,a,b,c::1
 LOD d,[!e]:: :: 0x02,d,e,e>>8::2
 ```
 
-Written like this, `VLIW::1,2::0x8` represents a set of VLIW instructions, and represents the code with a template of 0x8, with a packing that contains a mixture of instructions with indexes 1 and 2.
-The next instruction, `AD a,b,c:: ::0x01,a,b,c::1`, outputs `0x01,a,b,c` to ADD instruction r1,r2,r3 without error checking, and the index code is 1. `LOD d,[!e]:: :: 0x02,d,e,e>>8::2` stores the contents of [!e] in LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and the index code is 2. This sample is for testing purposes and differs from the actual bytecode.
+Written like this, `VLIW::1,2::0x8` represents a set of VLIW instructions, and represents the code with template 0x8 for a bundle containing a mixture of instructions with indexes 1 and 2.
+The next, `AD a,b,c:: ::0x01,a,b,c::1`, outputs 0x01,a,b,c to ADD instruction r1,r2,r3 without error checking, and the index code is 1, and `LOD d,[!e]:: :: 0x02,d,e,e>>8::2`, stores the contents of [!e] in LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and represents an instruction with index code 2. This sample is for testing purposes and differs from the actual bytecode.
 
-Multiple instructions are connected with `!!` as shown below.
+Multiple instructions are concatenated with `!!` as shown below.
 
 ```
 ad r1,r2,r3 !! lod r4,[0x1234]
 ```
 
-When there are instructions that span multiple packings, the bit specified in the packing bit count specification in the template is turned on. The instructions on a line ending with `!!` are interpreted as having a packingbit, and the instructions on the next line follow.
+When there are instructions that span multiple bundles, the bit specified in the packing bit number specification in the template is turned on. The commands on a line ending with !! are interpreted as having a packing bit, and the commands on the next line follow.
 
 ```
 >> ad r1,r2,r3 !! lod r4,[0x90] !! ;(1)
 >> ad r5,r6,r7 !! lod r8,[0x98] ;(2)
 ```
 
-In (1), a template with the packing bit turned on is stored during packing, and in (2), a template with the packing bit turned off is stored.
+In (1), a template with the packing bit turned on is stored in the bundle, and in (2), a template with the packing bit turned off is stored.
 
 In VLIW, you must explicitly specify `:: ::` to omit the error pattern.
 
-## Assembly file explanation
+### Assembly file explanation
 
 #### label
 
