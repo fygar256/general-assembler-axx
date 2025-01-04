@@ -273,11 +273,13 @@ This allows you to include a file.
 .vliw::128::41::5::00
 ```
 
-This will allow you to handle a VLIW processor with a bundle bit count of 128, instruction bit count of 41, template bit count of 5, and NOP code of 0x00 (Itanium example).
+This will allow you to handle an EPIC processor with a bundle bit count of 128, instruction bit count of 41, template bit count of 5, and NOP code of 0x00 (Itanium example).
 
 For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) + 5 template bits at the beginning. If it is not EPIC, specify 0 for the template bits.
 
-Specifically,
+##### EPIC
+
+EPIC processor is described like follows.
 
 ```
 /* VLIW
@@ -286,23 +288,41 @@ Specifically,
 .setsym::R3::3
 .setsym::R4::4
 .vliw::128::41::5::00
-VLIW::1,2::0x8
-VLIW::1::0x01
+EPIC::1,2::0x8
+EPIC::1::0x01
 AD a,b,c:: ::0x01,a,b,c::1
 LOD d,[!e]:: :: 0x02,d,e,e>>8::2
 ```
 
-Written like this, `VLIW::1,2::0x8` represents the set of VLIW instructions, and the code with template 0x8 for the bundle of instructions with indexes 1 and 2.
-The next instruction, `AD a,b,c:: ::0x01,a,b,c::1`, outputs 0x01,a,b,c in ADD instruction r1,r2,r3 without error checking, and the index code is 1. `LOD d,[!e]:: :: 0x02,d,e,e>>8::2`, stores the contents of [!e] in LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and the index code is 2. This sample is for testing purposes and differs from the actual bytecode.
+Written like this, `EPIC::1,2::0x8` represents the set of EPIC instructions, and the code with template 0x8 for the bundle of instructions with indexes 1 and 2.
+Next, `AD a,b,c:: ::0x01,a,b,c::1` means that the ADD instructions r1,r2,r3 output 0x01,a,b,c without any error checking, and the index code is 1, and `LOD d,[!e]:: :: 0x02,d,e,e>>8::2` stores the contents of [!e] in the LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without any error checking, and represents an instruction with an index code of 2. This sample is for testing purposes and differs from the actual bytecode.
 
-Multiple instructions are connected with `!!` as shown below.
+##### Non-EPIC VLIW
+
+Non-EPIC processor is described like follows.
+
+```
+/* VLIW
+.setsym::R1::1
+.setsym::R2::2
+.setsym::R3::3
+.setsym::R4::4
+
+.vliw::128::32::0::0x00
+AD a,b,c:: ::0x01,a,b,c::1
+LOD d,[!e]:: :: 0x02,d,e,e>>8::2
+JMP !a :: :: 0x03,a,a>>8,0::3
+```
+
+##### Concatenating instructions
+
+Multiple VLIW instructions are linked with `!!` as shown below.
 
 ```
 ad r1,r2,r3 !! lod r4,[0x1234]
 ```
 
-In VLIW, the omitted error pattern must be explicitly specified as `:: ::`.
-
+In VLIW, the error pattern must be explicitly specified as `:: ::`.
 
 ### Assembly file explanation
 
