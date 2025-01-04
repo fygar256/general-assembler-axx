@@ -277,9 +277,9 @@ This will allow you to handle an EPIC processor with a bundle bit count of 128, 
 
 For example, on Itanium, there are three 41-bit instructions, a set of instructions with a length of 41*3=123 (bits) + 5 template bits at the beginning. If it is not EPIC, specify 0 for the template bits.
 
-##### EPIC
+##### For EPIC
 
-EPIC processor is described like follows.
+For EPIC processors, the pattern file is written as follows.
 
 ```
 /* VLIW
@@ -290,16 +290,18 @@ EPIC processor is described like follows.
 .vliw::128::41::5::00
 EPIC::1,2::0x8
 EPIC::1::0x01
-AD a,b,c:: ::0x01,a,b,c::1
-LOD d,[!e]:: :: 0x02,d,e,e>>8::2
+AD a,b,c:: ::0x01,0,0,a,b,c::1
+LOD d,[!e]:: :: 0x00,0x01,0,d,e,e>>8::2
 ```
 
 Written like this, `EPIC::1,2::0x8` represents the set of EPIC instructions, and the code with template 0x8 for the bundle of instructions with indexes 1 and 2.
-Next, `AD a,b,c:: ::0x01,a,b,c::1` means that the ADD instructions r1,r2,r3 output 0x01,a,b,c without any error checking, and the index code is 1, and `LOD d,[!e]:: :: 0x02,d,e,e>>8::2` stores the contents of [!e] in the LOAD instruction r4, outputs 0xd,e (lower 8 bits), e (upper 8 bits) without any error checking, and represents an instruction with an index code of 2. This sample is for testing purposes and differs from the actual bytecode.
+The next, `AD a,b,c:: ::0x01,0,0,a,b,c::1` means that the ADD instruction r1,r2,r3 outputs 0x01,0,0,a,b,c without error checking, and the index code is 1, and `LOD d,[!e]:: :: 0x00,0x01,0,d,e,e>>8::2` means that the LOAD instruction r4 stores the contents of [!e], outputs 0,1,0,0xd,e (lower 8 bits), e (upper 8 bits) without error checking, and the index code is 2. This sample is for testing purposes and differs from the actual bytecode.
+
+The parameter specified in .viw must match the number of bytes represented by the pattern, which is (number of bits in the bundle - number of bits in the template divided by 8 (bits)) + (1 if there is a remainder, 0 if not).
 
 ##### Non-EPIC VLIW
 
-Non-EPIC processor is described like follows.
+For non-EPIC processors, the pattern file is written as follows.
 
 ```
 /* VLIW
@@ -316,7 +318,7 @@ JMP !a :: :: 0x03,a,a>>8,0::3
 
 ##### Concatenating instructions
 
-Multiple VLIW instructions are linked with `!!` as shown below.
+Multiple VLIW instructions are linked with `!!` as follows.
 
 ```
 ad r1,r2,r3 !! lod r4,[0x1234]
