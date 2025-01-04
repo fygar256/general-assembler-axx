@@ -1184,9 +1184,9 @@ def org_processing(l1,l2):
     pc=u
     return True
 
-def vliw(i):
+def epic(i):
     global vliwset
-    if upper(i[0])!="VLIW":
+    if upper(i[0])!="EPIC":
         return False
     if not(len(i)>1 and i[1]!=''):
         return False
@@ -1255,7 +1255,7 @@ def lineassemble2(line,idx):
         if paddingp(i): continue
         if bits(i): continue
         if symbolc(i): continue
-        if vliw(i): continue
+        if epic(i): continue
         if vliwp(i): continue
         lw=len([_ for _ in i if _])
         if lw==0:
@@ -1312,8 +1312,10 @@ def vliwprocess(line,idxs,objl,flag,idx):
         else:
             break
 
+    if vliwtemplatebits==0:
+        vliwset=[ [ [0], 0 ]]
     for k in vliwset:
-        if k[0]==idxlst:
+        if k[0]==idxlst or vliwtemplatebits==0:
             im=2**vliwinstbits-1
             tm=2**vliwtemplatebits-1
             pm=2**vliwbits-1
@@ -1367,7 +1369,7 @@ def vliwprocess(line,idxs,objl,flag,idx):
             continue
     else:
         if pas==0 or pas==2:
-            print(" error - No template set.")
+            print(" error - No instruction-set defined.")
             return False
     return True
 
@@ -1394,11 +1396,14 @@ def lineassemble(line):
 
     else:
         vflag=False
+        vflag=vliwprocess(line,idxs,objl,flag,idx)
+        """
         try:
             vflag=vliwprocess(line,idxs,objl,flag,idx)
         except:
             if pas==0 or pas==2:
                 print(" error - Some error(s) in vliw definition.")
+        """
         return vflag
     return True
 
