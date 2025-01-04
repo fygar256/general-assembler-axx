@@ -1350,6 +1350,7 @@ def vliwprocess(line,idxs,objl,flag,idx):
             r=0
             for v in v1:
                 r=(r<<vliwinstbits)|v
+            r=r&pm
 
             # templateを追加する
             res=r|(templ<<(vliwbits-vliwtemplatebits))
