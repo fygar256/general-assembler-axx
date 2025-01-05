@@ -1338,9 +1338,9 @@ def vliwprocess(line,idxs,objl,flag,idx):
             # values から、instructionを取り出す
             v1=[]
             cnt=0
-            vv=0
 
             for j in range(noi):
+                vv=0
                 for i in range(ibyte):
                     vv<<=8
                     if len(values)>cnt:
@@ -1357,9 +1357,11 @@ def vliwprocess(line,idxs,objl,flag,idx):
             # templateを追加する
             res=r|(templ<<(vliwbits-vliwtemplatebits))
 
-            vm=0xff<<(vliwbits-8)
+            bc=vliwbits-8
+            vm=0xff<<bc
             for cnt in range(vliwbits//8):
-                outbin(pc+cnt,((res&vm)>>(vliwbits-(cnt+1)*8))&0xff)
+                outbin(pc+cnt,((res&vm)>>bc)&0xff)
+                bc=bc-8
                 vm>>=8
                 g+=1
 
@@ -1396,11 +1398,14 @@ def lineassemble(line):
 
     else:
         vflag=False
+        vflag=vliwprocess(line,idxs,objl,flag,idx)
+        """
         try:
             vflag=vliwprocess(line,idxs,objl,flag,idx)
         except:
             if pas==0 or pas==2:
                 print(" error - Some error(s) in vliw definition.")
+        """
         return vflag
     return True
 
