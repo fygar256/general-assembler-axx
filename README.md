@@ -657,6 +657,6 @@ If you find a bug, I would appreciate it if you could let me know how to fix it.
 
 ### Acknowledgements
 
-I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me the problems and hints, the University of Electro-Communications, the computer scientists and engineers, Qiita, Google, IEEE and some unforgettable people. Thank you very much.
+I would like to express my gratitude to my mentor, Junichi Hamada, and Tokyo Electronics Design, who gave me the problems and hints, the University of Electro-Communications, the computer scientists and engineers, Qiita, Google, IEEE, The Alan Turing Institute and some unforgettable people. Thank you very much.
 
 ### English is not my mother tongue so this document is translated by google translation. there may be some mistakes and sorry that my broken English.
