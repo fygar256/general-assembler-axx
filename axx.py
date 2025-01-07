@@ -1398,14 +1398,11 @@ def lineassemble(line):
 
     else:
         vflag=False
-        vflag=vliwprocess(line,idxs,objl,flag,idx)
-        """
         try:
             vflag=vliwprocess(line,idxs,objl,flag,idx)
         except:
             if pas==0 or pas==2:
                 print(" error - Some error(s) in vliw definition.")
-        """
         return vflag
     return True
 
