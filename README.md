@@ -601,7 +601,7 @@ Execution example
 
 ・If the syntax is incorrect, an "Illegal syntax in assembler line" or "pattern line" will occur.
 
-・If no template set for instruction of VLIW, "No template set." error will occur.
+・If no template set for instruction of EPIC, "No template set." error will occur.
 
 ・If any of the conditions in error_patterns are met, an error will occur. In that case, the following messages will appear for error codes 0, 1, 2, 5, and 6 (Value out of range, Invalid syntax, Address out of range, Register out of range, Port number out of range). If there are not enough types of errors, add an error message to the source.
 
