@@ -318,7 +318,7 @@ JMP !a :: :: 0x03,a,a>>8,0::3
 
 ##### Concatenating instructions
 
-Multiple VLIW instructions are linked with `!!` as follows.
+To put multiple VLIW instructions into one bundle, connect them with `!!` as shown below.
 
 ```
 ad r1,r2,r3 !! lod r4,[0x1234]
