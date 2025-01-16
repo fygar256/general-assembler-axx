@@ -174,7 +174,7 @@ def get_label_section(k):
     return v
 
 def get_label_value(k):
-    global error_undefined_label
+    global labels,error_undefined_label
     error_undefine_label=False
     try:
         v=labels[k][0]
@@ -184,7 +184,7 @@ def get_label_value(k):
     return v
 
 def put_label_value(k,v,s):
-    global error_already_defined,patsymbols
+    global labels,error_already_defined,patsymbols
     if pas==1 or pas==0:
 
         for i in list(labels.keys()):
@@ -391,6 +391,7 @@ def factor1(s,idx):
                 idx=idx_new
                 x=get_label_value(w)
             else:
+                x=0
                 pass
     idx=skipspc(s,idx)
     return (x,idx)
@@ -818,7 +819,7 @@ def makeobj(s):
             idx+=1
         (x,idx)=expression0(s,idx)
 
-        if (pas==2 or pas==0) and ((semicolon==True and x!=0) or (semicolon==False)):
+        if (semicolon==True and x!=0) or (semicolon==False):
             objl+=[x]
         if s[idx]==',':
             idx+=1
@@ -1239,6 +1240,7 @@ def lineassemble2(line,idx):
     pln=0
     pl=""
     idxs=0
+    objl=[]
     loopflag=True
     for i in pat:
         pln+=1
