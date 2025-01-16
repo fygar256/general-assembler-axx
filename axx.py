@@ -1390,7 +1390,7 @@ def lineassemble(line):
     if flag==False:
         return False
 
-    if vliwflag==False:
+    if vliwflag==False or line[idx:idx+2]!='!!':
         of=len(objl)
         for cnt in range (of):
             outbin(pc+cnt,objl[cnt])
