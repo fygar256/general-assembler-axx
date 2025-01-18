@@ -51,7 +51,7 @@ vliwtemplatebits=0x00
 expmode=EXP_PAT
 error_undefined_label=False
 error_already_defined=False
-align=32
+align=16
 bts=8
 endian='little'
 byte='yes'
@@ -796,13 +796,8 @@ def align_(addr):
     addr+=align-a
     return addr
 
-def pad(addr):
-    npc=align_(addr)
-    for i in range(addr,npc):
-        outbin(i,padding)
-    return npc-addr
-
 def makeobj(s):
+    global pc
     s+=chr(0)
     idx=0
     objl=[]
@@ -811,7 +806,10 @@ def makeobj(s):
             break
         if s[idx]==',':
             idx+=1
-            cnt+=pad(pc+cnt)
+            p=pc+len(objl)
+            n=align_(p)
+            for i in range(p,n):
+                objl+=[padding]
             continue
 
         semicolon=False
