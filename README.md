@@ -518,6 +518,65 @@ LD s,!d:: (s&0xf!=0)||(s>>4)>3;9 :: s|0x01,d&0xff,d>>8
 
 Then, `ld bc,0x1234, ld de,0x1234, ld hl,0x1234` output `0x01,0x34,0x12, 0x11,0x34,0x12, 0x21,0x34,0x12`, respectively.
 
+#### 8086
+
+The same mnemonic for registers of different byte length is handled as follows.
+
+```8086.axx
+.setsym::SI::0
+.setsym::BX::0
+
+/*********************************************************************/
+/* If AX or AL appears at this point, neither will match the pattern */
+
+/* Define AL. At this point, AL matches the pattern
+.setsym::AL::0xb0
+MOV s,!a :: 0xb0,a
+.clearsym::AL　/* Clear symbol AL
+
+/* Define AX. At this point, AX matches the pattern.
+.setsym::AX::0xb8
+MOV s,!a::0xb8,a,a>>8
+.clearsym::AX　/* Clear symbol AX
+/********************************************************************/
+MOV BYTE [e + f + !c],!d::0xc6,c>=0x100?0x80:0x40,c,;c>>8,d
+MOV BYTE [e + f],!g :: 0xc6,0,g
+MOV BYTE [!a],!b :: 0xc6,0x6,a,a>>8,b
+MOV WORD [e + f + !a],!b::0xc7,a>=0x100?0x80:0x40,a,;a>>8,b,b>>8
+MOV WORD [e + f],!a :: 0xc7,0,a,a>>8
+MOV WORD [!a],!b::0xc7,0x06,a,a>>8,b,b>>8
+```
+
+```8086.s
+mov byte [bx+si],0x12
+mov byte [0x3412],0x56
+mov byte [bx+si+0x12],0x34
+mov byte [bx+si+0x3412],0x56
+mov al,0x12
+mov word [bx+si],0x3412
+mov word [0x3412],0x7856
+mov word [bx+si+0x12],0x5634
+mov word [bx+si+0x3412],0x7856
+mov ax,0x3412
+```
+
+##### execution sample
+
+```
+$ axx 8086.axx 8086.s
+0000000000000000 8086.s 1 mov byte [bx+si],0x12 0xc6 0x00 0x12
+0000000000000003 8086.s 2 mov byte [0x3412],0x56 0xc6 0x06 0x12 0x34 0x56
+0000000000000008 8086.s 3 mov byte [bx+si+0x12],0x34 0xc6 0x40 0x12 0x34
+000000000000000c 8086.s 4 mov byte [bx+si+0x3412],0x56 0xc6 0x80 0x12 0x34 0x56
+0000000000000011 8086.s 5 mov al,0x12 0xb0 0x12
+0000000000000013 8086.s 6 mov word [bx+si],0x3412 0xc7 0x00 0x12 0x34
+0000000000000017 8086.s 7 mov word [0x3412],0x7856 0xc7 0x06 0x12 0x34 0x56 0x78
+000000000000001d 8086.s 8 mov word [bx+si+0x12],0x5634 0xc7 0x40 0x12 0x34 0x56
+0000000000000022 8086.s 9 mov word [bx+si+0x3412],0x7856 0xc7 0x80 0x12 0x34 0x56 0x78
+0000000000000028 8086.s 10 mov ax,0x3412 0xb8 0x12 0x34
+$
+```
+
 ### Testing some instructions on some processors
 
 Because this is a test, the binary is different from the actual code.
