@@ -605,11 +605,12 @@ def clear_symbol(i):
         return False
     if i[0]!='.clearsym':
     	return False
-    key=upper(i[1])
+    key=upper(i[2])
     if key in symbols:
         symbols.pop(key)
         return True
-    symbols={}
+    if len(i)==1:
+        symbols={}
     return True
 
 def set_symbol(i):
