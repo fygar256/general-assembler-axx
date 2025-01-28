@@ -1372,7 +1372,7 @@ def vliwprocess(line,idxs,objl,flag,idx):
             continue
     else:
         if pas==0 or pas==2:
-            print(" error - No instruction-set defined.")
+            print(" error - No vliw instruction-set defined.")
             return False
     return True
 
