@@ -8,6 +8,8 @@ GENERAL ASSEMBLER 'axx.py'
 
 It was written in python, so the nickname is Paxx.
 
+Original article in Japanee:Qiita: https://qiita.com/fygar256/items/1d06fb757ac422796e31
+
 # Test environment
 
 Arch linux terminal
