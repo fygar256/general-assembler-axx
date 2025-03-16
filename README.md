@@ -22,15 +22,13 @@ This version only has the core of the assembler, so it does not support practica
 
 Since the pattern file and source file are separated, it is possible to generate machine code for another processor from the source of a certain instruction set, if you do not mind the effort of coding. It is also possible to generate machine code for different processors from a common language. If you write multiple instruction codes in the binary_list of the pattern data, it will function as a macro, but it is not very smart. This allows you to write a simple compiler.
 
-Pattern data does not have any control syntax other than assignment and ternary operators. It can be used to generate binaries other than assembly language.
+Pattern data has only control syntax: assignment, ternary operator, ; modifier, and alignment. It can be used to generate binaries, not just assembly language. Pattern files are not Turing complete. Because they are not Turing complete, they are not suitable for processors with complex architectures.
 
 Since assembly language has a one-to-one correspondence with processor instruction code, axx was made possible.
 
 axx reads assembler pattern data from the first argument, and assembles the source file of the second argument based on the pattern data. If the second argument is omitted, the source is input from the terminal (standard input).
 
 The result is output as text to standard output, and if there is an argument specified with the `-o` option, a binary file is output to the current directory. The `-e` option outputs the labels specified with `.export` along with section/segment information to a file in TSV format.
-
-Pattern files are Turing incomplete.
 
 In axx, the lines input from assembly language source files or standard input are named assembly lines.
 
