@@ -311,9 +311,9 @@ For non-EPIC processors, the pattern file is written as follows.
 .setsym::R4::4
 
 .vliw::128::32::0::0x00
-AD a,b,c:: ::0x01,a,b,c::1
-LOD d,[!e]:: :: 0x02,d,e,e>>8::2
-JMP !a :: :: 0x03,a,a>>8,0::3
+AD a,b,c:: ::0x01,a,b,c
+LOD d,[!e]:: :: 0x02,d,e,e>>8
+JMP !a :: :: 0x03,a,a>>8,0
 ```
 
 ##### Concatenating instructions
