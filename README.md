@@ -299,6 +299,8 @@ The next, `AD a,b,c:: ::0x01,0,0,a,b,c::1` means that the ADD instruction r1,r2,
 
 The parameter specified in .viw must match the number of bytes represented by the pattern, which is (number of bits in the bundle - number of bits in the template divided by 8 (bits)) + (1 if there is a remainder, 0 if not).
 
+In EPIC, the error pattern must be explicitly specified as `:: ::`.
+
 ##### Non-EPIC VLIW
 
 For non-EPIC processors, the pattern file is written as follows.
@@ -311,9 +313,9 @@ For non-EPIC processors, the pattern file is written as follows.
 .setsym::R4::4
 
 .vliw::128::32::0::0x00
-AD a,b,c:: ::0x01,a,b,c
-LOD d,[!e]:: :: 0x02,d,e,e>>8
-JMP !a :: :: 0x03,a,a>>8,0
+AD a,b,c::0x01,a,b,c
+LOD d,[!e]::0x02,d,e,e>>8
+JMP !a ::0x03,a,a>>8,0
 ```
 
 ##### Concatenating instructions
@@ -324,7 +326,6 @@ To put multiple VLIW instructions into one bundle, connect them with `!!` as sho
 ad r1,r2,r3 !! lod r4,[0x1234]
 ```
 
-In VLIW, the error pattern must be explicitly specified as `:: ::`.
 
 ### Assembly file explanation
 
